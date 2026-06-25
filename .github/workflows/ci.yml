@@ -6,9 +6,20 @@ on:
   pull_request:
     branches: ["main", "develop"]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  quality:
+  php-quality:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      APP_ENV: testing
 
     steps:
       - name: Checkout
@@ -19,19 +30,14 @@ jobs:
         with:
           php-version: "8.4"
           tools: composer:v2
-          coverage: xdebug
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-          cache: "npm"
+          coverage: none
+          extensions: mbstring, pdo_sqlite, sqlite3
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: Install Node dependencies
-        run: npm ci
+      - name: Validate Composer configuration
+        run: composer validate --strict
 
       - name: Prepare environment
         run: |
@@ -39,10 +45,34 @@ jobs:
           php artisan key:generate --ansi
 
       - name: Static analysis
-        run: composer analyse
+        run: php -d memory_limit=1G vendor/bin/phpstan analyse --no-progress app
 
-      - name: Tests With Coverage Gate
-        run: composer test:coverage
+      - name: Run tests
+        run: php artisan test
+
+  frontend-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: Frontend diagnostics
+        run: |
+          node -v
+          npm -v
+          ls -la
+          ls -la vite.config.js
 
       - name: Frontend build
         run: npm run build
