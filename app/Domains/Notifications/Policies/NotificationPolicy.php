@@ -23,7 +23,10 @@ class NotificationPolicy
         Notification $notification
     ): bool {
 
-        return $user->company_id ===
+        return
+            $user->can('notifications.view')
+            &&
+            $user->company_id ===
             $notification->company_id;
     }
 
@@ -37,29 +40,38 @@ class NotificationPolicy
     }
 
     public function update(
-        User $user
+        User $user,
+        Notification $notification
     ): bool {
 
-        return $user->can(
-            'notifications.update'
-        );
+        return
+            $user->can('notifications.update')
+            &&
+            $user->company_id ===
+            $notification->company_id;
     }
 
     public function delete(
-        User $user
+        User $user,
+        Notification $notification
     ): bool {
 
-        return $user->can(
-            'notifications.delete'
-        );
+        return
+            $user->can('notifications.delete')
+            &&
+            $user->company_id ===
+            $notification->company_id;
     }
 
     public function markAsRead(
-        User $user
+        User $user,
+        Notification $notification
     ): bool {
 
-        return $user->can(
-            'notifications.read'
-        );
+        return
+            $user->can('notifications.read')
+            &&
+            $user->company_id ===
+            $notification->company_id;
     }
 }

@@ -10,19 +10,25 @@ use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 use App\Domains\Users\Models\User;
+use App\Domains\Quotes\Models\Quote;
 use App\Domains\Tickets\Models\Ticket;
 use App\Domains\Repairs\Models\Repair;
+use App\Domains\Invoices\Models\InvoiceItem;
 use App\Domains\Products\Models\Product;
 use App\Domains\Invoices\Models\Invoice;
 use App\Domains\Payments\Models\Payment;
 use App\Domains\Customers\Models\Customer;
 use App\Domains\ServiceContracts\Models\ServiceContract;
 use App\Domains\Payments\Services\PaymentService;
+use App\Domains\Quotes\Services\QuoteService;
+use App\Domains\Tickets\Services\TicketService;
 
 class CustomerPortalController extends Controller
 {
     public function __construct(
-        private readonly PaymentService $paymentService
+        private readonly PaymentService $paymentService,
+        private readonly QuoteService $quoteService,
+        private readonly TicketService $ticketService
     ) {}
 
     public function dashboard(Request $request): View
@@ -107,7 +113,7 @@ class CustomerPortalController extends Controller
         $customer = $this->resolveCustomer($request);
         abort_if($ticket->customer_id !== $customer->id, 403);
 
-        $ticket->load(['device', 'technician', 'diagnostics', 'repairs']);
+        $ticket->load(['device', 'technician', 'diagnostics', 'repairs', 'quotes']);
 
         return view('portals.customer.ticket', [
             'portalTitle' => 'Detalle Ticket '.$ticket->ticket_number,
@@ -115,6 +121,56 @@ class CustomerPortalController extends Controller
             'kpis' => [],
             'ticket' => $ticket,
         ]);
+    }
+
+    public function approveQuote(Request $request, Quote $quote): RedirectResponse
+    {
+        $this->authorizeCustomerPermission($request, 'customer.portal.tickets.view');
+
+        $customer = $this->resolveCustomer($request);
+
+        $quote->load('ticket');
+        $quoteTicket = Ticket::query()->find($quote->ticket_id);
+
+        abort_if($quote->company_id !== $customer->company_id, 403);
+        abort_if(!$quoteTicket || $quoteTicket->customer_id !== $customer->id, 403);
+
+        if ($quote->status !== 'PENDING_APPROVAL') {
+            return back()->withErrors([
+                'quote' => 'La cotizacion ya no esta pendiente de aprobacion.',
+            ]);
+        }
+
+        $this->quoteService->approve($quote);
+
+        $this->ticketService->changeStatus($quoteTicket, 'APPROVED');
+
+        return back()->with('status', 'Cotizacion aprobada correctamente.');
+    }
+
+    public function rejectQuote(Request $request, Quote $quote): RedirectResponse
+    {
+        $this->authorizeCustomerPermission($request, 'customer.portal.tickets.view');
+
+        $customer = $this->resolveCustomer($request);
+
+        $quote->load('ticket');
+        $quoteTicket = Ticket::query()->find($quote->ticket_id);
+
+        abort_if($quote->company_id !== $customer->company_id, 403);
+        abort_if(!$quoteTicket || $quoteTicket->customer_id !== $customer->id, 403);
+
+        if ($quote->status !== 'PENDING_APPROVAL') {
+            return back()->withErrors([
+                'quote' => 'La cotizacion ya no esta pendiente de aprobacion.',
+            ]);
+        }
+
+        $this->quoteService->reject($quote);
+
+        $this->ticketService->changeStatus($quoteTicket, 'WAITING_QUOTE');
+
+        return back()->with('status', 'Cotizacion rechazada. El tecnico debe generar una nueva propuesta.');
     }
 
     public function invoices(Request $request): View
@@ -169,7 +225,13 @@ class CustomerPortalController extends Controller
         $customer = $this->resolveCustomer($request);
         abort_if($invoice->customer_id !== $customer->id, 403);
 
-        $invoice->load(['items', 'payments', 'ticket', 'repair']);
+        $invoice->load(['payments']);
+        $ticket = $invoice->ticket_id ? Ticket::query()->find($invoice->ticket_id) : null;
+        $repair = $invoice->repair_id ? Repair::query()->find($invoice->repair_id) : null;
+        $items = InvoiceItem::query()
+            ->where('invoice_id', $invoice->id)
+            ->orderBy('id')
+            ->get();
 
         $lines = [
             'IAtechs Pro - Factura',
@@ -182,13 +244,13 @@ class CustomerPortalController extends Controller
             'Total: '.$invoice->total,
             'Emitida: '.optional($invoice->issued_at)->toDateTimeString(),
             'Vence: '.optional($invoice->due_date)->toDateString(),
-            'Ticket: '.($invoice->ticket?->ticket_number ?? 'N/A'),
-            'Reparacion: '.($invoice->repair?->repair_number ?? 'N/A'),
+            'Ticket: '.$ticket->ticket_number,
+            'Reparacion: '.$repair->repair_number,
             '',
             'Items:',
         ];
 
-        foreach ($invoice->items as $item) {
+        foreach ($items as $item) {
             $lines[] = '- '.$item->description.' | Cantidad: '.$item->quantity.' | Unitario: '.$item->unit_price.' | Total: '.$item->total;
         }
 
@@ -260,12 +322,12 @@ class CustomerPortalController extends Controller
         $customer = $this->resolveCustomer($request);
         abort_if($payment->customer_id !== $customer->id, 403);
 
-        $payment->load('invoice');
+        $invoice = Invoice::query()->find($payment->invoice_id);
 
         $content = implode(PHP_EOL, [
             'IAtechs Pro - Comprobante de Pago',
             'Numero comprobante: '.$payment->payment_number,
-            'Factura: '.($payment->invoice?->invoice_number ?? 'N/A'),
+            'Factura: '.$invoice->invoice_number,
             'Estado pago: '.$payment->status,
             'Metodo: '.$payment->payment_method,
             'Monto: '.$payment->amount.' '.$payment->currency,

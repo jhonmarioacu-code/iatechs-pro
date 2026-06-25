@@ -19,7 +19,7 @@ class TenantResolver implements TenantResolverInterface
             return null;
         }
 
-        if (method_exists($user, 'hasRole') && $user->hasRole('super_admin')) {
+        if ($user->hasRole('super_admin')) {
             return null;
         }
 

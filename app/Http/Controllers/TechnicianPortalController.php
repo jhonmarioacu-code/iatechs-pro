@@ -193,7 +193,10 @@ class TechnicianPortalController extends Controller
         $this->ensureDiagnosticOwnedByTechnician($diagnostic, $user);
 
         $this->diagnosticService->start($diagnostic);
-        $this->ticketService->changeStatus($diagnostic->ticket, 'IN_DIAGNOSIS');
+        $ticket = Ticket::query()->find($diagnostic->ticket_id);
+        if ($ticket) {
+            $this->ticketService->changeStatus($ticket, 'IN_DIAGNOSIS');
+        }
 
         return back()->with('status', 'Diagnostico iniciado.');
     }
@@ -215,7 +218,10 @@ class TechnicianPortalController extends Controller
         ]);
 
         $this->diagnosticService->complete($diagnostic, $validated);
-        $this->ticketService->changeStatus($diagnostic->ticket, 'WAITING_QUOTE');
+        $ticket = Ticket::query()->find($diagnostic->ticket_id);
+        if ($ticket) {
+            $this->ticketService->changeStatus($ticket, 'WAITING_QUOTE');
+        }
 
         return back()->with('status', 'Diagnostico completado.');
     }
@@ -285,7 +291,10 @@ class TechnicianPortalController extends Controller
         $this->ensureRepairOwnedByTechnician($repair, $user);
 
         $this->repairService->start($repair);
-        $this->ticketService->changeStatus($repair->ticket, 'IN_REPAIR');
+        $ticket = Ticket::query()->find($repair->ticket_id);
+        if ($ticket) {
+            $this->ticketService->changeStatus($ticket, 'IN_REPAIR');
+        }
 
         return back()->with('status', 'Reparacion iniciada.');
     }
@@ -300,7 +309,10 @@ class TechnicianPortalController extends Controller
         $this->ensureRepairOwnedByTechnician($repair, $user);
 
         $this->repairService->complete($repair);
-        $this->ticketService->changeStatus($repair->ticket, 'READY_DELIVERY');
+        $ticket = Ticket::query()->find($repair->ticket_id);
+        if ($ticket) {
+            $this->ticketService->changeStatus($ticket, 'READY_DELIVERY');
+        }
 
         return back()->with('status', 'Reparacion completada.');
     }

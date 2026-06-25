@@ -85,7 +85,13 @@ final class PlanAccess
 
     private static function resolvePlan(User $user): ?Plan
     {
-        return self::resolveActiveSubscription($user)?->plan;
+        $subscription = self::resolveActiveSubscription($user);
+
+        if (!$subscription) {
+            return null;
+        }
+
+        return Plan::query()->find($subscription->plan_id);
     }
 
     private static function resolveActiveSubscription(User $user): ?Subscription
@@ -103,4 +109,3 @@ final class PlanAccess
             ->first();
     }
 }
-

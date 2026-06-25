@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Route;
 use App\Domains\CRM\Controllers\CRMController;
 
 Route::middleware([
-    'auth'
+    'auth',
+    'tenant',
+    'portal.access:admin',
 ])
 ->prefix('crm')
 ->group(function () {
@@ -18,7 +20,7 @@ Route::middleware([
             CRMController::class,
             'leads'
         ]
-    );
+    )->middleware('permission:crm.view');
 
     Route::get(
         '/opportunities',
@@ -26,7 +28,7 @@ Route::middleware([
             CRMController::class,
             'opportunities'
         ]
-    );
+    )->middleware('permission:crm.view');
 
     Route::get(
         '/pipeline',
@@ -34,5 +36,5 @@ Route::middleware([
             CRMController::class,
             'pipeline'
         ]
-    );
+    )->middleware('permission:crm.view');
 });

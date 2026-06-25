@@ -134,7 +134,7 @@ class OperationsController extends Controller
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
         ]);
 
-        if (!isset($data['amount']) || $data['amount'] === null) {
+        if (!isset($data['amount'])) {
             $plan = Plan::query()->findOrFail((int) $data['plan_id']);
             $data['amount'] = $data['billing_cycle'] === 'yearly'
                 ? $plan->yearly_price
@@ -192,7 +192,7 @@ class OperationsController extends Controller
 
             $data['is_active'] = (bool) ($data['is_active'] ?? false);
 
-            if (!isset($data['password']) || $data['password'] === null || $data['password'] === '') {
+            if (!isset($data['password']) || $data['password'] === '') {
                 unset($data['password']);
             }
 

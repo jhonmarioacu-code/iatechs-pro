@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Domains\Companies\Models\Company;
 use App\Domains\Users\Models\User;
 use App\Support\PlanAccess;
 use Closure;
@@ -25,7 +26,9 @@ class EnsureActiveSubscription
             return $next($request);
         }
 
-        $company = $user->company;
+        $company = $user->company_id
+            ? Company::query()->find($user->company_id)
+            : null;
 
         if (!$company || !$company->isActive()) {
             abort(403, 'Tu empresa no esta activa.');
@@ -38,4 +41,3 @@ class EnsureActiveSubscription
         return $next($request);
     }
 }
-

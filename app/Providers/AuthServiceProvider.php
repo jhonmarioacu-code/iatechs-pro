@@ -42,6 +42,8 @@ use App\Domains\Diagnostics\Models\Diagnostic;
 use App\Domains\Diagnostics\Policies\DiagnosticPolicy;
 use App\Domains\Repairs\Models\Repair;
 use App\Domains\Repairs\Policies\RepairPolicy;
+use App\Domains\Quotes\Models\Quote;
+use App\Domains\Quotes\Policies\QuotePolicy;
 
 /* Products */
 use App\Domains\Products\Models\Product;
@@ -148,6 +150,7 @@ class AuthServiceProvider extends ServiceProvider
         Ticket::class => TicketPolicy::class,
         Diagnostic::class => DiagnosticPolicy::class,
         Repair::class => RepairPolicy::class,
+        Quote::class => QuotePolicy::class,
 
         Product::class => ProductPolicy::class,
 

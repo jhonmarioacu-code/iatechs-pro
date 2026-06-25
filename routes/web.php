@@ -9,6 +9,7 @@ use App\Http\Controllers\TechnicianPortalController;
 use App\Http\Controllers\CustomerPortalController;
 use App\Http\Controllers\CompanyPortalController;
 use App\Http\Controllers\AccountSecurityController;
+use App\Domains\AIAssistant\Controllers\AIAssistantController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\ObservabilityController;
@@ -105,6 +106,26 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
         ->whereNumber('technician')
         ->name('portal.company.technicians.training.update');
 
+    Route::middleware(['portal.access:company', 'plan.module'])
+        ->prefix('company/ai')
+        ->name('portal.company.ai.')
+        ->group(function () {
+        Route::get('/conversations', [AIAssistantController::class, 'conversations'])
+            ->defaults('portal', 'company')
+            ->defaults('module', 'ai-assistant')
+            ->name('conversations');
+
+        Route::post('/chat', [AIAssistantController::class, 'chat'])
+            ->defaults('portal', 'company')
+            ->defaults('module', 'ai-assistant')
+            ->name('chat');
+
+        Route::get('/conversations/{conversation}/messages', [AIAssistantController::class, 'messages'])
+            ->defaults('portal', 'company')
+            ->defaults('module', 'ai-assistant')
+            ->name('messages');
+    });
+
     Route::get('/technician', [TechnicianPortalController::class, 'dashboard'])
         ->middleware('portal.access:technician')
         ->name('portal.technician.dashboard');
@@ -142,6 +163,17 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
 
         Route::post('/tickets/{ticket}/repair-assets', [TechnicianPortalController::class, 'updateRepairAssets'])
             ->name('portal.technician.tickets.repair-assets.update');
+
+        Route::prefix('ai')->name('portal.technician.ai.')->group(function () {
+            Route::get('/conversations', [AIAssistantController::class, 'conversations'])
+                ->name('conversations');
+
+            Route::post('/chat', [AIAssistantController::class, 'chat'])
+                ->name('chat');
+
+            Route::get('/conversations/{conversation}/messages', [AIAssistantController::class, 'messages'])
+                ->name('messages');
+        });
     });
 
     Route::get('/customer', [CustomerPortalController::class, 'dashboard'])
@@ -154,6 +186,12 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
 
         Route::get('/tickets/{ticket}', [CustomerPortalController::class, 'showTicket'])
             ->name('portal.customer.tickets.show');
+
+        Route::post('/quotes/{quote}/approve', [CustomerPortalController::class, 'approveQuote'])
+            ->name('portal.customer.quotes.approve');
+
+        Route::post('/quotes/{quote}/reject', [CustomerPortalController::class, 'rejectQuote'])
+            ->name('portal.customer.quotes.reject');
 
         Route::get('/invoices', [CustomerPortalController::class, 'invoices'])
             ->name('portal.customer.invoices.index');
@@ -208,5 +246,7 @@ Route::middleware(['auth', 'tenant', 'portal.access:admin'])->group(function () 
     Route::get('/admin/operations', [OperationsController::class, 'index'])
         ->name('admin.operations');
 });
+
+Route::prefix('admin')->group(base_path('routes/admin.php'));
 
 Route::get('/health', [HealthController::class, 'health']);

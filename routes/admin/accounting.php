@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Route;
 use App\Domains\Accounting\Controllers\AccountingController;
 
 Route::middleware([
-    'auth'
+    'auth',
+    'tenant',
+    'portal.access:admin',
 ])
 ->prefix('accounting')
 ->group(function () {
@@ -18,7 +20,7 @@ Route::middleware([
             AccountingController::class,
             'accounts'
         ]
-    );
+    )->middleware('permission:accounting.view');
 
     Route::post(
         '/accounts',
@@ -26,7 +28,7 @@ Route::middleware([
             AccountingController::class,
             'storeAccount'
         ]
-    );
+    )->middleware('permission:accounting.create');
 
     Route::put(
         '/accounts/{account}',
@@ -34,7 +36,7 @@ Route::middleware([
             AccountingController::class,
             'updateAccount'
         ]
-    );
+    )->middleware('permission:accounting.update');
 
     Route::get(
         '/journal-entries',
@@ -42,7 +44,7 @@ Route::middleware([
             AccountingController::class,
             'journalEntries'
         ]
-    );
+    )->middleware('permission:accounting.view');
 
     Route::post(
         '/journal-entries',
@@ -50,7 +52,7 @@ Route::middleware([
             AccountingController::class,
             'storeJournalEntry'
         ]
-    );
+    )->middleware('permission:accounting.create');
 
     Route::post(
         '/journal-entries/{journalEntry}/post',
@@ -58,7 +60,7 @@ Route::middleware([
             AccountingController::class,
             'post'
         ]
-    );
+    )->middleware('permission:accounting.post');
 
     Route::post(
         '/journal-entries/{journalEntry}/cancel',
@@ -66,5 +68,5 @@ Route::middleware([
             AccountingController::class,
             'cancel'
         ]
-    );
+    )->middleware('permission:accounting.cancel');
 });

@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Route;
 use App\Domains\KnowledgeBase\Controllers\KnowledgeBaseController;
 
 Route::middleware([
-    'auth'
+    'auth',
+    'tenant',
+    'portal.access:admin',
 ])
 ->prefix('knowledge-base')
 ->group(function () {
@@ -18,7 +20,7 @@ Route::middleware([
             KnowledgeBaseController::class,
             'index'
         ]
-    );
+    )->middleware('permission:knowledge.view');
 
     Route::post(
         '/',
@@ -26,7 +28,7 @@ Route::middleware([
             KnowledgeBaseController::class,
             'store'
         ]
-    );
+    )->middleware('permission:knowledge.create');
 
     Route::get(
         '/{knowledgeArticle}',
@@ -34,7 +36,7 @@ Route::middleware([
             KnowledgeBaseController::class,
             'show'
         ]
-    );
+    )->middleware('permission:knowledge.view');
 
     Route::put(
         '/{knowledgeArticle}',
@@ -42,7 +44,7 @@ Route::middleware([
             KnowledgeBaseController::class,
             'update'
         ]
-    );
+    )->middleware('permission:knowledge.update');
 
     Route::delete(
         '/{knowledgeArticle}',
@@ -50,7 +52,7 @@ Route::middleware([
             KnowledgeBaseController::class,
             'destroy'
         ]
-    );
+    )->middleware('permission:knowledge.delete');
 
     Route::post(
         '/{knowledgeArticle}/publish',
@@ -58,7 +60,7 @@ Route::middleware([
             KnowledgeBaseController::class,
             'publish'
         ]
-    );
+    )->middleware('permission:knowledge.update');
 
     Route::post(
         '/{knowledgeArticle}/archive',
@@ -66,5 +68,5 @@ Route::middleware([
             KnowledgeBaseController::class,
             'archive'
         ]
-    );
+    )->middleware('permission:knowledge.update');
 });

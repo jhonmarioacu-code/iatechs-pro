@@ -13,11 +13,15 @@ class JsonLogTap
 {
     public function __invoke(IlluminateLogger|MonologLogger $logger): void
     {
-        $monolog = $logger instanceof IlluminateLogger
+        $baseLogger = $logger instanceof IlluminateLogger
             ? $logger->getLogger()
             : $logger;
 
-        foreach ($monolog->getHandlers() as $handler) {
+        if (!$baseLogger instanceof MonologLogger) {
+            return;
+        }
+
+        foreach ($baseLogger->getHandlers() as $handler) {
             if ($handler instanceof FormattableHandlerInterface) {
                 $handler->setFormatter(new JsonFormatter());
             }
