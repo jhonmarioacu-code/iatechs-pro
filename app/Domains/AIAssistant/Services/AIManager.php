@@ -7,6 +7,7 @@ namespace App\Domains\AIAssistant\Services;
 use RuntimeException;
 
 use App\Domains\AIAssistant\Providers\GroqProvider;
+use App\Domains\AIAssistant\Providers\AzureOpenAIProvider;
 use App\Domains\AIAssistant\Providers\Contracts\AIProviderInterface;
 
 class AIManager
@@ -29,6 +30,9 @@ class AIManager
 
             'groq' =>
                 app(GroqProvider::class),
+
+            'azure_openai' =>
+                app(AzureOpenAIProvider::class),
 
             default =>
                 throw new RuntimeException(

@@ -10,7 +10,7 @@ class ChatRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return auth()->check();
     }
 
     public function rules(): array
@@ -18,8 +18,8 @@ class ChatRequest extends FormRequest
         return [
 
             'conversation_id' => [
-
-                'required',
+                'nullable',
+                'integer',
 
                 'exists:ai_conversations,id'
             ],

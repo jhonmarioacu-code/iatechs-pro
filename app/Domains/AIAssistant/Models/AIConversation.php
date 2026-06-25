@@ -60,4 +60,12 @@ class AIConversation extends Model
             'conversation_id'
         );
     }
+
+    public function latestMessage(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(
+            AIMessage::class,
+            'conversation_id'
+        )->latestOfMany('id');
+    }
 }

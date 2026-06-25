@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Domains\AIAssistant\Services;
 
 use Illuminate\Support\Str;
-
+use Illuminate\Support\Collection;
+use App\Domains\Users\Models\User;
 use App\Domains\AIAssistant\Models\AIConversation;
 use App\Domains\AIAssistant\Repositories\AIMessageRepository;
 use App\Domains\AIAssistant\Repositories\AIConversationRepository;
@@ -14,22 +15,27 @@ class AIAssistantService
 {
     public function __construct(
         protected AIManager $manager,
+        protected AIDocumentationContextService $documentationContext,
         protected AIConversationRepository $conversations,
         protected AIMessageRepository $messages
     ) {}
 
     public function paginateConversations(
+        int $userId,
+        int $companyId,
         int $perPage = 20
     ) {
         return $this->conversations
-            ->paginate($perPage);
+            ->paginateForUser($userId, $companyId, $perPage);
     }
 
     public function findConversation(
-        int $id
+        int $id,
+        int $userId,
+        int $companyId
     ): AIConversation {
         return $this->conversations
-            ->findOrFail($id);
+            ->findForUserOrFail($id, $userId, $companyId);
     }
 
     public function createConversation(
@@ -57,6 +63,7 @@ class AIAssistantService
     }
 
     public function sendMessage(
+        User $user,
         AIConversation $conversation,
         string $message
     ): array {
@@ -79,8 +86,14 @@ class AIAssistantService
             ])
             ->toArray();
 
+        $messages = $this->prependSystemContext($messages, $user);
+
         $response = $this->manager->chat(
-            $messages
+            $messages,
+            [
+                'max_output_tokens' => 900,
+                'temperature' => 0.2,
+            ]
         );
 
         $content =
@@ -104,5 +117,55 @@ class AIAssistantService
 
             'message' => $content
         ];
+    }
+
+    public function listConversationMessages(
+        int $conversationId,
+        int $userId,
+        int $companyId
+    ): Collection {
+        $conversation = $this->findConversation(
+            $conversationId,
+            $userId,
+            $companyId
+        );
+
+        return $conversation->messages()
+            ->orderBy('id')
+            ->get();
+    }
+
+    /**
+     * @param array<int, array<string, mixed>> $messages
+     * @return array<int, array<string, string>>
+     */
+    protected function prependSystemContext(array $messages, User $user): array
+    {
+        $role = (string) ($user->getRoleNames()->first() ?? 'user');
+
+        $systemContext = $this->documentationContext->getContextByRole($role);
+        $identityContext = implode("\n", [
+            'Contexto de usuario:',
+            '- role: '.$role,
+            '- company_id: '.(string) $user->company_id,
+            '- language: es',
+        ]);
+
+        $systemMessage = [
+            'role' => 'system',
+            'content' => $systemContext."\n\n".$identityContext,
+        ];
+
+        /** @var array<int, array<string, string>> $payload */
+        $payload = [$systemMessage];
+
+        foreach ($messages as $message) {
+            $payload[] = [
+                'role' => (string) ($message['role'] ?? 'user'),
+                'content' => (string) ($message['content'] ?? ''),
+            ];
+        }
+
+        return $payload;
     }
 }

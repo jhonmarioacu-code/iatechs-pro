@@ -22,7 +22,7 @@ class AIAssistantPolicy
     ): bool {
 
         return $user->can(
-            'ai.chat'
+            'ai.use'
         );
     }
 
@@ -31,7 +31,7 @@ class AIAssistantPolicy
     ): bool {
 
         return $user->can(
-            'ai.create'
+            'ai.use'
         );
     }
 
@@ -40,7 +40,7 @@ class AIAssistantPolicy
     ): bool {
 
         return $user->can(
-            'ai.delete'
+            'ai.use'
         );
     }
 }
