@@ -1,0 +1,516 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --color-primary: #2563eb;
+    --color-secondary: #0f172a;
+    --color-success: #16a34a;
+    --color-warning: #f59e0b;
+    --color-error: #dc2626;
+    --color-bg: #f8fafc;
+    --color-surface: #ffffff;
+    --color-text: #0f172a;
+    --color-muted: #475569;
+    --color-border: #dbe2ea;
+}
+
+.theme-dark {
+    --color-bg: #050a16;
+    --color-surface: #111827;
+    --color-text: #e2e8f0;
+    --color-muted: #93a5c3;
+    --color-border: #273449;
+}
+
+@layer base {
+    body {
+        background: radial-gradient(circle at top right, #dbeafe 0%, var(--color-bg) 42%);
+        color: var(--color-text);
+        font-family: Inter, "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+        min-height: 100vh;
+    }
+}
+
+@layer components {
+    .app-body {
+        @apply antialiased;
+    }
+
+    .btn {
+        @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+
+    .btn-primary {
+        background: var(--color-primary);
+        color: #fff;
+        @apply focus:ring-blue-600;
+    }
+
+    .btn-secondary {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+    }
+
+    .public-hero {
+        @apply mx-auto grid min-h-screen w-full max-w-7xl gap-6 p-4 md:p-8 lg:grid-cols-[1.3fr_0.7fr];
+    }
+
+    .public-hero-inner {
+        @apply flex flex-col justify-center rounded-2xl p-8;
+        background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(37, 99, 235, 0.02));
+        border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    .public-kicker {
+        color: var(--color-primary);
+        @apply text-xs font-bold uppercase tracking-[0.2em];
+    }
+
+    .public-hero-inner h1 {
+        @apply mt-3 text-3xl font-bold leading-tight md:text-5xl;
+    }
+
+    .public-summary {
+        color: var(--color-muted);
+        @apply mt-4 max-w-2xl text-base leading-7;
+    }
+
+    .public-actions {
+        @apply mt-8 flex flex-wrap gap-3;
+    }
+
+    .public-health {
+        @apply self-center;
+    }
+
+    .auth-card {
+        @apply self-center;
+    }
+
+    .onboarding-flow {
+        @apply lg:grid-cols-1;
+    }
+
+    .onboarding-card,
+    .plans-card {
+        @apply w-full;
+    }
+
+    .role-picker {
+        @apply grid gap-3 md:grid-cols-2;
+    }
+
+    .role-tile {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply rounded-xl p-4;
+    }
+
+    .role-tile h3 {
+        @apply text-lg font-semibold;
+    }
+
+    .role-tile p {
+        color: var(--color-muted);
+        @apply my-3 text-sm leading-6;
+    }
+
+    .billing-toggle {
+        @apply mb-2;
+    }
+
+    .pricing-grid {
+        @apply grid gap-3 md:grid-cols-2 xl:grid-cols-3;
+    }
+
+    .plan-card {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply relative block cursor-pointer rounded-xl p-4;
+    }
+
+    .plan-card input[type="radio"] {
+        @apply absolute right-3 top-3 h-4 w-4;
+    }
+
+    .plan-card:has(input[type="radio"]:checked) {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 25%, transparent);
+    }
+
+    .plan-name {
+        @apply text-base font-semibold;
+    }
+
+    .plan-price {
+        @apply mt-2 text-sm;
+    }
+
+    .plan-price strong {
+        @apply text-xl;
+    }
+
+    .plan-alt {
+        color: var(--color-muted);
+        @apply text-xs;
+    }
+
+    .plan-list {
+        color: var(--color-muted);
+        @apply mt-3 space-y-1 text-xs;
+    }
+
+    .health-grid {
+        @apply my-5 grid gap-3 sm:grid-cols-2;
+    }
+
+    .health-grid article {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply rounded-xl p-4;
+    }
+
+    .health-grid span {
+        color: var(--color-muted);
+        @apply block text-xs font-semibold uppercase;
+    }
+
+    .health-grid strong {
+        @apply mt-2 block text-2xl;
+    }
+
+    .health-grid small {
+        color: var(--color-muted);
+        @apply mt-1 block text-xs;
+    }
+
+    .portal-grid {
+        @apply grid min-h-screen lg:grid-cols-[270px_1fr];
+    }
+
+    .sidebar {
+        border-right: 1px solid var(--color-border);
+        background: var(--color-secondary);
+        color: #cbd5e1;
+        @apply fixed inset-y-0 left-0 z-40 w-[270px] -translate-x-full p-5 transition-transform lg:static lg:translate-x-0;
+    }
+
+    .sidebar.open {
+        @apply translate-x-0;
+    }
+
+    .sidebar-brand {
+        @apply flex items-center justify-between pb-5;
+    }
+
+    .sidebar-brand-label {
+        color: #60a5fa;
+        @apply text-[11px] font-bold uppercase tracking-[0.2em];
+    }
+
+    .sidebar-brand-title {
+        @apply mt-1 text-lg font-semibold text-white;
+    }
+
+    .sidebar-nav {
+        @apply mt-3 flex flex-col gap-2;
+    }
+
+    .sidebar-link {
+        @apply rounded-lg px-3 py-2 text-sm transition;
+    }
+
+    .sidebar-link:hover {
+        background: rgba(59, 130, 246, 0.15);
+        color: #fff;
+    }
+
+    .sidebar-link.active {
+        background: rgba(37, 99, 235, 0.35);
+        color: #fff;
+    }
+
+    .sidebar-backdrop {
+        @apply fixed inset-0 z-30 bg-black/40 lg:hidden;
+    }
+
+    .portal-main {
+        @apply flex min-w-0 flex-col;
+    }
+
+    .topbar {
+        border-bottom: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply sticky top-0 z-20 flex flex-wrap items-center justify-between gap-3 px-4 py-3 md:px-6;
+    }
+
+    .topbar-start,
+    .topbar-end {
+        @apply flex items-center gap-2;
+    }
+
+    .icon-button {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        @apply inline-flex h-9 w-9 items-center justify-center rounded-lg text-sm;
+    }
+
+    .lg-hidden {
+        @apply lg:hidden;
+    }
+
+    .search-wrap {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply flex items-center gap-2 rounded-lg px-3;
+    }
+
+    .search-icon {
+        color: var(--color-muted);
+    }
+
+    .search-input {
+        @apply h-9 w-40 bg-transparent text-sm outline-none md:w-64;
+    }
+
+    .company-selector {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        @apply h-9 rounded-lg px-3 text-sm;
+    }
+
+    .user-chip {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply hidden rounded-lg px-3 py-1 text-right md:block;
+    }
+
+    .user-chip strong {
+        @apply block text-xs font-semibold;
+    }
+
+    .user-chip span {
+        color: var(--color-muted);
+        @apply block text-[11px] uppercase;
+    }
+
+    .portal-content {
+        @apply mx-auto w-full max-w-7xl space-y-5 p-4 md:p-6;
+    }
+
+    .portal-header {
+        @apply rounded-2xl p-5;
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        background: linear-gradient(120deg, rgba(37, 99, 235, 0.12), rgba(15, 23, 42, 0.02));
+    }
+
+    .portal-eyebrow {
+        color: var(--color-primary);
+        @apply text-xs font-semibold tracking-[0.2em];
+    }
+
+    .portal-title {
+        @apply mt-2 text-2xl font-bold md:text-3xl;
+    }
+
+    .portal-subtitle {
+        color: var(--color-muted);
+        @apply mt-2 text-sm md:text-base;
+    }
+
+    .kpi-grid {
+        @apply grid gap-3 sm:grid-cols-2 xl:grid-cols-4;
+    }
+
+    .kpi-card {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply rounded-2xl p-4;
+    }
+
+    .kpi-label {
+        color: var(--color-muted);
+        @apply text-xs font-semibold uppercase;
+    }
+
+    .kpi-value {
+        @apply mt-2 block text-2xl;
+    }
+
+    .kpi-trend {
+        color: var(--color-success);
+        @apply mt-1 block text-sm font-semibold;
+    }
+
+    .surface-grid {
+        @apply grid gap-4 xl:grid-cols-2;
+    }
+
+    .surface-card {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply rounded-2xl p-4 md:p-5;
+    }
+
+    .surface-header {
+        @apply mb-3 flex items-center justify-between gap-3;
+    }
+
+    .surface-header h2 {
+        @apply text-lg font-semibold;
+    }
+
+    .surface-list {
+        color: var(--color-muted);
+        @apply space-y-2 text-sm leading-6;
+    }
+
+    .tag-grid {
+        @apply grid grid-cols-2 gap-2 md:grid-cols-3;
+    }
+
+    .tag-grid span {
+        border: 1px solid var(--color-border);
+        background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface));
+        @apply rounded-lg px-3 py-2 text-sm;
+    }
+
+    .table-wrap {
+        @apply overflow-x-auto;
+    }
+
+    .data-table {
+        @apply w-full min-w-[640px] border-separate border-spacing-0 text-left text-sm;
+    }
+
+    .data-table thead th {
+        border-bottom: 1px solid var(--color-border);
+        color: var(--color-muted);
+        @apply px-3 py-2 text-xs font-semibold uppercase;
+    }
+
+    .data-table tbody td {
+        border-bottom: 1px solid var(--color-border);
+        @apply px-3 py-3;
+    }
+
+    .module-copy {
+        color: var(--color-muted);
+        @apply mb-3 text-sm leading-7;
+    }
+
+    .query-box {
+        @apply mt-3 overflow-x-auto rounded-lg border border-slate-300 bg-slate-900/90 p-3 text-xs text-slate-100;
+    }
+
+    .crud-title {
+        @apply text-base font-semibold uppercase tracking-wide;
+    }
+
+    .crud-actions {
+        @apply flex flex-wrap items-center gap-2;
+    }
+
+    .crud-feedback {
+        @apply hidden rounded-lg px-3 py-2 text-sm;
+    }
+
+    .crud-feedback.error {
+        @apply mt-3 block bg-red-100 text-red-800;
+    }
+
+    .crud-feedback.success {
+        @apply mt-3 block bg-emerald-100 text-emerald-800;
+    }
+
+    .crud-form {
+        @apply mt-4 space-y-4;
+    }
+
+    .crud-grid {
+        @apply grid gap-3 md:grid-cols-2;
+    }
+
+    .crud-field {
+        @apply flex flex-col gap-1;
+    }
+
+    .crud-label {
+        color: var(--color-muted);
+        @apply text-xs font-semibold uppercase;
+    }
+
+    .crud-input {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        color: var(--color-text);
+        @apply min-h-10 rounded-lg px-3 py-2 text-sm;
+    }
+
+    .crud-checkbox {
+        @apply mt-6 inline-flex items-center gap-2 text-sm;
+    }
+
+    .crud-details {
+        @apply mt-4 space-y-2;
+    }
+
+    .crud-detail-row {
+        border: 1px solid var(--color-border);
+        @apply grid grid-cols-[180px_1fr] gap-2 rounded-lg px-3 py-2 text-sm;
+    }
+
+    .crud-detail-row dt {
+        color: var(--color-muted);
+        @apply font-semibold;
+    }
+
+    .crud-row-actions {
+        @apply flex flex-wrap gap-2;
+    }
+
+    .btn-danger {
+        @apply inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white;
+    }
+
+    .ai-fab {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        @apply fixed bottom-5 right-5 z-40 rounded-full px-4 py-3 text-sm font-bold shadow-lg;
+    }
+
+    .ai-panel {
+        border: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply fixed bottom-20 right-5 z-50 w-[320px] space-y-3 rounded-2xl p-4 shadow-lg;
+    }
+
+    .ai-panel header,
+    .notification-panel header {
+        @apply flex items-center justify-between;
+    }
+
+    .ai-panel ul {
+        color: var(--color-muted);
+        @apply list-inside list-disc space-y-1 text-sm;
+    }
+
+    .notification-panel {
+        border-left: 1px solid var(--color-border);
+        background: var(--color-surface);
+        @apply fixed right-0 top-0 z-50 h-screen w-[320px] space-y-3 p-4 shadow-2xl;
+    }
+
+    .notification-panel ul {
+        @apply space-y-3 text-sm;
+    }
+
+    .notification-panel li {
+        border: 1px solid var(--color-border);
+        @apply rounded-xl p-3;
+    }
+}

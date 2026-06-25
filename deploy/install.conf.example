@@ -1,0 +1,41 @@
+# IAtechs Pro - One-file installer configuration
+# Copy this file to deploy/install.conf and edit with real values.
+
+# App
+APP_NAME=iatechs-pro
+APP_TITLE="IAtechs Pro"
+APP_PATH=/var/www/iatechs-pro
+APP_USER=www-data
+TIMEZONE=UTC
+
+# Versions
+PHP_VERSION=8.4
+NODE_MAJOR=22
+POSTGRES_VERSION=17
+
+# Domain / SSL
+# Leave DOMAIN empty if you will use only public IP.
+DOMAIN=
+ADMIN_EMAIL=
+ENABLE_SSL=ask
+
+# Database (PostgreSQL)
+DB_NAME=iatechs_pro
+DB_USER=iatechs_pro
+DB_PASSWORD=
+
+# Laravel
+FILESYSTEM_DISK=local
+RUN_MIGRATIONS=yes
+RUN_SEEDERS=yes
+SEEDER_CLASS=ProductionSeeder
+
+# Super admin (used by ProductionSeeder)
+PRODUCTION_ADMIN_EMAIL=
+PRODUCTION_ADMIN_PASSWORD=
+PRODUCTION_ADMIN_NAME="Super Admin"
+
+# Infrastructure options
+REDIS_MAXMEMORY=512mb
+HARDEN_SSH=yes
+REMOVE_NODE_MODULES=yes
