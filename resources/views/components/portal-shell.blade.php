@@ -28,6 +28,7 @@
             ['label' => 'Customers', 'slug' => 'customers', 'permission' => 'customers.view'],
             ['label' => 'Devices', 'slug' => 'devices', 'permission' => 'devices.view'],
             ['label' => 'Tickets', 'slug' => 'tickets', 'permission' => 'tickets.view'],
+            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
             ['label' => 'Products', 'slug' => 'products', 'permission' => 'products.view'],
             ['label' => 'Invoices', 'slug' => 'invoices', 'permission' => 'invoices.view'],
             ['label' => 'Payments', 'slug' => 'payments', 'permission' => 'payments.view'],
@@ -39,6 +40,7 @@
             ['label' => 'Tickets', 'slug' => 'tickets', 'permission' => 'tickets.view'],
             ['label' => 'Diagnostics', 'slug' => 'diagnostics', 'permission' => 'diagnostics.view'],
             ['label' => 'Repairs', 'slug' => 'repairs', 'permission' => 'repairs.view'],
+            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
             ['label' => 'Work Orders', 'slug' => 'work-orders', 'permission' => 'work-orders.view'],
             ['label' => 'Assigned Inventory', 'slug' => 'assigned-inventory', 'permission' => 'inventory.view'],
         ],
@@ -56,9 +58,17 @@
             return \App\Support\PlanAccess::canUseCompanyModule($authUser, $item['slug']);
         }));
     }
+
+    $assistantEnabled = $authUser !== null
+        && $authUser->can('ai.use')
+        && in_array($portal, ['admin', 'company', 'technician'], true);
+
+    if ($assistantEnabled && $portal === 'company' && $authUser !== null && !$authUser->hasRole('super_admin')) {
+        $assistantEnabled = \App\Support\PlanAccess::canUseCompanyModule($authUser, 'ai-assistant');
+    }
 @endphp
 
-<div class="portal-grid">
+<div class="portal-grid" data-assistant-enabled="{{ $assistantEnabled ? '1' : '0' }}">
     <x-sidebar :portal="$portal" :menu="$menu" />
 
     <div class="portal-main">
@@ -90,5 +100,5 @@
     </div>
 </div>
 
-<x-floating-ai />
+<x-floating-ai :portal="$portal" :enabled="$assistantEnabled" />
 <x-notification-center />

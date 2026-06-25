@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\Quotes\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,7 @@ class Quote extends Model
 {
     use HasFactory;
     use SoftDeletes;
+    use BelongsToCompany;
 
     protected $fillable = [
 

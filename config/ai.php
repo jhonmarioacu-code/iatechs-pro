@@ -6,11 +6,11 @@ return [
 
     'provider' => env(
         'AI_PROVIDER',
-        'groq'
+        'azure_openai'
     ),
 
     'model' => env(
         'AI_MODEL',
-        'llama-3.3-70b-versatile'
+        'gpt-4.1-mini'
     ),
 ];

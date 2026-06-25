@@ -19,6 +19,8 @@ class NotificationController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Notification::class);
+
         return NotificationResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class NotificationController extends Controller
         StoreNotificationRequest $request
     )
     {
+        $this->authorize('create', Notification::class);
+
         return new NotificationResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class NotificationController extends Controller
         Notification $notification
     )
     {
+        $this->authorize('view', $notification);
+
         return new NotificationResource(
             $notification
         );
@@ -49,6 +55,8 @@ class NotificationController extends Controller
         Notification $notification
     )
     {
+        $this->authorize('update', $notification);
+
         return new NotificationResource(
             $this->service->update(
                 $notification,
@@ -61,6 +69,8 @@ class NotificationController extends Controller
         Notification $notification
     )
     {
+        $this->authorize('markAsRead', $notification);
+
         return new NotificationResource(
             $this->service->markAsRead(
                 $notification

@@ -19,6 +19,8 @@ class QuoteController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Quote::class);
+
         return QuoteResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class QuoteController extends Controller
         StoreQuoteRequest $request
     )
     {
+        $this->authorize('create', Quote::class);
+
         return new QuoteResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class QuoteController extends Controller
         Quote $quote
     )
     {
+        $this->authorize('view', $quote);
+
         return new QuoteResource(
             $quote->load([
                 'ticket',
@@ -53,6 +59,8 @@ class QuoteController extends Controller
         Quote $quote
     )
     {
+        $this->authorize('update', $quote);
+
         return new QuoteResource(
             $this->service->update(
                 $quote,
@@ -65,6 +73,8 @@ class QuoteController extends Controller
         Quote $quote
     )
     {
+        $this->authorize('delete', $quote);
+
         $this->service->delete(
             $quote
         );
@@ -78,6 +88,8 @@ class QuoteController extends Controller
         Quote $quote
     )
     {
+        $this->authorize('approve', $quote);
+
         return new QuoteResource(
             $this->service->approve(
                 $quote
@@ -89,6 +101,8 @@ class QuoteController extends Controller
         Quote $quote
     )
     {
+        $this->authorize('reject', $quote);
+
         return new QuoteResource(
             $this->service->reject(
                 $quote
@@ -100,6 +114,8 @@ class QuoteController extends Controller
         Quote $quote
     )
     {
+        $this->authorize('cancel', $quote);
+
         return new QuoteResource(
             $this->service->cancel(
                 $quote

@@ -62,13 +62,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         RateLimiter::for('password-update', function (Request $request): Limit {
-            $userId = (string) ($request->user()?->id ?? 'guest');
+            $user = $request->user();
+            $userId = $user ? (string) $user->id : 'guest';
 
             return Limit::perMinute(5)->by($userId.'|'.$request->ip());
         });
 
         RateLimiter::for('api-typed', function (Request $request): array {
-            $userId = (string) ($request->user()?->id ?? 'guest');
+            $user = $request->user();
+            $userId = $user ? (string) $user->id : 'guest';
             $route = (string) ($request->route()?->uri() ?? 'api');
             $bucket = $userId.'|'.$request->ip().'|'.$route;
             $path = $request->path();

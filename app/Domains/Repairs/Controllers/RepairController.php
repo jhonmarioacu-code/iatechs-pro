@@ -6,6 +6,7 @@ namespace App\Domains\Repairs\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 use App\Domains\Repairs\Models\Repair;
 use App\Domains\Repairs\Services\RepairService;
@@ -97,7 +98,9 @@ class RepairController extends Controller
         $request->validate([
             'technician_id' => [
                 'required',
-                'exists:users,id'
+                Rule::exists('users', 'id')->where(static function ($query) use ($repair) {
+                    $query->where('company_id', $repair->company_id);
+                }),
             ]
         ]);
 

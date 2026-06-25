@@ -149,6 +149,19 @@ class PermissionSeeder extends Seeder
             'quotes.update',
             'quotes.delete',
             'quotes.approve',
+            'quotes.reject',
+            'quotes.cancel',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Notifications
+            |--------------------------------------------------------------------------
+            */
+            'notifications.view',
+            'notifications.create',
+            'notifications.update',
+            'notifications.delete',
+            'notifications.read',
 
             /*
             |--------------------------------------------------------------------------
@@ -184,6 +197,9 @@ class PermissionSeeder extends Seeder
             'inventory.create',
             'inventory.update',
             'inventory.delete',
+            'inventory.approve',
+            'inventory.complete',
+            'inventory.cancel',
 
             /*
             |--------------------------------------------------------------------------
@@ -204,6 +220,7 @@ class PermissionSeeder extends Seeder
             'purchase-orders.create',
             'purchase-orders.update',
             'purchase-orders.approve',
+            'purchase-orders.cancel',
 
             /*
             |--------------------------------------------------------------------------
@@ -212,6 +229,18 @@ class PermissionSeeder extends Seeder
             */
             'goods-receipts.view',
             'goods-receipts.create',
+            'goods-receipts.update',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Accounting
+            |--------------------------------------------------------------------------
+            */
+            'accounting.view',
+            'accounting.create',
+            'accounting.update',
+            'accounting.post',
+            'accounting.cancel',
 
             /*
             |--------------------------------------------------------------------------

@@ -7,6 +7,7 @@ namespace App\Domains\Tickets\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\Rule;
 
 use App\Domains\Tickets\Models\Ticket;
 use App\Domains\Tickets\Services\TicketService;
@@ -122,7 +123,9 @@ class TicketController extends Controller
         $request->validate([
             'technician_id' => [
                 'required',
-                'exists:users,id'
+                Rule::exists('users', 'id')->where(static function ($query) use ($ticket) {
+                    $query->where('company_id', $ticket->company_id);
+                }),
             ]
         ]);
 

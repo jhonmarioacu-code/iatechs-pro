@@ -77,4 +77,51 @@
             </table>
         </div>
     </section>
+
+    <section class="surface-card">
+        <header class="surface-header">
+            <h2>Cotizaciones</h2>
+        </header>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Numero</th>
+                        <th>Estado</th>
+                        <th>Total</th>
+                        <th>Vence</th>
+                        <th>Accion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($ticket->quotes as $quote)
+                        <tr>
+                            <td>{{ $quote->quote_number }}</td>
+                            <td>{{ $quote->status }}</td>
+                            <td>{{ $quote->total }}</td>
+                            <td>{{ optional($quote->expires_at)->toDateString() ?? 'N/A' }}</td>
+                            <td>
+                                @if ($quote->status === 'PENDING_APPROVAL')
+                                    <form method="POST" action="{{ route('portal.customer.quotes.approve', $quote) }}" style="display:inline-block;">
+                                        @csrf
+                                        <button class="btn btn-primary" type="submit">Aprobar</button>
+                                    </form>
+                                    <form method="POST" action="{{ route('portal.customer.quotes.reject', $quote) }}" style="display:inline-block;">
+                                        @csrf
+                                        <button class="btn btn-secondary" type="submit">Rechazar</button>
+                                    </form>
+                                @else
+                                    Sin accion
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5">Aun no hay cotizaciones para este ticket.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
 @endsection

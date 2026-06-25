@@ -25,10 +25,35 @@ class AIConversationRepository
             ->findOrFail($id);
     }
 
+    public function findForUserOrFail(
+        int $id,
+        int $userId,
+        int $companyId
+    ): AIConversation {
+        return AIConversation::query()
+            ->where('id', $id)
+            ->where('user_id', $userId)
+            ->where('company_id', $companyId)
+            ->findOrFail($id);
+    }
+
     public function paginate(
         int $perPage = 20
     ): LengthAwarePaginator {
         return AIConversation::query()
+            ->latest()
+            ->paginate($perPage);
+    }
+
+    public function paginateForUser(
+        int $userId,
+        int $companyId,
+        int $perPage = 20
+    ): LengthAwarePaginator {
+        return AIConversation::query()
+            ->where('user_id', $userId)
+            ->where('company_id', $companyId)
+            ->with('latestMessage')
             ->latest()
             ->paginate($perPage);
     }

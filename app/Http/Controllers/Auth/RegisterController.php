@@ -111,27 +111,25 @@ class RegisterController extends Controller
 
             $plan = Plan::query()->findOrFail((int) $validated['plan_id']);
 
-            if ($plan !== null) {
-                $trialDays = max(0, (int) $plan->trial_days);
-                $startsAt = today();
-                $endsAt = $validated['billing_cycle'] === 'yearly'
-                    ? $startsAt->copy()->addYear()
-                    : $startsAt->copy()->addMonth();
+            $trialDays = max(0, (int) $plan->trial_days);
+            $startsAt = today();
+            $endsAt = $validated['billing_cycle'] === 'yearly'
+                ? $startsAt->copy()->addYear()
+                : $startsAt->copy()->addMonth();
 
-                Subscription::query()->create([
-                    'uuid' => (string) Str::uuid(),
-                    'company_id' => $company->id,
-                    'plan_id' => $plan->id,
-                    'billing_cycle' => $validated['billing_cycle'],
-                    'amount' => $validated['billing_cycle'] === 'yearly'
-                        ? $plan->yearly_price
-                        : $plan->monthly_price,
-                    'starts_at' => $startsAt,
-                    'ends_at' => $endsAt,
-                    'trial_ends_at' => $trialDays > 0 ? now()->addDays($trialDays) : null,
-                    'status' => 'active',
-                ]);
-            }
+            Subscription::query()->create([
+                'uuid' => (string) Str::uuid(),
+                'company_id' => $company->id,
+                'plan_id' => $plan->id,
+                'billing_cycle' => $validated['billing_cycle'],
+                'amount' => $validated['billing_cycle'] === 'yearly'
+                    ? $plan->yearly_price
+                    : $plan->monthly_price,
+                'starts_at' => $startsAt,
+                'ends_at' => $endsAt,
+                'trial_ends_at' => $trialDays > 0 ? now()->addDays($trialDays) : null,
+                'status' => 'active',
+            ]);
 
             return $company;
         });

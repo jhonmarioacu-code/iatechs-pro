@@ -1,49 +1,100 @@
 # IAtechs Pro Audit
 
-Fecha: 2026-06-24
+Fecha: 2026-06-25
 
 ## Alcance
 
-- Revisión completa de backend Laravel (dominios, servicios, repositorios y requests).
-- Validación de frontend con build de Vite.
-- Verificación de migraciones, cacheo de configuración/rutas y pruebas de arquitectura.
+- Roles y permisos por portal (`super_admin`, `company`, `technician`, `customer`).
+- Flujo operativo critico (`ticket -> diagnostico -> cotizacion -> reparacion -> cierre`).
+- Cumplimiento DDD operativo (`Controller`, `Service`, `Repository`, `Policy`, `Request`, `Resource`).
+- Multi-tenant (`company_id`) en consultas, creacion y autorizacion.
 
-## Hallazgos críticos corregidos
+## Brechas Criticas Detectadas y Corregidas
 
-- Corruptela masiva de sintaxis en modelos (`\`r\`n` insertado como texto literal en firmas de métodos).
-  - Impacto: impedía análisis estático y podía romper ejecución en múltiples módulos.
-  - Estado: corregido en todos los archivos afectados.
-- Métodos faltantes en servicios/repositorios usados por controladores.
-  - `UserService`: faltaban `paginate`, `update`, `delete`.
-  - `UserRepository`: faltaban `update`, `delete` y paginación parametrizable.
-  - `CompanyService`: faltaba `paginate`.
-- Errores de tipado y null-safety en servicios de facturación/pagos y asistente IA.
-  - Validaciones agregadas para relaciones `invoice` potencialmente nulas.
-  - Cálculos de totales ajustados para evitar acceso inseguro a propiedades dinámicas.
-- Uso inválido en recursos API (`JsonResource`) sobre métodos de modelo.
-  - `ProductResource` y `UserResource` ahora validan el tipo del recurso antes de invocar métodos específicos.
-- Repositorios de Spatie con retorno inconsistente.
-  - `RoleRepository` y `PermissionRepository` crean instancias de modelo explícitas para mantener tipos concretos.
-- Resolver de tenant con retorno ambiguo.
-  - Ajustado para devolver `Company|null` de forma estricta.
+1. `Quote` sin aislamiento tenant por trait/scope.
+- Riesgo: lectura/escritura cross-tenant en consultas no protegidas por policy.
+- Correccion: agregado `BelongsToCompany`.
+- Archivo: `app/Domains/Quotes/Models/Quote.php`.
 
-## Archivos operativos faltantes construidos
+2. `Notification` sin aislamiento tenant por trait/scope.
+- Riesgo: consultas globales de notificaciones.
+- Correccion: agregado `BelongsToCompany`.
+- Archivo: `app/Domains/Notifications/Models/Notification.php`.
 
-- `.env` creado desde `.env.example`.
-- `APP_KEY` generado con `php artisan key:generate`.
+3. `QuoteController` sin enforcement de policies.
+- Riesgo: operaciones sin `authorize(...)` directo en controlador.
+- Correccion: `authorize` agregado en `index/store/show/update/destroy/approve/reject/cancel`.
+- Archivo: `app/Domains/Quotes/Controllers/QuoteController.php`.
 
-## Validaciones ejecutadas (resultado actual)
+4. `NotificationController` sin enforcement de policies.
+- Riesgo: lectura/edicion de notificaciones sin control uniforme.
+- Correccion: `authorize` agregado en `index/store/show/update/markAsRead`.
+- Archivo: `app/Domains/Notifications/Controllers/NotificationController.php`.
 
-- `composer analyse`: OK (0 errores).
-- `composer test`: OK (3/3 tests).
-- `composer validate:testing`:
-  - migraciones: OK.
-  - test de arquitectura: OK.
-  - `config:cache` y `route:cache`: OK.
-- `php artisan route:list --env=testing`: OK (rutas cargadas correctamente).
-- `npm run build`: OK (build de Vite generado en `public/build`).
+5. `NotificationPolicy` con reglas incompletas.
+- Riesgo: firmas de metodos sin recurso y permisos parciales.
+- Correccion: reglas completas por permiso + `company_id` para `view/update/delete/markAsRead`.
+- Archivo: `app/Domains/Notifications/Policies/NotificationPolicy.php`.
 
-## Riesgos residuales
+6. `QuotePolicy` no registrada en `AuthServiceProvider`.
+- Riesgo: policy no aplicada automaticamente por Gate.
+- Correccion: registro de `Quote::class => QuotePolicy::class`.
+- Archivo: `app/Providers/AuthServiceProvider.php`.
 
-- No se ejecutaron pruebas funcionales/end-to-end del producto, solo pruebas de arquitectura actuales del repositorio.
-- El frontend compila, pero no se validó interacción visual ni flujos en navegador.
+7. Asignacion de tecnico sin restriccion de empresa en controllers API.
+- Riesgo: asignar tecnico de otra empresa.
+- Correccion: `Rule::exists(...)->where('company_id', ...)` en ticket y repair.
+- Archivos:
+  - `app/Domains/Tickets/Controllers/TicketController.php`
+  - `app/Domains/Repairs/Controllers/RepairController.php`
+
+8. Flujo cliente incompleto para aprobacion/rechazo de cotizacion.
+- Riesgo: flujo critico truncado entre diagnostico y reparacion.
+- Correccion:
+  - Cliente puede aprobar/rechazar cotizacion pendiente.
+  - `approve -> ticket APPROVED`.
+  - `reject -> ticket WAITING_QUOTE`.
+- Archivos:
+  - `app/Http/Controllers/CustomerPortalController.php`
+  - `routes/web.php`
+  - `resources/views/portals/customer/ticket.blade.php`
+
+9. Catalogo de permisos incompleto para quotes/notifications.
+- Riesgo: politicas referenciando permisos no sembrados.
+- Correccion: agregado de permisos faltantes.
+- Archivo: `database/seeders/PermissionSeeder.php`.
+
+10. Cargador de rutas administrativas desacoplado de `routes/web.php`.
+- Riesgo: endpoints de `routes/admin/*` no registrados en runtime (arquitectura desincronizada).
+- Correccion: agregado `Route::prefix('admin')->group(base_path('routes/admin.php'));`.
+- Archivo: `routes/web.php`.
+
+11. Middleware inconsistente en `routes/admin/*`.
+- Riesgo: rutas admin solo con `auth` sin `tenant` ni `portal.access:admin`.
+- Correccion: estandarizacion de middleware en todos los modulos admin.
+- Base estandar: `auth`, `tenant`, `portal.access:admin`.
+- Endpoints globales criticos (`roles`, `permissions`, `plans`): adicional `role:super_admin`.
+- Archivos: `routes/admin/*.php`.
+
+## Estado por Punto Solicitado
+
+1. Roles y permisos por portal: **Alineado** en portales y rutas admin con middleware estandar.
+2. Flujo critico por rol: **Alineado** con aprobacion/rechazo de cotizacion por cliente.
+3. Cumplimiento DDD por modulo: **Alineado en capas base**; estructura validada por pruebas de arquitectura.
+4. Multi-tenant (`company_id`): **Alineado en dominios criticos** (`tickets/diagnostics/quotes/repairs/notifications`).
+5. Brechas criticas: **Corregidas en esta iteracion**.
+
+## Validacion
+
+- Suite completa: `47 passed (287 assertions)`.
+- Pruebas reforzadas en flujo cliente de cotizaciones y aislamiento.
+
+## Pendientes No Criticos (Siguiente Iteracion)
+
+1. Completar matriz formal `rol -> permiso -> ruta` para todos los endpoints `routes/admin/*` y aplicar middleware de permiso por accion (`permission:*`) donde aplique.
+2. Reducir logica orquestadora en `app/Http/Controllers/*PortalController.php` moviendo reglas a `Services/Actions` de dominio.
+3. Ejecutar seeders de permisos/roles en produccion despues de despliegue:
+   - `php artisan db:seed --class=PermissionSeeder --force`
+   - `php artisan db:seed --class=RoleSeeder --force`
+   - `php artisan db:seed --class=RolePermissionSeeder --force`
+   - `php artisan db:seed --class=SuperAdminPermissionSeeder --force`

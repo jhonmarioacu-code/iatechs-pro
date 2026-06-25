@@ -7,8 +7,11 @@ use Illuminate\Support\Facades\Route;
 use App\Domains\AIAssistant\Controllers\AIAssistantController;
 
 Route::middleware([
-    'auth'
+    'auth',
+    'tenant',
+    'portal.access:admin',
 ])->prefix('ai')
+->name('admin.ai.')
 ->group(function () {
 
     Route::post(
@@ -17,7 +20,8 @@ Route::middleware([
             AIAssistantController::class,
             'chat'
         ]
-    );
+    )->middleware('permission:ai.use')
+        ->name('chat');
 
     Route::get(
         '/conversations',
@@ -25,5 +29,15 @@ Route::middleware([
             AIAssistantController::class,
             'conversations'
         ]
-    );
+    )->middleware('permission:ai.view')
+        ->name('conversations');
+
+    Route::get(
+        '/conversations/{conversation}/messages',
+        [
+            AIAssistantController::class,
+            'messages',
+        ]
+    )->middleware('permission:ai.view')
+        ->name('messages');
 });

@@ -12,7 +12,7 @@ class GroqProvider implements AIProviderInterface
 {
     protected string $endpoint;
 
-    protected string $apiKey;
+    protected ?string $apiKey;
 
     protected string $model;
 
@@ -37,6 +37,11 @@ class GroqProvider implements AIProviderInterface
         array $messages,
         array $options = []
     ): array {
+        if (empty($this->apiKey)) {
+            throw new \RuntimeException(
+                'Groq no esta configurado. Define GROQ_API_KEY.'
+            );
+        }
 
         $response = Http::withToken(
             $this->apiKey
@@ -68,6 +73,10 @@ class GroqProvider implements AIProviderInterface
 
     public function healthCheck(): bool
     {
+        if (empty($this->apiKey)) {
+            return false;
+        }
+
         try {
 
             $response = Http::withToken(
