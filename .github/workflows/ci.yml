@@ -20,6 +20,27 @@ jobs:
 
     env:
       APP_ENV: testing
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: iatechs_pro_testing
+      DB_USERNAME: iatechs
+      DB_PASSWORD: iatechs
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: iatechs_pro_testing
+          POSTGRES_USER: iatechs
+          POSTGRES_PASSWORD: iatechs
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U iatechs -d iatechs_pro_testing"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout
@@ -31,7 +52,7 @@ jobs:
           php-version: "8.4"
           tools: composer:v2
           coverage: none
-          extensions: mbstring, pdo_sqlite, sqlite3
+          extensions: mbstring, pgsql, pdo_pgsql, pdo_sqlite, sqlite3
 
       - name: Install PHP dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
