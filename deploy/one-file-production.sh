@@ -179,7 +179,7 @@ set_env() {
 
 run_app() {
     local command="$*"
-    sudo -u "${APP_USER}" -H env COMPOSER_HOME="/var/www/.composer" HOME="/var/www" \
+    sudo -u "${APP_USER}" -H env COMPOSER_HOME="/var/www/.composer" NPM_CONFIG_CACHE="/var/www/.npm" XDG_CACHE_HOME="/var/www/.cache" HOME="/var/www" \
         bash -lc "cd '${APP_PATH}' && ${command}"
 }
 
@@ -580,7 +580,7 @@ prepare_project_files() {
         "${APP_PATH}/storage/framework/views" \
         "${APP_PATH}/storage/logs"
 
-    install -d -o "${APP_USER}" -g "${APP_USER}" /var/www/.composer
+    install -d -o "${APP_USER}" -g "${APP_USER}" /var/www/.composer /var/www/.npm /var/www/.cache
 
     chown -R "${APP_USER}:${APP_USER}" "${APP_PATH}"
     find "${APP_PATH}" -type f -exec chmod 664 {} \;
@@ -800,9 +800,11 @@ collect_inputs() {
     prompt_if_empty DOMAIN "Domain for Nginx/SSL (leave empty to use public IP only): " ""
     prompt_if_empty ADMIN_EMAIL "Admin email for Let's Encrypt notices (optional): " ""
     prompt_if_empty DB_PASSWORD "PostgreSQL password for ${DB_USER} (leave empty to auto-generate): " "" "yes"
-    prompt_if_empty PRODUCTION_ADMIN_EMAIL "Production admin email for ${SEEDER_CLASS} (required if RUN_SEEDERS=yes): " ""
-    prompt_if_empty PRODUCTION_ADMIN_PASSWORD "Production admin password for ${SEEDER_CLASS} (required if RUN_SEEDERS=yes): " "" "yes"
-    prompt_if_empty PRODUCTION_ADMIN_NAME "Production admin name (optional): " "IAtechs Super Admin"
+    if [[ "${RUN_SEEDERS}" == "yes" && "${SEEDER_CLASS}" == "ProductionSeeder" ]]; then
+        prompt_if_empty PRODUCTION_ADMIN_EMAIL "Production admin email for ${SEEDER_CLASS} (required if RUN_SEEDERS=yes): " ""
+        prompt_if_empty PRODUCTION_ADMIN_PASSWORD "Production admin password for ${SEEDER_CLASS} (required if RUN_SEEDERS=yes): " "" "yes"
+        prompt_if_empty PRODUCTION_ADMIN_NAME "Production admin name (optional): " "IAtechs Super Admin"
+    fi
 
     if [[ -z "${DB_PASSWORD}" ]]; then
         DB_PASSWORD="$(openssl rand -base64 32 | tr -d '\n')"
