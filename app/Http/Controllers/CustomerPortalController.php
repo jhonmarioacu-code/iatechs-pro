@@ -51,6 +51,21 @@ class CustomerPortalController extends Controller
             ->whereIn('status', ['issued', 'partially_paid', 'overdue'])
             ->count();
 
+        $paidInvoicesCount = Invoice::query()
+            ->where('customer_id', $customer->id)
+            ->where('status', 'paid')
+            ->count();
+
+        $pendingInvoicesAmount = Invoice::query()
+            ->where('customer_id', $customer->id)
+            ->whereIn('status', ['issued', 'partially_paid', 'overdue'])
+            ->sum('total');
+
+        $paidInvoicesAmount = Invoice::query()
+            ->where('customer_id', $customer->id)
+            ->where('status', 'paid')
+            ->sum('total');
+
         $latestTickets = Ticket::query()
             ->with(['device', 'technician'])
             ->where('customer_id', $customer->id)
@@ -59,12 +74,14 @@ class CustomerPortalController extends Controller
             ->get();
 
         $marketplaceProducts = Product::query()
+            ->where('company_id', $customer->company_id)
             ->where('status', 'ACTIVE')
             ->latest()
             ->limit(8)
             ->get();
 
         $marketplaceServices = ServiceContract::query()
+            ->where('company_id', $customer->company_id)
             ->whereIn('status', ['active', 'ACTIVE'])
             ->latest()
             ->limit(8)
@@ -81,6 +98,10 @@ class CustomerPortalController extends Controller
             ],
             'customer' => $customer,
             'latestTickets' => $latestTickets,
+            'pendingInvoicesCount' => $pendingInvoiceCount,
+            'paidInvoicesCount' => $paidInvoicesCount,
+            'pendingInvoicesAmount' => $pendingInvoicesAmount,
+            'paidInvoicesAmount' => $paidInvoicesAmount,
             'marketplaceProducts' => $marketplaceProducts,
             'marketplaceServices' => $marketplaceServices,
         ]);
@@ -345,13 +366,16 @@ class CustomerPortalController extends Controller
     public function marketplace(Request $request): View
     {
         $this->authorizeCustomerPermission($request, 'customer.portal.marketplace.view');
+        $customer = $this->resolveCustomer($request);
 
         $products = Product::query()
+            ->where('company_id', $customer->company_id)
             ->where('status', 'ACTIVE')
             ->latest()
             ->paginate(16);
 
         $services = ServiceContract::query()
+            ->where('company_id', $customer->company_id)
             ->whereIn('status', ['active', 'ACTIVE'])
             ->latest()
             ->limit(16)

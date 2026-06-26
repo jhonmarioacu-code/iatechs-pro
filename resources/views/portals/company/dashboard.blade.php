@@ -1,6 +1,13 @@
 @extends('layouts.company')
 
 @section('portal-content')
+    @php
+        $approvedTickets = $ticketBoard['Aprobada'] ?? collect();
+        $pendingTickets = $ticketBoard['Pendiente'] ?? collect();
+        $finalizedTickets = $ticketBoard['Finalizada'] ?? collect();
+        $notCompletedTickets = $ticketBoard['No Concretada'] ?? collect();
+    @endphp
+
     @if (session('status'))
         <div class="crud-feedback success">{{ session('status') }}</div>
     @endif
@@ -27,10 +34,10 @@
         </div>
 
         <div x-show="panel === 'tickets'" class="tag-grid">
-            <span>Recibidos: {{ $ticketBoard['Recibidos']->count() }}</span>
-            <span>Diagnosticando: {{ $ticketBoard['Diagnosticando']->count() }}</span>
-            <span>Esperando Aprobacion: {{ $ticketBoard['Esperando Aprobacion']->count() }}</span>
-            <span>Reparando: {{ $ticketBoard['Reparando']->count() }}</span>
+            <span>Aprobada: {{ $approvedTickets->count() }}</span>
+            <span>Pendiente: {{ $pendingTickets->count() }}</span>
+            <span>Finalizada: {{ $finalizedTickets->count() }}</span>
+            <span>No Concretada: {{ $notCompletedTickets->count() }}</span>
         </div>
 
         <div x-show="panel === 'team'" class="tag-grid">

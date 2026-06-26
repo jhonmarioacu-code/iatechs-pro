@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use App\Domains\Users\Models\User;
+use App\Support\PortalMatrix;
 
 class EnsurePortalAccess
 {
@@ -36,23 +37,6 @@ class EnsurePortalAccess
         User $user,
         string $portal
     ): bool {
-        if ($user->hasRole('super_admin')) {
-            return true;
-        }
-
-        return match ($portal) {
-            'admin' => false,
-            'company' => $user->hasAnyRole([
-                'owner',
-                'administrator',
-                'manager',
-                'receptionist',
-                'warehouse',
-                'accountant',
-            ]),
-            'technician' => $user->hasRole('technician'),
-            'customer' => $user->hasRole('customer'),
-            default => false,
-        };
+        return PortalMatrix::canAccessPortal($user, $portal);
     }
 }

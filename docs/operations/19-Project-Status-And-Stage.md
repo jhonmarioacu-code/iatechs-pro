@@ -26,3 +26,9 @@ Se considera listo para produccion final cuando:
 2. Deploy reproducible con rollback validado.
 3. Evidencia postdeploy en verde (health + smoke por portal).
 4. Matriz de permisos endpoint-a-endpoint cerrada.
+
+## Actualizacion 2026-06-26
+
+- Se centralizo la matriz `portal -> modulo -> permiso -> ruta` en `config/portal_matrix.php`.
+- Se activo enforcement en runtime con `portal.module` middleware.
+- El menu por rol ahora consume la misma fuente de verdad para evitar desalineaciones UI/RBAC.

@@ -53,25 +53,31 @@ final class PlanAccess
 
     public static function canUseCompanyModule(User $user, string $module): bool
     {
+        $isInventoryModule = in_array($module, self::INVENTORY_MODULES, true);
+        $isReportModule = in_array($module, self::REPORT_MODULES, true);
+        $isAiModule = $module === 'ai-assistant';
+
+        // Core modules stay accessible even without an active subscription so users
+        // can still operate baseline flows (for example dashboard/customers/tickets).
+        if (!$isInventoryModule && !$isReportModule && !$isAiModule) {
+            return true;
+        }
+
         $plan = self::resolvePlan($user);
 
         if (!$plan) {
             return false;
         }
 
-        if (in_array($module, self::INVENTORY_MODULES, true)) {
+        if ($isInventoryModule) {
             return $plan->hasInventory();
         }
 
-        if (in_array($module, self::REPORT_MODULES, true)) {
+        if ($isReportModule) {
             return $plan->hasReports();
         }
 
-        if ($module === 'ai-assistant') {
-            return $plan->hasAI();
-        }
-
-        return true;
+        return $plan->hasAI();
     }
 
     public static function hasModuleAccessByPlan(User $user, string $portal, string $module): bool

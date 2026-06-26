@@ -9,58 +9,9 @@
     /** @var \App\Domains\Users\Models\User|null $authUser */
     $authUser = auth()->user();
 
-    $menu = match ($portal) {
-        'admin' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'analytics.view'],
-            ['label' => 'Dashboards', 'slug' => 'dashboards', 'permission' => 'analytics.view'],
-            ['label' => 'Clientes', 'slug' => 'customers', 'permission' => 'customers.view'],
-            ['label' => 'CRM', 'slug' => 'crm', 'permission' => 'crm.view'],
-            ['label' => 'Marketplace', 'slug' => 'marketplace', 'permission' => 'products.view'],
-            ['label' => 'Service Desk', 'slug' => 'service-desk', 'permission' => 'tickets.view'],
-            ['label' => 'Inventory', 'slug' => 'inventory', 'permission' => 'products.view'],
-            ['label' => 'Accounting', 'slug' => 'accounting', 'permission' => 'reports.view'],
-            ['label' => 'Knowledge Base', 'slug' => 'knowledge-base', 'permission' => 'knowledge.view'],
-            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
-            ['label' => 'Reports', 'slug' => 'reports', 'permission' => 'reports.view'],
-            ['label' => 'Observability', 'slug' => 'observability', 'permission' => 'analytics.view'],
-            ['label' => 'Operations', 'slug' => 'operations', 'permission' => 'companies.create'],
-            ['label' => 'Settings', 'slug' => 'settings', 'permission' => 'system-settings.view'],
-        ],
-        'company' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'analytics.view'],
-            ['label' => 'Customers', 'slug' => 'customers', 'permission' => 'customers.view'],
-            ['label' => 'Devices', 'slug' => 'devices', 'permission' => 'devices.view'],
-            ['label' => 'Tickets', 'slug' => 'tickets', 'permission' => 'tickets.view'],
-            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
-            ['label' => 'Products', 'slug' => 'products', 'permission' => 'products.view'],
-            ['label' => 'Invoices', 'slug' => 'invoices', 'permission' => 'invoices.view'],
-            ['label' => 'Payments', 'slug' => 'payments', 'permission' => 'payments.view'],
-            ['label' => 'Analytics', 'slug' => 'analytics', 'permission' => 'analytics.view'],
-            ['label' => 'Settings', 'slug' => 'settings', 'permission' => 'system-settings.view'],
-        ],
-        'technician' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'analytics.view'],
-            ['label' => 'Tickets', 'slug' => 'tickets', 'permission' => 'tickets.view'],
-            ['label' => 'Diagnostics', 'slug' => 'diagnostics', 'permission' => 'diagnostics.view'],
-            ['label' => 'Repairs', 'slug' => 'repairs', 'permission' => 'repairs.view'],
-            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
-            ['label' => 'Work Orders', 'slug' => 'work-orders', 'permission' => 'work-orders.view'],
-            ['label' => 'Assigned Inventory', 'slug' => 'assigned-inventory', 'permission' => 'inventory.view'],
-        ],
-        'customer' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'customer.portal.view'],
-            ['label' => 'My Tickets', 'slug' => 'tickets', 'permission' => 'customer.portal.tickets.view'],
-            ['label' => 'My Invoices', 'slug' => 'invoices', 'permission' => 'customer.portal.invoices.view'],
-            ['label' => 'Marketplace', 'slug' => 'marketplace', 'permission' => 'customer.portal.marketplace.view'],
-        ],
-        default => [],
-    };
-
-    if ($portal === 'company' && $authUser !== null && !$authUser->hasRole('super_admin')) {
-        $menu = array_values(array_filter($menu, static function (array $item) use ($authUser): bool {
-            return \App\Support\PlanAccess::canUseCompanyModule($authUser, $item['slug']);
-        }));
-    }
+    $menu = $authUser !== null
+        ? \App\Support\PortalMatrix::menuForPortal($authUser, $portal)
+        : [];
 
     $assistantEnabled = $authUser !== null
         && $authUser->can('ai.use')

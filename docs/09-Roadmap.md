@@ -24,6 +24,7 @@ Mantener sincronizado el roadmap estrategico con el estado real del codigo, QA y
 - Frontend de portales redisenado por rol (admin/company/technician/customer).
 - Sistema visual unificado documentado en `docs/architecture/17-Frontend-Portal-UX-System.md`.
 - Interactividad reforzada con Alpine (tabs operativos, panel IA, centro de notificaciones).
+- Matriz unica de acceso por portal/modulo/permiso/ruta implementada en `config/portal_matrix.php` con enforcement por middleware.
 
 ## Estado actual del proyecto
 

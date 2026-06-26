@@ -12,6 +12,7 @@ use App\Http\Middleware\AttachRequestContext;
 use App\Http\Middleware\RecordRequestMetrics;
 use App\Http\Middleware\EnsureActiveSubscription;
 use App\Http\Middleware\EnsurePlanAllowsPortalModule;
+use App\Http\Middleware\EnsurePortalModuleAccess;
 use Spatie\Permission\Middleware\PermissionMiddleware;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
@@ -48,6 +49,7 @@ return Application::configure(
 
         'tenant' => TenantMiddleware::class,
         'portal.access' => EnsurePortalAccess::class,
+        'portal.module' => EnsurePortalModuleAccess::class,
         'subscription.active' => EnsureActiveSubscription::class,
         'plan.module' => EnsurePlanAllowsPortalModule::class,
         'permission' => PermissionMiddleware::class,
