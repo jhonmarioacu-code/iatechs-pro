@@ -11,48 +11,52 @@ class StorePaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('payments.create') ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $user = $this->user();
+
+        if ($user && !$user->hasRole('super_admin')) {
+            $this->merge([
+                'company_id' => $user->company_id,
+            ]);
+        }
     }
 
     public function rules(): array
     {
-        return [
+        $companyId = $this->resolveCompanyId();
 
-            /*
-            |--------------------------------------------------------------------------
-            | Relations
-            |--------------------------------------------------------------------------
-            */
+        return [
+            'company_id' => [
+                'required',
+                Rule::exists('companies', 'id'),
+            ],
 
             'branch_id' => [
-
                 'required',
-
-                'exists:branches,id'
+                Rule::exists('branches', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
             'invoice_id' => [
-
                 'required',
-
-                'exists:invoices,id'
+                Rule::exists('invoices', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
             'customer_id' => [
-
                 'required',
-
-                'exists:customers,id'
+                Rule::exists('customers', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Payment
-            |--------------------------------------------------------------------------
-            */
-
             'payment_method' => [
-
                 'required',
                 Rule::in([
                     'CASH',
@@ -69,68 +73,50 @@ class StorePaymentRequest extends FormRequest
             ],
 
             'external_transaction_id' => [
-
                 'nullable',
-
                 'string',
-
-                'max:255'
+                'max:255',
             ],
 
             'reference' => [
-
                 'nullable',
-
                 'string',
-
-                'max:255'
+                'max:255',
             ],
 
             'currency' => [
-
                 'nullable',
-
                 'string',
-
-                'max:10'
+                'max:10',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Amount
-            |--------------------------------------------------------------------------
-            */
-
             'amount' => [
-
                 'required',
-
                 'numeric',
-
-                'min:0.01'
+                'min:0.01',
             ],
 
             'is_partial' => [
-
                 'nullable',
-
-                'boolean'
+                'boolean',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Notes
-            |--------------------------------------------------------------------------
-            */
-
             'notes' => [
-
                 'nullable',
-
                 'string',
-
-                'max:5000'
-            ]
+                'max:5000',
+            ],
         ];
+    }
+
+    private function resolveCompanyId(): int
+    {
+        $user = $this->user();
+
+        if ($user && !$user->hasRole('super_admin')) {
+            return (int) $user->company_id;
+        }
+
+        return (int) $this->input('company_id');
     }
 }

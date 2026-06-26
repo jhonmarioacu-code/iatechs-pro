@@ -10,28 +10,15 @@ class UpdateInventoryMovementRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('inventory.update') ?? false;
     }
 
     public function rules(): array
     {
         return [
-
-            'reference' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'reason' => [
-                'nullable',
-                'string'
-            ],
-
-            'metadata' => [
-                'nullable',
-                'array'
-            ]
+            'reference' => ['nullable', 'string', 'max:255'],
+            'reason' => ['nullable', 'string'],
+            'metadata' => ['nullable', 'array'],
         ];
     }
 }

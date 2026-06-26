@@ -10,27 +10,15 @@ class UpdatePurchaseOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('purchase-orders.update') ?? false;
     }
 
     public function rules(): array
     {
         return [
-
-            'notes' => [
-                'nullable',
-                'string'
-            ],
-
-            'tax' => [
-                'nullable',
-                'numeric'
-            ],
-
-            'discount' => [
-                'nullable',
-                'numeric'
-            ]
+            'notes' => ['nullable', 'string'],
+            'tax' => ['nullable', 'numeric'],
+            'discount' => ['nullable', 'numeric'],
         ];
     }
 }

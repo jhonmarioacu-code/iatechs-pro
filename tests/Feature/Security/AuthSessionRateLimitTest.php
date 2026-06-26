@@ -3,6 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Spatie\Permission\PermissionRegistrar;
 
 uses(RefreshDatabase::class);
@@ -17,6 +21,10 @@ it('renders login and register forms with csrf token', function (): void {
         ->assertSee('name="_token"', false);
 
     $this->get('/register')
+        ->assertOk()
+        ->assertSee('name="_token"', false);
+
+    $this->get('/forgot-password')
         ->assertOk()
         ->assertSee('name="_token"', false);
 });
@@ -91,4 +99,36 @@ it('enforces register throttling by ip', function (): void {
     }
 
     expect($lastStatus)->toBe(429);
+});
+
+it('sends reset password link and allows password reset with valid token', function (): void {
+    Notification::fake();
+
+    $company = sec_create_company('Password Recovery Co', 'password-recovery-co');
+    $owner = sec_create_user(
+        $company,
+        'password-recovery@example.com',
+        'owner'
+    );
+
+    $this->post('/forgot-password', [
+        'email' => $owner->email,
+    ])
+        ->assertSessionHasNoErrors()
+        ->assertSessionHas('status');
+
+    Notification::assertSentTo($owner, ResetPassword::class);
+
+    $token = Password::broker()->createToken($owner);
+
+    $this->post('/reset-password', [
+        'token' => $token,
+        'email' => $owner->email,
+        'password' => 'NewSecret123',
+        'password_confirmation' => 'NewSecret123',
+    ])
+        ->assertRedirect(route('login'))
+        ->assertSessionHas('status');
+
+    expect(Hash::check('NewSecret123', (string) $owner->fresh()->password))->toBeTrue();
 });

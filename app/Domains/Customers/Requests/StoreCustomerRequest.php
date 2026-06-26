@@ -4,162 +4,90 @@ declare(strict_types=1);
 
 namespace App\Domains\Customers\Requests;
 
+use App\Domains\Customers\Models\Customer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-
-use App\Domains\Customers\Models\Customer;
 
 class StoreCustomerRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can(
-            'create',
-            Customer::class
-        ) ?? false;
+        return $this->user()?->can('create', Customer::class) ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $user = $this->user();
+
+        if ($user && !$user->hasRole('super_admin')) {
+            $this->merge([
+                'company_id' => $user->company_id,
+            ]);
+        }
     }
 
     public function rules(): array
     {
+        $companyId = $this->resolveCompanyId();
+
         return [
+            'company_id' => [
+                'required',
+                Rule::exists('companies', 'id'),
+            ],
 
             'branch_id' => [
                 'required',
-                Rule::exists(
-                    'branches',
-                    'id'
-                )
+                Rule::exists('branches', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
             'customer_type' => [
                 'required',
-                Rule::in([
-                    'person',
-                    'company'
-                ])
+                Rule::in(['person', 'company']),
             ],
 
-            'first_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'last_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'company_name' => [
-                'nullable',
-                'string',
-                'max:255'
-            ],
-
-            'document_type' => [
-                'nullable',
-                'string',
-                'max:50'
-            ],
-
-            'document_number' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'email' => [
-                'nullable',
-                'email',
-                'max:255'
-            ],
-
-            'phone' => [
-                'nullable',
-                'string',
-                'max:50'
-            ],
-
-            'mobile' => [
-                'nullable',
-                'string',
-                'max:50'
-            ],
-
-            'address' => [
-                'nullable',
-                'string'
-            ],
-
-            'city' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'state' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'country' => [
-                'nullable',
-                'string',
-                'max:100'
-            ],
-
-            'credit_limit' => [
-                'nullable',
-                'numeric',
-                'min:0'
-            ],
-
-            'notes' => [
-                'nullable',
-                'string'
-            ],
-
-            'accepts_marketing' => [
-                'nullable',
-                'boolean'
-            ],
-
-            'is_active' => [
-                'nullable',
-                'boolean'
-            ]
+            'first_name' => ['nullable', 'string', 'max:255'],
+            'last_name' => ['nullable', 'string', 'max:255'],
+            'company_name' => ['nullable', 'string', 'max:255'],
+            'document_type' => ['nullable', 'string', 'max:50'],
+            'document_number' => ['nullable', 'string', 'max:100'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'mobile' => ['nullable', 'string', 'max:50'],
+            'address' => ['nullable', 'string'],
+            'city' => ['nullable', 'string', 'max:100'],
+            'state' => ['nullable', 'string', 'max:100'],
+            'country' => ['nullable', 'string', 'max:100'],
+            'credit_limit' => ['nullable', 'numeric', 'min:0'],
+            'notes' => ['nullable', 'string'],
+            'accepts_marketing' => ['nullable', 'boolean'],
+            'is_active' => ['nullable', 'boolean'],
         ];
     }
 
-    public function withValidator(
-        $validator
-    ): void {
-
-        $validator->after(function ($validator) {
-
-            if (
-                $this->customer_type === 'person'
-                &&
-                empty($this->first_name)
-            ) {
-                $validator->errors()->add(
-                    'first_name',
-                    'First name is required for person customers.'
-                );
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator): void {
+            if ($this->customer_type === 'person' && empty($this->first_name)) {
+                $validator->errors()->add('first_name', 'First name is required for person customers.');
             }
 
-            if (
-                $this->customer_type === 'company'
-                &&
-                empty($this->company_name)
-            ) {
-                $validator->errors()->add(
-                    'company_name',
-                    'Company name is required for company customers.'
-                );
+            if ($this->customer_type === 'company' && empty($this->company_name)) {
+                $validator->errors()->add('company_name', 'Company name is required for company customers.');
             }
         });
+    }
+
+    private function resolveCompanyId(): int
+    {
+        $user = $this->user();
+
+        if ($user && !$user->hasRole('super_admin')) {
+            return (int) $user->company_id;
+        }
+
+        return (int) $this->input('company_id');
     }
 }

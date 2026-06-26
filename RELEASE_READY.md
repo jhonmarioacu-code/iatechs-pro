@@ -1,53 +1,34 @@
-# IAtechs Pro - Release Ready
+# IAtechs Pro - Release Status
+
+Fecha de actualizacion: 2026-06-25
 
 ## Estado
 
-Este repositorio queda preparado para subida y despliegue con:
+Estado oficial actual: **Preproduccion tecnica (beta avanzada)**.
 
-- Frontend Blade + Tailwind + Alpine estructurado por portales.
-- Build de Vite para assets de producción.
-- Pipeline CI con análisis, pruebas y build.
-- Checklist de validación pre y post deploy.
+El proyecto tiene base enterprise operativa (arquitectura, dominios, seguridad, multi-tenant, CI/CD, runbooks), pero aun no se marca como "produccion final" hasta cerrar los gates de release definidos.
 
-## Frontend implementado
+## Baseline validado
 
-- Public Website: `/`
-- Admin Portal: `/portal/admin`
-- Company Portal: `/portal/company`
-- Technician Portal: `/portal/technician`
-- Customer Portal: `/portal/customer`
-- Módulos por portal (placeholder navegable): `/portal/{portal}/{module}`
+- Backend Laravel 12 + PHP 8.4 + PostgreSQL/Redis orientado a produccion.
+- Portales por rol (`admin`, `company`, `technician`, `customer`).
+- API v1 con aislamiento tenant y capas DDD operativas.
+- Pruebas funcionales y de seguridad en verde: `69 passed (450 assertions)`.
+- Pipeline de calidad estatico en verde: `composer analyse`.
+- Validacion de cache de configuracion/rutas en verde via `composer validate:testing`.
+- Recuperacion de contrasena con throttling y tests de seguridad en verde.
 
-## Checklist antes de subir
+## Gates para marcar produccion final
 
-1. Ejecutar `composer analyse`.
-2. Ejecutar `composer test`.
-3. Ejecutar `npm ci`.
-4. Ejecutar `npm run build`.
-5. Validar rutas con `php artisan route:list`.
+1. `composer analyse` en verde en CI (alcance oficial de release).
+2. Build frontend validado en servidor objetivo.
+3. Deploy + migrate + health + smoke tests con evidencia de postdeploy.
+4. Checklist de release completo en `docs/operations/10-Release-Checklist.md`.
 
-## Checklist antes de producción
-
-1. Configurar `.env` real de producción (sin secretos en git).
-2. Ejecutar `composer install --no-dev --optimize-autoloader`.
-3. Ejecutar `npm ci && npm run build`.
-4. Ejecutar `php artisan migrate --force`.
-5. Ejecutar:
-   - `php artisan optimize`
-   - `php artisan config:cache`
-   - `php artisan route:cache`
-   - `php artisan view:cache`
-6. Reiniciar workers:
-   - `php artisan horizon:terminate`
-   - `php artisan queue:restart`
-7. Verificar salud:
-   - `/health`
-   - `/api/health`
-   - login/portal principal
-
-## Archivos clave de despliegue
+## Archivos operativos clave
 
 - `DEPLOYMENT.md`
 - `deploy/aws-ec2-production-setup.sh`
 - `.github/workflows/ci.yml`
-
+- `.github/workflows/deploy.yml`
+- `docs/operations/10-Release-Checklist.md`

@@ -11,184 +11,115 @@ class StoreInvoiceRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can(
-            'invoices.create'
-        ) ?? false;
+        return $this->user()?->can('invoices.create') ?? false;
     }
 
     protected function prepareForValidation(): void
     {
         $user = $this->user();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Multi Tenant
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $user &&
-            !$user->hasRole('super_admin')
-        ) {
-
+        if ($user && !$user->hasRole('super_admin')) {
             $this->merge([
-                'company_id' => $user->company_id
+                'company_id' => $user->company_id,
             ]);
         }
     }
 
     public function rules(): array
     {
+        $companyId = $this->resolveCompanyId();
+
         return [
-
-            /*
-            |--------------------------------------------------------------------------
-            | Tenant
-            |--------------------------------------------------------------------------
-            */
-
             'company_id' => [
-
                 'required',
-
-                Rule::exists(
-                    'companies',
-                    'id'
-                )
+                Rule::exists('companies', 'id'),
             ],
 
             'branch_id' => [
-
                 'required',
-
-                Rule::exists(
-                    'branches',
-                    'id'
-                )
+                Rule::exists('branches', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Customer
-            |--------------------------------------------------------------------------
-            */
 
             'customer_id' => [
-
                 'required',
-
-                Rule::exists(
-                    'customers',
-                    'id'
-                )
+                Rule::exists('customers', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Billing
-            |--------------------------------------------------------------------------
-            */
 
             'billing_id' => [
-
                 'nullable',
-
-                Rule::exists(
-                    'billings',
-                    'id'
-                )
+                Rule::exists('billings', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Repair Center
-            |--------------------------------------------------------------------------
-            */
-
             'ticket_id' => [
-
                 'nullable',
-
-                Rule::exists(
-                    'tickets',
-                    'id'
-                )
+                Rule::exists('tickets', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
             'repair_id' => [
-
                 'nullable',
-
-                Rule::exists(
-                    'repairs',
-                    'id'
-                )
+                Rule::exists('repairs', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Financial
-            |--------------------------------------------------------------------------
-            */
-
             'subtotal' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'tax' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'discount' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'currency' => [
-
                 'nullable',
                 'string',
-                'max:10'
+                'max:10',
             ],
 
             'exchange_rate' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Dates
-            |--------------------------------------------------------------------------
-            */
 
             'due_date' => [
-
                 'nullable',
-                'date'
+                'date',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Notes
-            |--------------------------------------------------------------------------
-            */
-
             'notes' => [
-
                 'nullable',
-                'string'
-            ]
+                'string',
+            ],
         ];
+    }
+
+    private function resolveCompanyId(): int
+    {
+        $user = $this->user();
+
+        if ($user && !$user->hasRole('super_admin')) {
+            return (int) $user->company_id;
+        }
+
+        return (int) $this->input('company_id');
     }
 }

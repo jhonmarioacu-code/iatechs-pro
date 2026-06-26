@@ -80,6 +80,49 @@ it('redirects login to the portal based on role', function (): void {
     $this->assertAuthenticatedAs($user);
 });
 
+it('keeps portal dashboards enabled for official roles', function (): void {
+    $company = createCompany('Portal Roles Co', 'portal-roles-co');
+
+    $matrix = [
+        ['role' => 'owner', 'expected' => 'portal.company.dashboard', 'permissions' => []],
+        ['role' => 'administrator', 'expected' => 'portal.company.dashboard', 'permissions' => []],
+        ['role' => 'manager', 'expected' => 'portal.company.dashboard', 'permissions' => []],
+        ['role' => 'receptionist', 'expected' => 'portal.company.dashboard', 'permissions' => []],
+        ['role' => 'warehouse', 'expected' => 'portal.company.dashboard', 'permissions' => []],
+        ['role' => 'accountant', 'expected' => 'portal.company.dashboard', 'permissions' => []],
+        ['role' => 'technician', 'expected' => 'portal.technician.dashboard', 'permissions' => []],
+        [
+            'role' => 'customer',
+            'expected' => 'portal.customer.dashboard',
+            'permissions' => ['customer.portal.view'],
+        ],
+    ];
+
+    foreach ($matrix as $index => $entry) {
+        $email = 'portal-role-'.$entry['role'].'-'.$index.'@example.com';
+        $user = createUserWithRole($company, $email, $entry['role'], $entry['permissions']);
+
+        if ($entry['role'] === 'customer') {
+            Customer::create([
+                'company_id' => $company->id,
+                'uuid' => (string) Str::uuid(),
+                'customer_code' => 'CUS-PORTAL-'.$index,
+                'customer_type' => 'person',
+                'first_name' => 'Portal',
+                'email' => $email,
+            ]);
+        }
+
+        $this->post('/login', [
+            'email' => $email,
+            'password' => 'Secret123!',
+        ])->assertRedirect(route($entry['expected']));
+
+        $this->get(route($entry['expected']))->assertOk();
+        $this->post('/logout')->assertRedirect(route('login'));
+    }
+});
+
 it('denies access when user tries to open another portal role', function (): void {
     $company = createCompany('Customer Corp', 'customer-corp');
     $customerUser = createUserWithRole(

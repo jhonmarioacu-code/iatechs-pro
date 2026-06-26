@@ -14,6 +14,8 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Admin\ObservabilityController;
 use App\Http\Controllers\Admin\OperationsController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 
 Route::get('/', [PortalController::class, 'public'])
     ->name('public.home');
@@ -35,6 +37,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->middleware('throttle:login')
         ->name('login.store');
+
+    Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])
+        ->name('password.request');
+
+    Route::post('/forgot-password', [ForgotPasswordController::class, 'store'])
+        ->middleware('throttle:password-email')
+        ->name('password.email');
+
+    Route::get('/reset-password/{token}', [ResetPasswordController::class, 'create'])
+        ->name('password.reset');
+
+    Route::post('/reset-password', [ResetPasswordController::class, 'store'])
+        ->middleware('throttle:password-reset')
+        ->name('password.store');
 });
 
 Route::middleware('auth')->group(function () {
@@ -247,6 +263,8 @@ Route::middleware(['auth', 'tenant', 'portal.access:admin'])->group(function () 
         ->name('admin.operations');
 });
 
-Route::prefix('admin')->group(base_path('routes/admin.php'));
+Route::prefix('admin')
+    ->as('admin.')
+    ->group(base_path('routes/admin.php'));
 
 Route::get('/health', [HealthController::class, 'health']);

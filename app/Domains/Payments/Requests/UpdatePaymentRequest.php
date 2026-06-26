@@ -11,21 +11,13 @@ class UpdatePaymentRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('payments.update') ?? false;
     }
 
     public function rules(): array
     {
         return [
-
-            /*
-            |--------------------------------------------------------------------------
-            | Payment
-            |--------------------------------------------------------------------------
-            */
-
             'payment_method' => [
-
                 'nullable',
                 Rule::in([
                     'CASH',
@@ -42,62 +34,35 @@ class UpdatePaymentRequest extends FormRequest
             ],
 
             'external_transaction_id' => [
-
                 'nullable',
-
                 'string',
-
-                'max:255'
+                'max:255',
             ],
 
             'reference' => [
-
                 'nullable',
-
                 'string',
-
-                'max:255'
+                'max:255',
             ],
 
             'currency' => [
-
                 'nullable',
-
                 'string',
-
-                'max:10'
+                'max:10',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Amount
-            |--------------------------------------------------------------------------
-            */
-
             'amount' => [
-
                 'nullable',
-
                 'numeric',
-
-                'min:0.01'
+                'min:0.01',
             ],
 
             'is_partial' => [
-
                 'nullable',
-
-                'boolean'
+                'boolean',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Status
-            |--------------------------------------------------------------------------
-            */
-
             'status' => [
-
                 'nullable',
                 Rule::in([
                     'PENDING',
@@ -108,20 +73,11 @@ class UpdatePaymentRequest extends FormRequest
                 ]),
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Notes
-            |--------------------------------------------------------------------------
-            */
-
             'notes' => [
-
                 'nullable',
-
                 'string',
-
-                'max:5000'
-            ]
+                'max:5000',
+            ],
         ];
     }
 }

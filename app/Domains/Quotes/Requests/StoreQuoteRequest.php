@@ -5,66 +5,73 @@ declare(strict_types=1);
 namespace App\Domains\Quotes\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreQuoteRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('quotes.create') ?? false;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $user = $this->user();
+
+        if ($user && !$user->hasRole('super_admin')) {
+            $this->merge([
+                'company_id' => $user->company_id,
+            ]);
+        }
     }
 
     public function rules(): array
     {
-        return [
+        $companyId = $this->resolveCompanyId();
 
+        return [
             'company_id' => [
                 'required',
-                'exists:companies,id'
+                Rule::exists('companies', 'id'),
             ],
 
             'branch_id' => [
                 'required',
-                'exists:branches,id'
+                Rule::exists('branches', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
             'ticket_id' => [
                 'required',
-                'exists:tickets,id'
+                Rule::exists('tickets', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
             'diagnostic_id' => [
                 'required',
-                'exists:diagnostics,id'
+                Rule::exists('diagnostics', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
-            'subtotal' => [
-                'nullable',
-                'numeric',
-                'min:0'
-            ],
-
-            'tax' => [
-                'nullable',
-                'numeric',
-                'min:0'
-            ],
-
-            'discount' => [
-                'nullable',
-                'numeric',
-                'min:0'
-            ],
-
-            'notes' => [
-                'nullable',
-                'string'
-            ],
-
-            'expires_at' => [
-                'nullable',
-                'date',
-                'after:today'
-            ]
+            'subtotal' => ['nullable', 'numeric', 'min:0'],
+            'tax' => ['nullable', 'numeric', 'min:0'],
+            'discount' => ['nullable', 'numeric', 'min:0'],
+            'notes' => ['nullable', 'string'],
+            'expires_at' => ['nullable', 'date', 'after:today'],
         ];
+    }
+
+    private function resolveCompanyId(): int
+    {
+        $user = $this->user();
+
+        if ($user && !$user->hasRole('super_admin')) {
+            return (int) $user->company_id;
+        }
+
+        return (int) $this->input('company_id');
     }
 }

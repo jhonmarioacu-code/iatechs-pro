@@ -11,7 +11,7 @@ Route::middleware([
     'tenant',
     'portal.access:admin',
 ])->prefix('ai')
-->name('admin.ai.')
+->name('ai.')
 ->group(function () {
 
     Route::post(

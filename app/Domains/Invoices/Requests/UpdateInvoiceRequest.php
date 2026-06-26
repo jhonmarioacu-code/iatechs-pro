@@ -4,111 +4,75 @@ declare(strict_types=1);
 
 namespace App\Domains\Invoices\Requests;
 
+use App\Domains\Invoices\Models\Invoice;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UpdateInvoiceRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->can(
-            'invoices.update'
-        ) ?? false;
+        return $this->user()?->can('invoices.update') ?? false;
     }
 
     public function rules(): array
     {
+        /** @var Invoice|null $invoice */
+        $invoice = $this->route('invoice');
+        $companyId = $invoice?->company_id;
+
         return [
-
-            /*
-            |--------------------------------------------------------------------------
-            | Status
-            |--------------------------------------------------------------------------
-            */
-
             'status' => [
-
                 'nullable',
-
-                'in:draft,issued,partially_paid,paid,overdue,cancelled,refunded'
+                'in:draft,issued,partially_paid,paid,overdue,cancelled,refunded',
             ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Billing
-            |--------------------------------------------------------------------------
-            */
 
             'billing_id' => [
-
                 'nullable',
-
-                'exists:billings,id'
+                Rule::exists('billings', 'id')->where(
+                    fn ($query) => $query->where('company_id', $companyId)
+                ),
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Financial
-            |--------------------------------------------------------------------------
-            */
-
             'subtotal' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'tax' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'discount' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
 
             'currency' => [
-
                 'nullable',
                 'string',
-                'max:10'
+                'max:10',
             ],
 
             'exchange_rate' => [
-
                 'nullable',
                 'numeric',
-                'min:0'
+                'min:0',
             ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Dates
-            |--------------------------------------------------------------------------
-            */
 
             'due_date' => [
-
                 'nullable',
-                'date'
+                'date',
             ],
 
-            /*
-            |--------------------------------------------------------------------------
-            | Notes
-            |--------------------------------------------------------------------------
-            */
-
             'notes' => [
-
                 'nullable',
-                'string'
-            ]
+                'string',
+            ],
         ];
     }
 }

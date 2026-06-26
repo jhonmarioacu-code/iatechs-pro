@@ -23,6 +23,12 @@
                 <h2>Iniciar sesion</h2>
             </header>
 
+            @if (session('status'))
+                <div class="crud-feedback success">
+                    {{ session('status') }}
+                </div>
+            @endif
+
             @if ($errors->any())
                 <div class="crud-feedback error">
                     {{ $errors->first() }}
@@ -61,6 +67,7 @@
                 </label>
 
                 <button type="submit" class="btn btn-primary">Entrar</button>
+                <a href="{{ route('password.request') }}" class="btn btn-secondary">Olvide mi contrasena</a>
             </form>
         </section>
     </main>

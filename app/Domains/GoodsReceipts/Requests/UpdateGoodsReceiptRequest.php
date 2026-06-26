@@ -10,17 +10,13 @@ class UpdateGoodsReceiptRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return $this->user()?->can('goods-receipts.update') ?? false;
     }
 
     public function rules(): array
     {
         return [
-
-            'notes' => [
-                'nullable',
-                'string'
-            ]
+            'notes' => ['nullable', 'string'],
         ];
     }
 }
