@@ -12,7 +12,10 @@
     $menu = match ($portal) {
         'admin' => [
             ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'analytics.view'],
+            ['label' => 'Dashboards', 'slug' => 'dashboards', 'permission' => 'analytics.view'],
+            ['label' => 'Clientes', 'slug' => 'customers', 'permission' => 'customers.view'],
             ['label' => 'CRM', 'slug' => 'crm', 'permission' => 'crm.view'],
+            ['label' => 'Marketplace', 'slug' => 'marketplace', 'permission' => 'products.view'],
             ['label' => 'Service Desk', 'slug' => 'service-desk', 'permission' => 'tickets.view'],
             ['label' => 'Inventory', 'slug' => 'inventory', 'permission' => 'products.view'],
             ['label' => 'Accounting', 'slug' => 'accounting', 'permission' => 'reports.view'],
@@ -68,20 +71,31 @@
     }
 @endphp
 
-<div class="portal-grid" data-assistant-enabled="{{ $assistantEnabled ? '1' : '0' }}">
+<div
+    class="portal-grid"
+    data-assistant-enabled="{{ $assistantEnabled ? '1' : '0' }}"
+    data-portal-theme="{{ $portal }}"
+>
     <x-sidebar :portal="$portal" :menu="$menu" />
 
     <div class="portal-main">
         <x-topbar :portal="$portal" />
 
         <main class="portal-content">
-            <header class="portal-header">
-                <div>
-                    <p class="portal-eyebrow">{{ strtoupper($portal) }}</p>
-                    <h1 class="portal-title">{{ $title }}</h1>
-                    @if ($subtitle !== '')
-                        <p class="portal-subtitle">{{ $subtitle }}</p>
-                    @endif
+            <header class="portal-header" x-data="{ mounted: false }" x-init="setTimeout(() => mounted = true, 80)">
+                <div class="portal-header-grid">
+                    <div class="portal-header-copy" :class="{ 'is-visible': mounted }">
+                        <p class="portal-eyebrow">{{ strtoupper($portal) }}</p>
+                        <h1 class="portal-title">{{ $title }}</h1>
+                        @if ($subtitle !== '')
+                            <p class="portal-subtitle">{{ $subtitle }}</p>
+                        @endif
+                    </div>
+                    <div class="portal-header-meta" :class="{ 'is-visible': mounted }">
+                        <span class="meta-pill">Tenant isolation</span>
+                        <span class="meta-pill">RBAC active</span>
+                        <span class="meta-pill">Audit ready</span>
+                    </div>
                 </div>
             </header>
 

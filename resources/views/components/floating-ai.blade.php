@@ -41,24 +41,24 @@
         @click="toggleAssistantPanel()"
         aria-label="Abrir IA Assistant"
     >
-        IA
+        AI Copilot
     </button>
 
     <aside class="ai-panel" x-show="assistantPanelOpen" x-transition.opacity>
         <header>
             <h3>IA Assistant</h3>
-            <button type="button" @click="toggleAssistantPanel()" aria-label="Cerrar IA">x</button>
+            <button type="button" class="icon-button" @click="toggleAssistantPanel()" aria-label="Cerrar IA">X</button>
         </header>
 
-        <p x-show="assistantError" x-text="assistantError"></p>
+        <p x-show="assistantError" x-text="assistantError" class="module-copy"></p>
 
-        <div x-show="assistantEnabled" style="margin: 8px 0;">
+        <div x-show="assistantEnabled" class="ai-field">
             <label for="ai-conversation-select"><strong>Conversacion</strong></label>
             <select
                 id="ai-conversation-select"
+                class="crud-input"
                 x-model="assistantConversationId"
                 @change="loadSelectedConversationMessages()"
-                style="width: 100%; margin-top: 6px;"
             >
                 <option value="">Nueva conversacion</option>
                 <template x-for="item in assistantConversations" :key="item.id">
@@ -67,26 +67,26 @@
             </select>
         </div>
 
-        <div style="max-height: 220px; overflow-y: auto; margin: 12px 0;">
+        <div class="ai-log">
             <template x-for="(item, index) in assistantMessages" :key="index">
-                <div style="margin-bottom: 10px;">
+                <article class="ai-message" :class="item.role === 'assistant' ? 'assistant' : 'user'">
                     <strong x-text="item.role === 'assistant' ? 'IA' : 'Tu'"></strong>
-                    <p x-text="item.content" style="margin: 4px 0 0 0;"></p>
-                </div>
+                    <p x-text="item.content"></p>
+                </article>
             </template>
-            <p x-show="assistantMessages.length === 0">Haz una pregunta y te respondo segun tu rol.</p>
+            <p x-show="assistantMessages.length === 0" class="module-copy">Haz una pregunta y te respondo segun tu rol.</p>
         </div>
 
-        <form @submit.prevent="sendAssistantMessage()">
+        <form @submit.prevent="sendAssistantMessage()" class="ai-form">
             <textarea
                 x-model="assistantInput"
-                placeholder="Escribe tu consulta..."
+                class="crud-input"
+                placeholder="Escribe tu consulta"
                 rows="3"
-                style="width: 100%;"
             ></textarea>
-            <button type="submit" :disabled="assistantLoading || assistantInput.trim() === ''">
+            <button type="submit" class="btn btn-primary" :disabled="assistantLoading || assistantInput.trim() === ''">
                 <span x-show="!assistantLoading">Enviar</span>
-                <span x-show="assistantLoading">Enviando...</span>
+                <span x-show="assistantLoading">Enviando</span>
             </button>
         </form>
     </aside>

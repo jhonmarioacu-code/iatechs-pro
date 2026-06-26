@@ -9,12 +9,12 @@
             <p class="sidebar-brand-label">IAtechs Pro</p>
             <p class="sidebar-brand-title">{{ ucfirst($portal) }} Portal</p>
         </div>
-        <button class="icon-button lg-hidden" type="button" @click="toggleSidebar()" aria-label="Cerrar menú lateral">
-            ✕
+        <button class="icon-button lg-hidden" type="button" @click="toggleSidebar()" aria-label="Cerrar menu lateral">
+            X
         </button>
     </div>
 
-    <nav class="sidebar-nav" aria-label="Menú principal">
+    <nav class="sidebar-nav" aria-label="Menu principal">
         @foreach ($menu as $item)
             @php
                 $canView = true;
@@ -57,13 +57,41 @@
                 } else {
                     $href = route('portal.module', ['portal' => $portal, 'module' => $item['slug']]);
                 }
+
+                $icon = match ($item['slug']) {
+                    'dashboard' => 'DB',
+                    'dashboards' => 'BI',
+                    'customers' => 'CU',
+                    'devices' => 'DV',
+                    'tickets' => 'TK',
+                    'diagnostics' => 'DG',
+                    'repairs' => 'RE',
+                    'invoices' => 'IN',
+                    'payments' => 'PY',
+                    'inventory', 'assigned-inventory' => 'IV',
+                    'reports' => 'RP',
+                    'analytics' => 'AN',
+                    'ai-assistant' => 'AI',
+                    'operations' => 'OP',
+                    'observability' => 'OB',
+                    'marketplace' => 'MK',
+                    'settings' => 'ST',
+                    default => 'MD',
+                };
+
                 $isActive = request()->url() === $href;
             @endphp
             <a href="{{ $href }}" class="sidebar-link {{ $isActive ? 'active' : '' }}">
-                <span>{{ $item['label'] }}</span>
+                <span class="sidebar-link-icon">{{ $icon }}</span>
+                <span class="sidebar-link-label">{{ $item['label'] }}</span>
             </a>
         @endforeach
     </nav>
+
+    <div class="sidebar-footer">
+        <p>Enterprise SaaS</p>
+        <small>Laravel 12 + PostgreSQL</small>
+    </div>
 </aside>
 
 <div class="sidebar-backdrop" x-show="sidebarOpen" @click="toggleSidebar()" x-transition.opacity></div>
