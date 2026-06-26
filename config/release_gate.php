@@ -7,11 +7,13 @@ return [
         '.env.example',
         'config/app.php',
         'config/database.php',
+        'config/broadcasting.php',
         'config/queue.php',
         'config/services.php',
         'deploy/one-file-production.sh',
         'docs/operations/11-Production-Env-Contract.md',
         'docs/operations/22-Architecture-Audit-Runbook.md',
+        'docs/operations/24-Realtime-Broadcast-Runbook.md',
     ],
 
     'required_composer_scripts' => [
@@ -43,6 +45,7 @@ return [
         'CACHE_STORE',
         'SESSION_DRIVER',
         'QUEUE_CONNECTION',
+        'BROADCAST_CONNECTION',
         'FILESYSTEM_DISK',
         'AWS_ACCESS_KEY_ID',
         'AWS_SECRET_ACCESS_KEY',
@@ -54,6 +57,16 @@ return [
         'SANCTUM_STATEFUL_DOMAINS',
         'AZURE_OPENAI_RESPONSES_ENDPOINT',
         'AZURE_OPENAI_API_KEY',
+        'VITE_BROADCAST_CONNECTION',
+        'VITE_REVERB_APP_KEY',
+        'VITE_REVERB_HOST',
+        'VITE_REVERB_PORT',
+        'VITE_REVERB_SCHEME',
+        'VITE_PUSHER_APP_KEY',
+        'VITE_PUSHER_HOST',
+        'VITE_PUSHER_PORT',
+        'VITE_PUSHER_SCHEME',
+        'VITE_PUSHER_APP_CLUSTER',
     ],
 
     'required_env_values' => [
@@ -63,6 +76,7 @@ return [
         'CACHE_STORE' => 'redis',
         'SESSION_DRIVER' => 'redis',
         'QUEUE_CONNECTION' => 'redis',
+        'BROADCAST_CONNECTION' => 'reverb',
     ],
 
     'integration_env_matrix' => [
@@ -101,7 +115,7 @@ return [
             ],
         ],
         'websockets_reverb' => [
-            'required' => false,
+            'required' => true,
             'keys' => [
                 'BROADCAST_CONNECTION',
                 'REVERB_APP_ID',
@@ -110,6 +124,11 @@ return [
                 'REVERB_HOST',
                 'REVERB_PORT',
                 'REVERB_SCHEME',
+                'VITE_BROADCAST_CONNECTION',
+                'VITE_REVERB_APP_KEY',
+                'VITE_REVERB_HOST',
+                'VITE_REVERB_PORT',
+                'VITE_REVERB_SCHEME',
             ],
         ],
         'pusher' => [
@@ -155,4 +174,3 @@ return [
         ],
     ],
 ];
-

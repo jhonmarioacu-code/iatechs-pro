@@ -23,8 +23,9 @@
             </div>
         @endauth
         <span class="clock-chip" x-text="now"></span>
-        <button class="icon-button" type="button" @click="toggleNotifications()" aria-label="Notificaciones">
+        <button class="icon-button notification-toggle" type="button" @click="toggleNotifications()" aria-label="Notificaciones">
             NT
+            <span class="notification-badge" x-show="unreadNotificationsCount > 0" x-text="unreadNotificationsCount"></span>
         </button>
         <button class="icon-button" type="button" @click="toggleAssistant()" aria-label="IA Assistant">
             AI

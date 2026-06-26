@@ -61,6 +61,7 @@ La documentacion oficial se organiza en 4 bloques:
 - Estado operativo: `docs/operations/19-Project-Status-And-Stage.md`
 - Auditoria automatica: `docs/operations/22-Architecture-Audit-Runbook.md`
 - Gate de release y checklist obligatorio: `docs/operations/23-Release-Gate-And-Delivery-Checklist.md`
+- Realtime operativo y autorizacion de canales: `docs/operations/24-Realtime-Broadcast-Runbook.md`
 
 ## Estructura oficial de carpetas de documentacion
 

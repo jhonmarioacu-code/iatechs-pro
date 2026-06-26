@@ -44,7 +44,8 @@ El comando `iatechs:gate-release` valida:
    `CACHE_STORE=redis`, `SESSION_DRIVER=redis`, `QUEUE_CONNECTION=redis`.
 5. Matriz de integraciones y sus variables de entorno:
    Azure OpenAI, Redis/Horizon, Mail, S3 (requeridas) y
-   Reverb/Pusher/Stripe/Mercado Pago/Cloudflare/OAuth-JWT-Passport (seguimiento).
+   Reverb/Pusher (operativas, ver `docs/operations/24-Realtime-Broadcast-Runbook.md`)
+   y Stripe/Mercado Pago/Cloudflare/OAuth-JWT-Passport (seguimiento).
 
 ## Checklist de cierre obligatorio por tarea
 
@@ -63,4 +64,3 @@ Cada entrega debe incluir este bloque:
 11. Pendientes.
 12. Compatibilidad:
     Laravel 12, PHP 8.4, DDD, Multi-Tenant, API v1, SPA, Docker, Azure OpenAI, Redis, Reverb, MySQL, Produccion.
-

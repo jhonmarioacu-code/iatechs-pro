@@ -20,12 +20,38 @@
     if ($assistantEnabled && $portal === 'company' && $authUser !== null && !$authUser->hasRole('super_admin')) {
         $assistantEnabled = \App\Support\PlanAccess::canUseCompanyModule($authUser, 'ai-assistant');
     }
+
+    $realtimeEnabled = $authUser !== null && $authUser->can('notifications.view');
+    $broadcastConnection = (string) config('broadcasting.default', 'log');
+    $reverbConfig = (array) config('broadcasting.connections.reverb', []);
+    $pusherConfig = (array) config('broadcasting.connections.pusher', []);
+    $reverbOptions = (array) ($reverbConfig['options'] ?? []);
+    $pusherOptions = (array) ($pusherConfig['options'] ?? []);
+    $notificationIndexUrl = route('notifications.index');
+    $notificationReadUrlTemplate = route('notifications.read', ['notification' => '__NOTIFICATION__']);
+    $companyChannel = $authUser !== null ? 'company.'.$authUser->company_id.'.notifications' : '';
+    $userChannel = $authUser !== null ? 'user.'.$authUser->id.'.notifications' : '';
 @endphp
 
 <div
     class="portal-grid"
     data-assistant-enabled="{{ $assistantEnabled ? '1' : '0' }}"
     data-portal-theme="{{ $portal }}"
+    data-realtime-enabled="{{ $realtimeEnabled ? '1' : '0' }}"
+    data-broadcast-connection="{{ $broadcastConnection }}"
+    data-reverb-key="{{ (string) ($reverbConfig['key'] ?? '') }}"
+    data-reverb-host="{{ (string) ($reverbOptions['host'] ?? '') }}"
+    data-reverb-port="{{ (string) ($reverbOptions['port'] ?? '') }}"
+    data-reverb-scheme="{{ (string) ($reverbOptions['scheme'] ?? 'http') }}"
+    data-pusher-key="{{ (string) ($pusherConfig['key'] ?? '') }}"
+    data-pusher-host="{{ (string) ($pusherOptions['host'] ?? '') }}"
+    data-pusher-port="{{ (string) ($pusherOptions['port'] ?? '') }}"
+    data-pusher-scheme="{{ (string) ($pusherOptions['scheme'] ?? '') }}"
+    data-pusher-cluster="{{ (string) ($pusherOptions['cluster'] ?? '') }}"
+    data-notifications-url="{{ $notificationIndexUrl }}"
+    data-notification-read-template="{{ $notificationReadUrlTemplate }}"
+    data-company-channel="{{ $companyChannel }}"
+    data-user-channel="{{ $userChannel }}"
 >
     <x-sidebar :portal="$portal" :menu="$menu" />
 
