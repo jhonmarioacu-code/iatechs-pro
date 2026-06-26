@@ -16,6 +16,7 @@ use App\Domains\Plans\Models\Plan;
 use App\Domains\Subscriptions\Models\Subscription;
 use App\Domains\Users\Models\User;
 use App\Domains\Companies\Models\Company;
+use App\Domains\Branches\Models\Branch;
 use App\Domains\Users\Services\UserService;
 use App\Domains\Companies\Services\CompanyService;
 use App\Domains\Subscriptions\Services\SubscriptionService;
@@ -61,6 +62,11 @@ class OperationsController extends Controller
                 ->with(['roles', 'permissions', 'company'])
                 ->orderBy('name')
                 ->get(['id', 'company_id', 'name', 'email', 'phone', 'is_active']),
+            'branches' => Branch::query()
+                ->with('company')
+                ->orderBy('company_id')
+                ->orderBy('name')
+                ->get(['id', 'company_id', 'name', 'code', 'city', 'country', 'is_main', 'is_active']),
             'technicians' => User::query()
                 ->with(['roles', 'permissions', 'company'])
                 ->whereHas('roles', static fn ($query) => $query->where('name', 'technician'))
