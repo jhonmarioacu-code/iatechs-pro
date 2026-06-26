@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domains\AIAssistant\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Companies\Models\Company;
+use App\Domains\Users\Models\User;
 
 class AIConversation extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
 
     protected $table = 'ai_conversations';
 
@@ -42,14 +46,14 @@ class AIConversation extends Model
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\Company::class
+            Company::class
         );
     }
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\User::class
+            User::class
         );
     }
 

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domains\Reports\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Report extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
 
     protected $fillable = [
 

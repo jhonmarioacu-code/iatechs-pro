@@ -26,6 +26,8 @@ class InvoiceItemController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', InvoiceItem::class);
+
         return InvoiceItemResource::collection(
             $this->service
                 ->paginate()
@@ -39,6 +41,8 @@ class InvoiceItemController extends Controller
         StoreInvoiceItemRequest $request
     )
     {
+        $this->authorize('create', InvoiceItem::class);
+
         return new InvoiceItemResource(
             $this->service->create(
                 $request->validated()
@@ -53,6 +57,8 @@ class InvoiceItemController extends Controller
         InvoiceItem $invoiceItem
     )
     {
+        $this->authorize('view', $invoiceItem);
+
         return new InvoiceItemResource(
             $invoiceItem->load([
                 'invoice',
@@ -69,6 +75,8 @@ class InvoiceItemController extends Controller
         InvoiceItem $invoiceItem
     )
     {
+        $this->authorize('update', $invoiceItem);
+
         return new InvoiceItemResource(
             $this->service->update(
                 $invoiceItem,
@@ -84,6 +92,8 @@ class InvoiceItemController extends Controller
         InvoiceItem $invoiceItem
     )
     {
+        $this->authorize('delete', $invoiceItem);
+
         $this->service->delete(
             $invoiceItem
         );

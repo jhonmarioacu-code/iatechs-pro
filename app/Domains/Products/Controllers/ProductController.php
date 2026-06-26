@@ -19,6 +19,8 @@ class ProductController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Product::class);
+
         return ProductResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class ProductController extends Controller
         StoreProductRequest $request
     )
     {
+        $this->authorize('create', Product::class);
+
         return new ProductResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class ProductController extends Controller
         Product $product
     )
     {
+        $this->authorize('view', $product);
+
         return new ProductResource(
             $product
         );
@@ -49,6 +55,8 @@ class ProductController extends Controller
         Product $product
     )
     {
+        $this->authorize('update', $product);
+
         return new ProductResource(
             $this->service->update(
                 $product,
@@ -61,6 +69,8 @@ class ProductController extends Controller
         Product $product
     )
     {
+        $this->authorize('delete', $product);
+
         $product->delete();
 
         return response()->json([
@@ -72,6 +82,8 @@ class ProductController extends Controller
         Product $product
     )
     {
+        $this->authorize('activate', $product);
+
         return new ProductResource(
             $this->service->activate(
                 $product
@@ -83,6 +95,8 @@ class ProductController extends Controller
         Product $product
     )
     {
+        $this->authorize('deactivate', $product);
+
         return new ProductResource(
             $this->service->deactivate(
                 $product

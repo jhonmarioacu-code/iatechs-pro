@@ -28,6 +28,8 @@ class CompanyController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Company::class);
+
         return CompanyResource::collection(
             $this->service->paginate()
         );
@@ -39,6 +41,7 @@ class CompanyController extends Controller
     public function store(
         StoreCompanyRequest $request
     ): CompanyResource {
+        $this->authorize('create', Company::class);
 
         $company = $this->service
             ->create(
@@ -56,6 +59,7 @@ class CompanyController extends Controller
     public function show(
         Company $company
     ): CompanyResource {
+        $this->authorize('view', $company);
 
         return new CompanyResource(
             $company
@@ -69,6 +73,7 @@ class CompanyController extends Controller
         UpdateCompanyRequest $request,
         Company $company
     ): CompanyResource {
+        $this->authorize('update', $company);
 
         $company = $this->service
             ->update(
@@ -87,6 +92,7 @@ class CompanyController extends Controller
     public function destroy(
         Company $company
     ): JsonResponse {
+        $this->authorize('delete', $company);
 
         $this->service
             ->delete($company);
@@ -103,6 +109,7 @@ class CompanyController extends Controller
     public function activate(
         Company $company
     ): CompanyResource {
+        $this->authorize('activate', $company);
 
         return new CompanyResource(
             $this->service
@@ -116,6 +123,7 @@ class CompanyController extends Controller
     public function suspend(
         Company $company
     ): CompanyResource {
+        $this->authorize('suspend', $company);
 
         return new CompanyResource(
             $this->service
@@ -129,6 +137,7 @@ class CompanyController extends Controller
     public function cancel(
         Company $company
     ): CompanyResource {
+        $this->authorize('delete', $company);
 
         return new CompanyResource(
             $this->service

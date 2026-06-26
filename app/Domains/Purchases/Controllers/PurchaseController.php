@@ -20,6 +20,8 @@ class PurchaseController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Purchase::class);
+
         return PurchaseResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class PurchaseController extends Controller
     public function store(
         StorePurchaseRequest $request
     ): PurchaseResource {
+        $this->authorize('create', Purchase::class);
 
         return new PurchaseResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class PurchaseController extends Controller
     public function show(
         Purchase $purchase
     ): PurchaseResource {
+        $this->authorize('view', $purchase);
 
         return new PurchaseResource($purchase);
     }
@@ -45,6 +49,7 @@ class PurchaseController extends Controller
         UpdatePurchaseRequest $request,
         Purchase $purchase
     ): PurchaseResource {
+        $this->authorize('update', $purchase);
 
         return new PurchaseResource(
             $this->service->update($purchase, $request->validated())
@@ -54,6 +59,7 @@ class PurchaseController extends Controller
     public function destroy(
         Purchase $purchase
     ): JsonResponse {
+        $this->authorize('delete', $purchase);
 
         $this->service->delete($purchase);
 

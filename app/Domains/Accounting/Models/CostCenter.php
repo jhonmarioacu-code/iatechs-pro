@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domains\Accounting\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Companies\Models\Company;
 
 class CostCenter extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
 
     protected $table = 'cost_centers';
 
@@ -36,7 +39,7 @@ class CostCenter extends Model
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\Company::class
+            Company::class
         );
     }
 }

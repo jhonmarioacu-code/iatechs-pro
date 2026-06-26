@@ -14,7 +14,7 @@ class AuditLogPolicy
     ): bool {
 
         return $user->can(
-            'audit_logs.view'
+            'auditlogs.view'
         );
     }
 
@@ -24,7 +24,7 @@ class AuditLogPolicy
     ): bool {
 
         return $user->can(
-            'audit_logs.view'
+            'auditlogs.view'
         );
     }
 }

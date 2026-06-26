@@ -6,6 +6,7 @@ namespace App\Domains\CRM\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Users\Models\User;
 
 class Note extends Model
 {
@@ -45,7 +46,7 @@ class Note extends Model
     public function creator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\User::class,
+            User::class,
             'created_by'
         );
     }

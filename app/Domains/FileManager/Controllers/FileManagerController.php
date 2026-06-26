@@ -20,6 +20,8 @@ class FileManagerController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', FileManager::class);
+
         return FileManagerResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class FileManagerController extends Controller
     public function store(
         StoreFileManagerRequest $request
     ): FileManagerResource {
+        $this->authorize('create', FileManager::class);
 
         return new FileManagerResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class FileManagerController extends Controller
     public function show(
         FileManager $fileManager
     ): FileManagerResource {
+        $this->authorize('view', $fileManager);
 
         return new FileManagerResource($fileManager);
     }
@@ -45,6 +49,7 @@ class FileManagerController extends Controller
         UpdateFileManagerRequest $request,
         FileManager $fileManager
     ): FileManagerResource {
+        $this->authorize('update', $fileManager);
 
         return new FileManagerResource(
             $this->service->update($fileManager, $request->validated())
@@ -54,6 +59,7 @@ class FileManagerController extends Controller
     public function destroy(
         FileManager $fileManager
     ): JsonResponse {
+        $this->authorize('delete', $fileManager);
 
         $this->service->delete($fileManager);
 

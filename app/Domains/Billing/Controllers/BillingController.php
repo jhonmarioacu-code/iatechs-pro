@@ -25,6 +25,8 @@ class BillingController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Billing::class);
+
         return BillingResource::collection(
             $this->service->paginate()
         );
@@ -37,6 +39,8 @@ class BillingController extends Controller
         StoreBillingRequest $request
     )
     {
+        $this->authorize('create', Billing::class);
+
         return new BillingResource(
             $this->service->create(
                 $request->validated()
@@ -51,6 +55,8 @@ class BillingController extends Controller
         Billing $billing
     )
     {
+        $this->authorize('view', $billing);
+
         $billing->load([
             'company',
             'subscription'
@@ -69,6 +75,8 @@ class BillingController extends Controller
         Billing $billing
     )
     {
+        $this->authorize('update', $billing);
+
         return new BillingResource(
             $this->service->update(
                 $billing,
@@ -84,6 +92,8 @@ class BillingController extends Controller
         Billing $billing
     )
     {
+        $this->authorize('delete', $billing);
+
         $this->service->delete(
             $billing
         );
@@ -100,6 +110,8 @@ class BillingController extends Controller
         Billing $billing
     )
     {
+        $this->authorize('markPaid', $billing);
+
         return new BillingResource(
             $this->service->markAsPaid(
                 $billing
@@ -114,6 +126,8 @@ class BillingController extends Controller
         Billing $billing
     )
     {
+        $this->authorize('markFailed', $billing);
+
         return new BillingResource(
             $this->service->markAsFailed(
                 $billing
@@ -128,6 +142,8 @@ class BillingController extends Controller
         Billing $billing
     )
     {
+        $this->authorize('cancel', $billing);
+
         return new BillingResource(
             $this->service->cancel(
                 $billing
@@ -142,6 +158,8 @@ class BillingController extends Controller
         Billing $billing
     )
     {
+        $this->authorize('refund', $billing);
+
         return new BillingResource(
             $this->service->update(
                 $billing,

@@ -25,6 +25,8 @@ class PermissionController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Permission::class);
+
         $permissions = $this->service->paginate();
 
         return PermissionResource::collection(
@@ -38,6 +40,7 @@ class PermissionController extends Controller
     public function store(
         StorePermissionRequest $request
     ): PermissionResource {
+        $this->authorize('create', Permission::class);
 
         $permission = $this->service
             ->createPermission(
@@ -55,6 +58,7 @@ class PermissionController extends Controller
     public function show(
         Permission $permission
     ): PermissionResource {
+        $this->authorize('view', $permission);
 
         return new PermissionResource(
             $permission
@@ -68,6 +72,7 @@ class PermissionController extends Controller
         UpdatePermissionRequest $request,
         Permission $permission
     ): PermissionResource {
+        $this->authorize('update', $permission);
 
         $permission = $this->service
             ->updatePermission(
@@ -86,6 +91,7 @@ class PermissionController extends Controller
     public function destroy(
         Permission $permission
     ): JsonResponse {
+        $this->authorize('delete', $permission);
 
         $this->service
             ->deletePermission(

@@ -30,6 +30,8 @@ class SubscriptionController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Subscription::class);
+
         return SubscriptionResource::collection(
             $this->service->paginate()
         );
@@ -41,6 +43,7 @@ class SubscriptionController extends Controller
     public function store(
         StoreSubscriptionRequest $request
     ): SubscriptionResource {
+        $this->authorize('create', Subscription::class);
 
         return new SubscriptionResource(
             $this->service->create(
@@ -55,6 +58,7 @@ class SubscriptionController extends Controller
     public function show(
         Subscription $subscription
     ): SubscriptionResource {
+        $this->authorize('view', $subscription);
 
         return new SubscriptionResource(
             $subscription->load([
@@ -71,6 +75,7 @@ class SubscriptionController extends Controller
         UpdateSubscriptionRequest $request,
         Subscription $subscription
     ): SubscriptionResource {
+        $this->authorize('update', $subscription);
 
         return new SubscriptionResource(
             $this->service->update(
@@ -86,6 +91,7 @@ class SubscriptionController extends Controller
     public function destroy(
         Subscription $subscription
     ): JsonResponse {
+        $this->authorize('delete', $subscription);
 
         $this->service->delete(
             $subscription
@@ -103,6 +109,7 @@ class SubscriptionController extends Controller
     public function activate(
         Subscription $subscription
     ): SubscriptionResource {
+        $this->authorize('activate', $subscription);
 
         return new SubscriptionResource(
             $this->service->activate(
@@ -117,6 +124,7 @@ class SubscriptionController extends Controller
     public function cancel(
         Subscription $subscription
     ): SubscriptionResource {
+        $this->authorize('cancel', $subscription);
 
         return new SubscriptionResource(
             $this->service->cancel(
@@ -131,6 +139,7 @@ class SubscriptionController extends Controller
     public function renew(
         Subscription $subscription
     ): SubscriptionResource {
+        $this->authorize('renew', $subscription);
 
         return new SubscriptionResource(
             $this->service->renew(
@@ -146,6 +155,7 @@ class SubscriptionController extends Controller
         Request $request,
         Subscription $subscription
     ): SubscriptionResource {
+        $this->authorize('changePlan', $subscription);
 
         $request->validate([
             'plan_id' => [

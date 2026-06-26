@@ -25,6 +25,8 @@ class RoleController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Role::class);
+
         $roles = $this->service->paginate();
 
         return RoleResource::collection($roles);
@@ -36,6 +38,7 @@ class RoleController extends Controller
     public function store(
         StoreRoleRequest $request
     ): RoleResource {
+        $this->authorize('create', Role::class);
 
         $role = $this->service->createRole(
             $request->validated()
@@ -50,6 +53,7 @@ class RoleController extends Controller
     public function show(
         Role $role
     ): RoleResource {
+        $this->authorize('view', $role);
 
         return new RoleResource(
             $role->load('permissions')
@@ -63,6 +67,7 @@ class RoleController extends Controller
         UpdateRoleRequest $request,
         Role $role
     ): RoleResource {
+        $this->authorize('update', $role);
 
         $role = $this->service->updateRole(
             $role,
@@ -78,6 +83,7 @@ class RoleController extends Controller
     public function destroy(
         Role $role
     ): JsonResponse {
+        $this->authorize('delete', $role);
 
         $this->service->deleteRole($role);
 
@@ -93,6 +99,7 @@ class RoleController extends Controller
     public function syncPermissions(
         Role $role
     ): RoleResource {
+        $this->authorize('update', $role);
 
         $permissions = request()->input(
             'permissions',

@@ -20,6 +20,8 @@ class ManagedDocumentController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', ManagedDocument::class);
+
         return ManagedDocumentResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class ManagedDocumentController extends Controller
     public function store(
         StoreManagedDocumentRequest $request
     ): ManagedDocumentResource {
+        $this->authorize('create', ManagedDocument::class);
 
         return new ManagedDocumentResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class ManagedDocumentController extends Controller
     public function show(
         ManagedDocument $managedDocument
     ): ManagedDocumentResource {
+        $this->authorize('view', $managedDocument);
 
         return new ManagedDocumentResource($managedDocument);
     }
@@ -45,6 +49,7 @@ class ManagedDocumentController extends Controller
         UpdateManagedDocumentRequest $request,
         ManagedDocument $managedDocument
     ): ManagedDocumentResource {
+        $this->authorize('update', $managedDocument);
 
         return new ManagedDocumentResource(
             $this->service->update($managedDocument, $request->validated())
@@ -54,6 +59,7 @@ class ManagedDocumentController extends Controller
     public function destroy(
         ManagedDocument $managedDocument
     ): JsonResponse {
+        $this->authorize('delete', $managedDocument);
 
         $this->service->delete($managedDocument);
 

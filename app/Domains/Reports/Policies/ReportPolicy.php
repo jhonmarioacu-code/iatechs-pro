@@ -32,7 +32,7 @@ class ReportPolicy
     ): bool {
 
         return $user->can(
-            'reports.create'
+            'reports.export'
         );
     }
 
@@ -50,7 +50,7 @@ class ReportPolicy
     ): bool {
 
         return $user->can(
-            'reports.delete'
+            'reports.export'
         );
     }
 }

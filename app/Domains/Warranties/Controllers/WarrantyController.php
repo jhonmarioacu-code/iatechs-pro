@@ -19,6 +19,8 @@ class WarrantyController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Warranty::class);
+
         return WarrantyResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class WarrantyController extends Controller
         StoreWarrantyRequest $request
     )
     {
+        $this->authorize('create', Warranty::class);
+
         return new WarrantyResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class WarrantyController extends Controller
         Warranty $warranty
     )
     {
+        $this->authorize('view', $warranty);
+
         return new WarrantyResource(
             $warranty->load([
                 'customer',
@@ -54,6 +60,8 @@ class WarrantyController extends Controller
         Warranty $warranty
     )
     {
+        $this->authorize('update', $warranty);
+
         return new WarrantyResource(
             $this->service->update(
                 $warranty,
@@ -66,6 +74,8 @@ class WarrantyController extends Controller
         Warranty $warranty
     )
     {
+        $this->authorize('delete', $warranty);
+
         $warranty->delete();
 
         return response()->json([
@@ -77,6 +87,8 @@ class WarrantyController extends Controller
         Warranty $warranty
     )
     {
+        $this->authorize('claim', $warranty);
+
         return new WarrantyResource(
             $this->service->claim(
                 $warranty
@@ -88,6 +100,8 @@ class WarrantyController extends Controller
         Warranty $warranty
     )
     {
+        $this->authorize('expire', $warranty);
+
         return new WarrantyResource(
             $this->service->expire(
                 $warranty
@@ -99,6 +113,8 @@ class WarrantyController extends Controller
         Warranty $warranty
     )
     {
+        $this->authorize('void', $warranty);
+
         return new WarrantyResource(
             $this->service->void(
                 $warranty

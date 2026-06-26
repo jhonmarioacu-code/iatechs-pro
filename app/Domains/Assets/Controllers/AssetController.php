@@ -20,6 +20,8 @@ class AssetController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Asset::class);
+
         return AssetResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class AssetController extends Controller
     public function store(
         StoreAssetRequest $request
     ): AssetResource {
+        $this->authorize('create', Asset::class);
 
         return new AssetResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class AssetController extends Controller
     public function show(
         Asset $asset
     ): AssetResource {
+        $this->authorize('view', $asset);
 
         return new AssetResource($asset);
     }
@@ -45,6 +49,7 @@ class AssetController extends Controller
         UpdateAssetRequest $request,
         Asset $asset
     ): AssetResource {
+        $this->authorize('update', $asset);
 
         return new AssetResource(
             $this->service->update($asset, $request->validated())
@@ -54,6 +59,7 @@ class AssetController extends Controller
     public function destroy(
         Asset $asset
     ): JsonResponse {
+        $this->authorize('delete', $asset);
 
         $this->service->delete($asset);
 

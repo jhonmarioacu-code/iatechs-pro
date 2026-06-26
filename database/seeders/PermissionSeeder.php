@@ -33,6 +33,16 @@ class PermissionSeeder extends Seeder
 
             /*
             |--------------------------------------------------------------------------
+            | Branches
+            |--------------------------------------------------------------------------
+            */
+            'branches.view',
+            'branches.create',
+            'branches.update',
+            'branches.delete',
+
+            /*
+            |--------------------------------------------------------------------------
             | Plans
             |--------------------------------------------------------------------------
             */
@@ -40,6 +50,8 @@ class PermissionSeeder extends Seeder
             'plans.create',
             'plans.update',
             'plans.delete',
+            'plans.activate',
+            'plans.deactivate',
 
             /*
             |--------------------------------------------------------------------------
@@ -54,6 +66,20 @@ class PermissionSeeder extends Seeder
             'subscriptions.activate',
             'subscriptions.renew',
             'subscriptions.change-plan',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Billings
+            |--------------------------------------------------------------------------
+            */
+            'billings.view',
+            'billings.create',
+            'billings.update',
+            'billings.delete',
+            'billings.mark-paid',
+            'billings.mark-failed',
+            'billings.cancel',
+            'billings.refund',
 
             /*
             |--------------------------------------------------------------------------
@@ -276,6 +302,19 @@ class PermissionSeeder extends Seeder
 
             /*
             |--------------------------------------------------------------------------
+            | Warranties
+            |--------------------------------------------------------------------------
+            */
+            'warranties.view',
+            'warranties.create',
+            'warranties.update',
+            'warranties.delete',
+            'warranties.claim',
+            'warranties.expire',
+            'warranties.void',
+
+            /*
+            |--------------------------------------------------------------------------
             | Customer Portal
             |--------------------------------------------------------------------------
             */
@@ -292,6 +331,16 @@ class PermissionSeeder extends Seeder
             */
             'reports.view',
             'reports.export',
+
+            /*
+            |--------------------------------------------------------------------------
+            | Dashboards
+            |--------------------------------------------------------------------------
+            */
+            'dashboards.view',
+            'dashboards.create',
+            'dashboards.update',
+            'dashboards.delete',
 
             /*
             |--------------------------------------------------------------------------

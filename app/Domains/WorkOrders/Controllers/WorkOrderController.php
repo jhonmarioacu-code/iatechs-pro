@@ -20,6 +20,8 @@ class WorkOrderController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', WorkOrder::class);
+
         return WorkOrderResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class WorkOrderController extends Controller
     public function store(
         StoreWorkOrderRequest $request
     ): WorkOrderResource {
+        $this->authorize('create', WorkOrder::class);
 
         return new WorkOrderResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class WorkOrderController extends Controller
     public function show(
         WorkOrder $workOrder
     ): WorkOrderResource {
+        $this->authorize('view', $workOrder);
 
         return new WorkOrderResource($workOrder);
     }
@@ -45,6 +49,7 @@ class WorkOrderController extends Controller
         UpdateWorkOrderRequest $request,
         WorkOrder $workOrder
     ): WorkOrderResource {
+        $this->authorize('update', $workOrder);
 
         return new WorkOrderResource(
             $this->service->update($workOrder, $request->validated())
@@ -54,6 +59,7 @@ class WorkOrderController extends Controller
     public function destroy(
         WorkOrder $workOrder
     ): JsonResponse {
+        $this->authorize('delete', $workOrder);
 
         $this->service->delete($workOrder);
 

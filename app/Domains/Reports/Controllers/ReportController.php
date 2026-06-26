@@ -20,6 +20,8 @@ class ReportController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Report::class);
+
         return ReportResource::collection(
             $this->service->paginate()
         );
@@ -29,6 +31,8 @@ class ReportController extends Controller
         GenerateReportRequest $request
     )
     {
+        $this->authorize('create', Report::class);
+
         return new ReportResource(
             $this->service->create(
                 $request->validated()
@@ -40,6 +44,8 @@ class ReportController extends Controller
         Report $report
     )
     {
+        $this->authorize('view', $report);
+
         return new ReportResource(
             $report->load([
                 'exports'

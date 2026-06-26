@@ -20,6 +20,8 @@ class HumanResourceController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', HumanResource::class);
+
         return HumanResourceResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class HumanResourceController extends Controller
     public function store(
         StoreHumanResourceRequest $request
     ): HumanResourceResource {
+        $this->authorize('create', HumanResource::class);
 
         return new HumanResourceResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class HumanResourceController extends Controller
     public function show(
         HumanResource $humanResource
     ): HumanResourceResource {
+        $this->authorize('view', $humanResource);
 
         return new HumanResourceResource($humanResource);
     }
@@ -45,6 +49,7 @@ class HumanResourceController extends Controller
         UpdateHumanResourceRequest $request,
         HumanResource $humanResource
     ): HumanResourceResource {
+        $this->authorize('update', $humanResource);
 
         return new HumanResourceResource(
             $this->service->update($humanResource, $request->validated())
@@ -54,6 +59,7 @@ class HumanResourceController extends Controller
     public function destroy(
         HumanResource $humanResource
     ): JsonResponse {
+        $this->authorize('delete', $humanResource);
 
         $this->service->delete($humanResource);
 

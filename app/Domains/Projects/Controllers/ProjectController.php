@@ -20,6 +20,8 @@ class ProjectController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Project::class);
+
         return ProjectResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class ProjectController extends Controller
     public function store(
         StoreProjectRequest $request
     ): ProjectResource {
+        $this->authorize('create', Project::class);
 
         return new ProjectResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class ProjectController extends Controller
     public function show(
         Project $project
     ): ProjectResource {
+        $this->authorize('view', $project);
 
         return new ProjectResource($project);
     }
@@ -45,6 +49,7 @@ class ProjectController extends Controller
         UpdateProjectRequest $request,
         Project $project
     ): ProjectResource {
+        $this->authorize('update', $project);
 
         return new ProjectResource(
             $this->service->update($project, $request->validated())
@@ -54,6 +59,7 @@ class ProjectController extends Controller
     public function destroy(
         Project $project
     ): JsonResponse {
+        $this->authorize('delete', $project);
 
         $this->service->delete($project);
 

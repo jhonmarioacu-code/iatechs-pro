@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domains\AIAssistant\Controllers;
 
-use App\Models\User;
+use App\Domains\AIAssistant\Models\AIConversation;
+use App\Domains\Users\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,10 +27,10 @@ class AIAssistantController extends Controller
         ChatRequest $request
     ): JsonResponse
     {
+        $this->authorize('chat', AIConversation::class);
+
         /** @var User $user */
         $user = $request->user();
-
-        abort_unless($user->can('ai.use'), 403);
 
         $conversationId = $request->input('conversation_id');
 
@@ -64,10 +65,10 @@ class AIAssistantController extends Controller
 
     public function conversations(): LengthAwarePaginator
     {
+        $this->authorize('viewAny', AIConversation::class);
+
         /** @var User $user */
         $user = request()->user();
-
-        abort_unless($user->can('ai.view'), 403);
 
         $paginator = $this->service
             ->paginateConversations(
@@ -105,10 +106,10 @@ class AIAssistantController extends Controller
         Request $request,
         int $conversation
     ): AnonymousResourceCollection {
+        $this->authorize('viewAny', AIConversation::class);
+
         /** @var User $user */
         $user = $request->user();
-
-        abort_unless($user->can('ai.view'), 403);
 
         $messages = $this->service->listConversationMessages(
             $conversation,

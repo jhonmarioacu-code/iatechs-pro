@@ -19,6 +19,8 @@ class PurchaseOrderController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', PurchaseOrder::class);
+
         return PurchaseOrderResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class PurchaseOrderController extends Controller
         StorePurchaseOrderRequest $request
     )
     {
+        $this->authorize('create', PurchaseOrder::class);
+
         return new PurchaseOrderResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class PurchaseOrderController extends Controller
         PurchaseOrder $purchaseOrder
     )
     {
+        $this->authorize('view', $purchaseOrder);
+
         return new PurchaseOrderResource(
             $purchaseOrder->load([
                 'supplier',
@@ -53,6 +59,8 @@ class PurchaseOrderController extends Controller
         PurchaseOrder $purchaseOrder
     )
     {
+        $this->authorize('update', $purchaseOrder);
+
         $purchaseOrder->update(
             $request->validated()
         );
@@ -66,6 +74,8 @@ class PurchaseOrderController extends Controller
         PurchaseOrder $purchaseOrder
     )
     {
+        $this->authorize('approve', $purchaseOrder);
+
         return new PurchaseOrderResource(
             $this->service->approve(
                 $purchaseOrder
@@ -77,6 +87,8 @@ class PurchaseOrderController extends Controller
         PurchaseOrder $purchaseOrder
     )
     {
+        $this->authorize('receive', $purchaseOrder);
+
         return new PurchaseOrderResource(
             $this->service->markAsReceived(
                 $purchaseOrder
@@ -88,6 +100,8 @@ class PurchaseOrderController extends Controller
         PurchaseOrder $purchaseOrder
     )
     {
+        $this->authorize('cancel', $purchaseOrder);
+
         return new PurchaseOrderResource(
             $this->service->cancel(
                 $purchaseOrder

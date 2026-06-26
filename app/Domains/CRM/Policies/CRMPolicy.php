@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\CRM\Policies;
 
-use App\Models\User;
+use App\Domains\Users\Models\User;
 use App\Domains\CRM\Models\Lead;
 use App\Domains\CRM\Models\Opportunity;
 

@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domains\CRM\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Companies\Models\Company;
+use App\Domains\Users\Models\User;
 
 class Lead extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
 
     protected $table = 'crm_leads';
 
@@ -35,14 +39,14 @@ class Lead extends Model
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\Company::class
+            Company::class
         );
     }
 
     public function assignedUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\User::class,
+            User::class,
             'assigned_to'
         );
     }

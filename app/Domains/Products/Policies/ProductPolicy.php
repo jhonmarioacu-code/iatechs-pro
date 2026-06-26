@@ -69,7 +69,7 @@ class ProductPolicy
     ): bool {
 
         return
-            $user->can('products.activate')
+            $user->can('products.update')
             &&
             $user->company_id ===
             $product->company_id;
@@ -81,7 +81,7 @@ class ProductPolicy
     ): bool {
 
         return
-            $user->can('products.deactivate')
+            $user->can('products.update')
             &&
             $user->company_id ===
             $product->company_id;
