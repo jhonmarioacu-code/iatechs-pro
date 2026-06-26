@@ -9,12 +9,22 @@ use App\Domains\CRM\Models\Activity;
 use App\Domains\CRM\Models\Lead;
 use App\Domains\CRM\Models\Opportunity;
 use App\Domains\Customers\Models\Customer;
+use App\Domains\Diagnostics\Models\Diagnostic;
 use App\Domains\Invoices\Models\Invoice;
+use App\Domains\KnowledgeBase\Models\KnowledgeArticle;
 use App\Domains\Products\Models\Product;
+use App\Domains\Repairs\Models\Repair;
+use App\Domains\Reports\Models\Report;
 use App\Domains\ServiceContracts\Models\ServiceContract;
 use App\Domains\Subscriptions\Models\Subscription;
 use App\Domains\Tickets\Models\Ticket;
 use App\Domains\Users\Models\User;
+use App\Domains\Payments\Models\Payment;
+use App\Domains\Accounting\Models\Account;
+use App\Domains\Accounting\Models\JournalEntry;
+use App\Domains\AIAssistant\Models\AIConversation;
+use App\Domains\Analytics\Models\Analytic;
+use App\Domains\SystemSettings\Models\SystemSetting;
 use App\Support\PortalRedirector;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -242,6 +252,99 @@ class PortalController extends Controller
                     ->latest('id')
                     ->limit(16)
                     ->get(),
+            ],
+            'service-desk' => [
+                'stats' => [
+                    ['label' => 'Tickets abiertos', 'value' => (string) Ticket::query()->whereNotIn('status', ['CLOSED', 'DELIVERED'])->count()],
+                    ['label' => 'En diagnostico', 'value' => (string) Diagnostic::query()->whereIn('status', ['PENDING', 'IN_PROGRESS'])->count()],
+                    ['label' => 'En reparacion', 'value' => (string) Repair::query()->whereIn('status', ['ASSIGNED', 'IN_PROGRESS', 'WAITING_PARTS'])->count()],
+                    ['label' => 'Facturas pendientes', 'value' => (string) Invoice::query()->whereIn('status', ['issued', 'partially_paid', 'overdue'])->count()],
+                ],
+                'links' => [
+                    ['label' => 'Modulo Tickets', 'href' => '/admin/tickets'],
+                    ['label' => 'Modulo Diagnostics', 'href' => '/admin/diagnostics'],
+                    ['label' => 'Modulo Repairs', 'href' => '/admin/repairs'],
+                    ['label' => 'Modulo Invoices', 'href' => '/admin/invoices'],
+                ],
+            ],
+            'inventory' => [
+                'stats' => [
+                    ['label' => 'Productos activos', 'value' => (string) Product::query()->where('status', 'ACTIVE')->count()],
+                    ['label' => 'Servicios activos', 'value' => (string) ServiceContract::query()->whereIn('status', ['active', 'ACTIVE'])->count()],
+                ],
+                'links' => [
+                    ['label' => 'Modulo Products', 'href' => '/admin/products'],
+                    ['label' => 'Modulo Inventory', 'href' => '/admin/inventory'],
+                    ['label' => 'Modulo Suppliers', 'href' => '/admin/suppliers'],
+                ],
+            ],
+            'accounting' => [
+                'stats' => [
+                    ['label' => 'Accounts', 'value' => (string) Account::query()->count()],
+                    ['label' => 'Journal entries', 'value' => (string) JournalEntry::query()->count()],
+                    ['label' => 'Facturas', 'value' => (string) Invoice::query()->count()],
+                    ['label' => 'Pagos', 'value' => (string) Payment::query()->count()],
+                ],
+                'links' => [
+                    ['label' => 'Modulo Accounting', 'href' => '/admin/accounting/accounts'],
+                    ['label' => 'Modulo Invoices', 'href' => '/admin/invoices'],
+                    ['label' => 'Modulo Payments', 'href' => '/admin/payments'],
+                ],
+            ],
+            'knowledge-base' => [
+                'stats' => [
+                    ['label' => 'Articulos', 'value' => (string) KnowledgeArticle::query()->count()],
+                ],
+                'links' => [
+                    ['label' => 'Modulo Knowledge', 'href' => '/admin/knowledge-base'],
+                ],
+            ],
+            'reports' => [
+                'stats' => [
+                    ['label' => 'Reports', 'value' => (string) Report::query()->count()],
+                    ['label' => 'Analytics', 'value' => (string) Analytic::query()->count()],
+                ],
+                'links' => [
+                    ['label' => 'Modulo Reports', 'href' => '/admin/reports'],
+                    ['label' => 'Modulo Dashboards', 'href' => '/admin/dashboards'],
+                ],
+            ],
+            'analytics' => [
+                'stats' => [
+                    ['label' => 'Analytics registros', 'value' => (string) Analytic::query()->count()],
+                    ['label' => 'Empresas analizadas', 'value' => (string) Company::query()->count()],
+                ],
+                'links' => [
+                    ['label' => 'Modulo Analytics', 'href' => '/admin/analytics'],
+                    ['label' => 'Modulo BI', 'href' => '/admin/business-intelligence'],
+                ],
+            ],
+            'ai-assistant' => [
+                'stats' => [
+                    ['label' => 'Conversaciones IA', 'value' => (string) AIConversation::query()->count()],
+                ],
+                'links' => [
+                    ['label' => 'Admin AI Chat', 'href' => '/admin/ai/chat'],
+                    ['label' => 'Admin AI Conversations', 'href' => '/admin/ai/conversations'],
+                ],
+            ],
+            'operations' => [
+                'stats' => [
+                    ['label' => 'Empresas', 'value' => (string) Company::query()->count()],
+                    ['label' => 'Usuarios', 'value' => (string) User::query()->count()],
+                    ['label' => 'Suscripciones', 'value' => (string) Subscription::query()->count()],
+                ],
+                'links' => [
+                    ['label' => 'Ir a Operations', 'href' => route('portal.admin.operations')],
+                ],
+            ],
+            'settings' => [
+                'stats' => [
+                    ['label' => 'Configuraciones', 'value' => (string) SystemSetting::query()->count()],
+                ],
+                'links' => [
+                    ['label' => 'Modulo System Settings', 'href' => '/admin/system-settings'],
+                ],
             ],
             default => [],
         };

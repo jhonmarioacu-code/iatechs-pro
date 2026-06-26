@@ -19,6 +19,12 @@ Mantener sincronizado el roadmap estrategico con el estado real del codigo, QA y
 9. Fase 9 - Hardening enterprise: en curso (auditoria, seguridad, permisos, pruebas, runbooks).
 10. Fase 10 - Expansion (marketplace, academia, mobile): pendiente.
 
+## Actualizacion 2026-06-26
+
+- Frontend de portales redisenado por rol (admin/company/technician/customer).
+- Sistema visual unificado documentado en `docs/architecture/17-Frontend-Portal-UX-System.md`.
+- Interactividad reforzada con Alpine (tabs operativos, panel IA, centro de notificaciones).
+
 ## Estado actual del proyecto
 
 - Etapa actual: **Preproduccion tecnica (beta avanzada)**.

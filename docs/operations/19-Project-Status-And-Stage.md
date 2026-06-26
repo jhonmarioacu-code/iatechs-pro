@@ -16,6 +16,7 @@ Fecha: 2026-06-25
 - CI/CD: workflows activos para calidad y despliegue.
 - Calidad estatica: `composer analyse` en verde.
 - Validacion de release tecnico: `composer validate:testing` en verde (incluye `route:cache`).
+- Super Admin: vista maestra integrada para modulos `dashboards`, `customers`, `crm` y `marketplace` desde portal admin.
 
 ## Definicion de "produccion final"
 

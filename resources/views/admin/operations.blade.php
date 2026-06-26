@@ -9,8 +9,24 @@
         <div class="crud-feedback error">{{ $errors->first() }}</div>
     @endif
 
+    <section class="surface-card">
+        <header class="surface-header">
+            <h2>Panel de Operaciones</h2>
+        </header>
+        <p class="module-copy">Operacion centralizada de cuenta maestra Super Admin. Flujo recomendado: crear empresa -> crear usuarios -> crear suscripcion -> ajustar permisos.</p>
+        <div class="crud-actions">
+            <a class="btn btn-secondary" href="#crear-empresa">Crear Empresa</a>
+            <a class="btn btn-secondary" href="#crear-usuario">Crear Usuario</a>
+            <a class="btn btn-secondary" href="#crear-suscripcion">Crear Suscripcion</a>
+            <a class="btn btn-secondary" href="#editar-empresa">Editar Empresas</a>
+            <a class="btn btn-secondary" href="#editar-usuario">Editar Usuarios</a>
+            <a class="btn btn-secondary" href="#editar-suscripcion">Editar Suscripciones</a>
+            <a class="btn btn-secondary" href="#permisos-tecnicos">Permisos Tecnicos</a>
+        </div>
+    </section>
+
     <div class="surface-grid">
-        <section class="surface-card">
+        <section id="crear-empresa" class="surface-card">
             <header class="surface-header">
                 <h2>Crear Empresa</h2>
             </header>
@@ -47,7 +63,7 @@
             </form>
         </section>
 
-        <section class="surface-card">
+        <section id="crear-usuario" class="surface-card">
             <header class="surface-header">
                 <h2>Crear Usuario</h2>
             </header>
@@ -95,7 +111,7 @@
         </section>
     </div>
 
-    <section class="surface-card">
+    <section id="crear-suscripcion" class="surface-card">
         <header class="surface-header">
             <h2>Crear Suscripcion</h2>
         </header>
@@ -145,7 +161,7 @@
         </form>
     </section>
 
-    <section class="surface-card">
+    <section id="editar-empresa" class="surface-card">
         <header class="surface-header">
             <h2>Editar Empresas</h2>
         </header>
@@ -195,7 +211,7 @@
         @endforeach
     </section>
 
-    <section class="surface-card">
+    <section id="editar-usuario" class="surface-card">
         <header class="surface-header">
             <h2>Editar Usuarios</h2>
         </header>
@@ -248,7 +264,7 @@
         @endforeach
     </section>
 
-    <section class="surface-card">
+    <section id="editar-suscripcion" class="surface-card">
         <header class="surface-header">
             <h2>Editar Suscripciones</h2>
         </header>
@@ -310,7 +326,7 @@
         @endforeach
     </section>
 
-    <section class="surface-card">
+    <section id="permisos-tecnicos" class="surface-card">
         <header class="surface-header">
             <h2>Permisos de Tecnicos</h2>
         </header>

@@ -9,6 +9,38 @@
         <div class="crud-feedback error">{{ $errors->first() }}</div>
     @endif
 
+    <section class="surface-card" x-data="{ panel: 'branches' }">
+        <header class="surface-header">
+            <h2>Centro operativo de empresa</h2>
+            <div class="crud-actions">
+                <button class="btn btn-secondary" type="button" @click="panel = 'branches'">Sucursales</button>
+                <button class="btn btn-secondary" type="button" @click="panel = 'tickets'">Tickets</button>
+                <button class="btn btn-secondary" type="button" @click="panel = 'team'">Personal</button>
+            </div>
+        </header>
+
+        <div x-show="panel === 'branches'" class="tag-grid">
+            <span>Total sucursales: {{ $branches->count() }}</span>
+            <span>Sucursales activas: {{ $branches->where('is_active', true)->count() }}</span>
+            <span>Tecnicos: {{ $technicians->count() }}</span>
+            <span>Usuarios empresa: {{ $personnel->count() }}</span>
+        </div>
+
+        <div x-show="panel === 'tickets'" class="tag-grid">
+            <span>Recibidos: {{ $ticketBoard['Recibidos']->count() }}</span>
+            <span>Diagnosticando: {{ $ticketBoard['Diagnosticando']->count() }}</span>
+            <span>Esperando Aprobacion: {{ $ticketBoard['Esperando Aprobacion']->count() }}</span>
+            <span>Reparando: {{ $ticketBoard['Reparando']->count() }}</span>
+        </div>
+
+        <div x-show="panel === 'team'" class="tag-grid">
+            <span>Staff activo: {{ $personnel->where('is_active', true)->count() }}</span>
+            <span>Staff inactivo: {{ $personnel->where('is_active', false)->count() }}</span>
+            <span>Con sucursal asignada: {{ $personnel->whereNotNull('branch_id')->count() }}</span>
+            <span>Sin sucursal: {{ $personnel->whereNull('branch_id')->count() }}</span>
+        </div>
+    </section>
+
     <div class="surface-grid">
         <section class="surface-card">
             <header class="surface-header">
@@ -43,6 +75,38 @@
                 </table>
             </div>
         </section>
+
+        <section class="surface-card">
+            <header class="surface-header">
+                <h2>Habilitar Cursos y Examenes a Tecnicos</h2>
+            </header>
+
+            @forelse ($technicians as $technician)
+                <form class="crud-form" method="POST" action="{{ route('portal.company.technicians.training.update', $technician) }}">
+                    @csrf
+                    <p class="module-copy">
+                        <strong>{{ $technician->name }}</strong> ({{ $technician->email }}) |
+                        Sucursal: {{ $technician->branch?->name ?? 'Sin asignar' }}
+                    </p>
+
+                    <div class="crud-grid">
+                        <label class="crud-checkbox">
+                            <input type="checkbox" name="technician_course_enabled" value="1" @checked($technician->technician_course_enabled)>
+                            Curso habilitado
+                        </label>
+                        <label class="crud-checkbox">
+                            <input type="checkbox" name="technician_exam_enabled" value="1" @checked($technician->technician_exam_enabled)>
+                            Examen habilitado
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Actualizar acceso formativo</button>
+                </form>
+                <hr>
+            @empty
+                <p class="module-copy">No hay tecnicos para habilitar cursos/examenes.</p>
+            @endforelse
+        </section>
     </div>
 
     <section class="surface-card">
@@ -51,7 +115,7 @@
         </header>
 
         @foreach ($ticketBoard as $label => $tickets)
-            <h3>{{ $label }}</h3>
+            <h3 class="crud-title">{{ $label }}</h3>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
@@ -120,37 +184,5 @@
                 </tbody>
             </table>
         </div>
-    </section>
-
-    <section class="surface-card">
-        <header class="surface-header">
-            <h2>Habilitar Cursos y Examenes a Tecnicos</h2>
-        </header>
-
-        @forelse ($technicians as $technician)
-            <form class="crud-form" method="POST" action="{{ route('portal.company.technicians.training.update', $technician) }}">
-                @csrf
-                <p class="module-copy">
-                    <strong>{{ $technician->name }}</strong> ({{ $technician->email }}) |
-                    Sucursal: {{ $technician->branch?->name ?? 'Sin asignar' }}
-                </p>
-
-                <div class="crud-grid">
-                    <label class="crud-checkbox">
-                        <input type="checkbox" name="technician_course_enabled" value="1" @checked($technician->technician_course_enabled)>
-                        Curso habilitado
-                    </label>
-                    <label class="crud-checkbox">
-                        <input type="checkbox" name="technician_exam_enabled" value="1" @checked($technician->technician_exam_enabled)>
-                        Examen habilitado
-                    </label>
-                </div>
-
-                <button type="submit" class="btn btn-primary">Actualizar acceso formativo</button>
-            </form>
-            <hr>
-        @empty
-            <p class="module-copy">No hay tecnicos para habilitar cursos/examenes.</p>
-        @endforelse
     </section>
 @endsection
