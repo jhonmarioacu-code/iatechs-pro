@@ -120,7 +120,20 @@ jobs:
             git fetch --all --prune
             git checkout "$DEPLOY_REF"
             git pull origin "$DEPLOY_REF"
+            sudo mkdir -p bootstrap/cache
+  sudo mkdir -p storage/logs
+  sudo mkdir -p storage/framework/cache
+  sudo mkdir -p storage/framework/sessions
+  sudo mkdir -p storage/framework/views
+  sudo mkdir -p storage/framework/testing
 
+  sudo chown -R ubuntu:www-data storage bootstrap/cache
+  sudo find storage bootstrap/cache -type d -exec chmod 2775 {} \;
+  sudo find storage bootstrap/cache -type f -exec chmod 664 {} \;
+
+  sudo touch storage/logs/laravel.log
+  sudo chown ubuntu:www-data storage/logs/laravel.log
+  sudo chmod 664 storage/logs/laravel.log
             composer install --no-dev --optimize-autoloader --no-interaction
             npm ci
             npm run build
