@@ -1,0 +1,167 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: "Target environment"
+        required: true
+        default: "production"
+        type: choice
+        options:
+          - production
+      deploy_ref:
+        description: "Git ref to deploy (branch or commit)"
+        required: true
+        default: "main"
+        type: string
+      run_migrations:
+        description: "Run database migrations"
+        required: true
+        default: true
+        type: boolean
+      php_fpm_service:
+        description: "PHP-FPM service name"
+        required: true
+        default: "php8.4-fpm"
+        type: string
+      nginx_service:
+        description: "Nginx service name"
+        required: true
+        default: "nginx"
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-${{ inputs.target_env }}
+  cancel-in-progress: false
+
+jobs:
+  precheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: ${{ inputs.target_env }}
+    steps:
+      - name: Validate input
+        run: |
+          set -euo pipefail
+          if [ "${{ inputs.target_env }}" != "production" ]; then
+            echo "Only production deploy is allowed in this workflow."
+            exit 1
+          fi
+          echo "Precheck OK for env=${{ inputs.target_env }} ref=${{ inputs.deploy_ref }}"
+
+      - name: Validate required secrets
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          set -euo pipefail
+          [ -n "$SSH_HOST" ] || (echo "Missing secret SSH_HOST" && exit 1)
+          [ -n "$SSH_PORT" ] || (echo "Missing secret SSH_PORT" && exit 1)
+          [ -n "$SSH_USER" ] || (echo "Missing secret SSH_USER" && exit 1)
+          [ -n "$SSH_PRIVATE_KEY" ] || (echo "Missing secret SSH_PRIVATE_KEY" && exit 1)
+          [ -n "$DEPLOY_PATH" ] || (echo "Missing secret DEPLOY_PATH" && exit 1)
+          echo "Secret validation OK"
+
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: precheck
+    environment: ${{ inputs.target_env }}
+    steps:
+      - name: Deploy over SSH with rollback-on-error
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+
+            DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
+            DEPLOY_REF="${{ inputs.deploy_ref }}"
+            RUN_MIGRATIONS="${{ inputs.run_migrations }}"
+            PHP_FPM_SERVICE="${{ inputs.php_fpm_service }}"
+            NGINX_SERVICE="${{ inputs.nginx_service }}"
+            TS="$(date +%Y%m%d_%H%M%S)"
+
+            cd "$DEPLOY_PATH"
+
+            PREV_SHA="$(git rev-parse HEAD)"
+            echo "Previous SHA: $PREV_SHA"
+
+            rollback() {
+              echo "Deploy failed. Starting rollback to $PREV_SHA..."
+              git reset --hard "$PREV_SHA"
+              php artisan optimize:clear || true
+              php artisan config:cache || true
+              php artisan route:cache || true
+              php artisan view:cache || true
+              sudo systemctl restart "$PHP_FPM_SERVICE" || true
+              sudo systemctl reload "$NGINX_SERVICE" || true
+              curl -fsS http://127.0.0.1/health || true
+              echo "Rollback completed."
+            }
+
+            trap rollback ERR
+
+            sudo cp .env "/tmp/iatechs-pro.env.$TS.bak"
+            sudo tar -czf "/tmp/iatechs-pro.storage.$TS.bak.tgz" storage
+
+            git fetch --all --prune
+            git checkout "$DEPLOY_REF"
+            git pull origin "$DEPLOY_REF"
+
+            composer install --no-dev --optimize-autoloader --no-interaction
+            npm ci
+            npm run build
+
+            if [ "$RUN_MIGRATIONS" = "true" ]; then
+              php artisan migrate --force
+            fi
+
+            php artisan optimize:clear
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+
+            sudo chown -R www-data:www-data storage bootstrap/cache
+            sudo chmod -R 775 storage bootstrap/cache
+
+            sudo systemctl restart "$PHP_FPM_SERVICE"
+            sudo systemctl reload "$NGINX_SERVICE"
+
+            curl -fsS http://127.0.0.1/health
+
+            trap - ERR
+            echo "Deploy finished successfully."
+
+  postcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: deploy
+    environment: ${{ inputs.target_env }}
+    steps:
+      - name: Validate health endpoint over SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script_stop: true
+          command_timeout: 10m
+          script: |
+            set -euo pipefail
+            curl -fsS http://127.0.0.1/health
+            echo "Postcheck OK"
+
