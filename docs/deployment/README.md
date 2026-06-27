@@ -25,6 +25,7 @@ Consolidar guias de despliegue, operacion y release para entornos productivos.
 - `docs/operations/12-Post-Deploy-Verification.md`
 - `docs/operations/17-Deploy-Workflow-Runbook.md`
 - `docs/operations/18-Rollback-Procedure.md`
+- `docs/operations/27-Production-GoLive-Evidence-2026-06-27.md`
 
 ## Reglas clave
 

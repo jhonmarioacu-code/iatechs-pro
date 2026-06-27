@@ -104,6 +104,7 @@ Services included in `docker-compose.yml`:
 - Deploy workflow: `.github/workflows/deploy.yml` (includes `security-gates` + postdeploy observability checks)
 - Operational runbooks: `docs/operations/*`
 - Deployment scripts: `deploy/*`
+- Go-live evidence: `docs/operations/27-Production-GoLive-Evidence-2026-06-27.md`
 
 ## Canonical Documentation
 

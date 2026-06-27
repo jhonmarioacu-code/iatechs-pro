@@ -61,7 +61,7 @@ Define the minimum required production environment variables and operational rul
 - `OBS_SUBS_CHURN_30D_MAX`: max allowed churn percentage over 30 days.
 - `OBS_EXPORTER_ENABLED`: enable `/api/metrics/prometheus`.
 - `OBS_EXPORTER_TOKEN`: bearer token for metrics scrape authorization.
-- `OBS_EXPORTER_ALLOWED_IPS`: comma separated allowlist for metrics endpoint.
+- `OBS_EXPORTER_ALLOWED_IPS`: comma separated allowlist for metrics endpoint. Recommended baseline for host + docker network: `127.0.0.1,::1,172.16.0.0/12`.
 - `OBS_ALERTS_ENABLED`: enables scheduled observability dispatch command.
 - `OBS_ALERTS_EMAIL_ENABLED`: enables email alert channel.
 - `OBS_ALERTS_EMAIL_RECIPIENTS`: optional comma separated `super_admin` targets.

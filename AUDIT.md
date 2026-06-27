@@ -50,9 +50,10 @@ Fecha: 2026-06-27
 
 ## Etapa del proyecto
 
-**Preproduccion tecnica (beta avanzada)**.
+**Produccion final validada**.
 
-## Pendientes para produccion final
+## Cierre de pendientes
 
-1. Ejecutar validacion postdeploy en entorno objetivo para confirmar scrape/alerting y evidencias de Grafana.
-2. Ejecutar release candidate en entorno objetivo con evidencia completa de postdeploy.
+1. Validacion postdeploy ejecutada en entorno objetivo con health checks en verde.
+2. Observabilidad externa validada en modo estricto (`validate_prometheus_stack=true`) con Prometheus, Alertmanager y Grafana operativos.
+3. Evidencia de go-live registrada en `docs/operations/27-Production-GoLive-Evidence-2026-06-27.md`.
