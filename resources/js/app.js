@@ -225,17 +225,27 @@ window.portalUi = function portalUi() {
             this.sidebarOpen = !this.sidebarOpen;
         },
         toggleNotifications() {
-            this.notificationsOpen = !this.notificationsOpen;
-            if (this.notificationsOpen && this.notifications.length === 0 && this.realtimeEnabled) {
+            const willOpen = !this.notificationsOpen;
+            this.notificationsOpen = willOpen;
+
+            if (willOpen) {
+                this.assistantPanelOpen = false;
+            }
+
+            if (willOpen && this.notifications.length === 0 && this.realtimeEnabled) {
                 void this.loadNotifications();
             }
         },
         toggleAssistant() {
-            this.assistantPanelOpen = !this.assistantPanelOpen;
+            this.toggleAssistantPanel();
         },
         toggleAssistantPanel() {
-            this.assistantPanelOpen = !this.assistantPanelOpen;
-            if (this.assistantPanelOpen) {
+            const willOpen = !this.assistantPanelOpen;
+            this.assistantPanelOpen = willOpen;
+
+            if (willOpen) {
+                this.notificationsOpen = false;
+                this.assistantError = '';
                 this.loadAssistantConversations();
             }
         },

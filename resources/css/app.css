@@ -698,43 +698,77 @@
 
     .ai-fab {
         color: #fff;
-        background: linear-gradient(135deg, var(--brand), var(--brand-strong));
-        box-shadow: 0 16px 28px color-mix(in srgb, var(--brand) 45%, transparent);
+        background: linear-gradient(135deg, #4f46e5, #1363df);
+        box-shadow: 0 18px 34px rgba(19, 99, 223, 0.35);
         @apply fixed bottom-5 right-5 z-40 rounded-full px-4 py-3 text-sm font-bold;
     }
 
-    .ai-panel {
-        border: 1px solid var(--border);
-        background: var(--surface-1);
-        @apply fixed bottom-20 right-5 z-50 w-[340px] space-y-3 rounded-2xl p-4 shadow-lg;
+    .ai-layer,
+    .notification-layer {
+        @apply fixed inset-0 z-[60] pointer-events-none;
     }
 
-    .ai-panel header,
-    .notification-panel header {
+    .ai-overlay,
+    .notification-overlay {
+        background: rgba(7, 16, 35, 0.45);
+        @apply absolute inset-0 pointer-events-auto;
+    }
+
+    .ai-panel {
+        border: 1px solid color-mix(in srgb, var(--border) 85%, #e6ecf8);
+        background: linear-gradient(180deg, #fff, #f9fbff);
+        box-shadow: 0 24px 48px rgba(14, 31, 68, 0.24);
+        @apply absolute bottom-20 right-5 z-[70] flex w-[420px] max-w-[calc(100vw-1.25rem)] flex-col gap-3 rounded-2xl p-4 pointer-events-auto;
+        max-height: calc(100vh - 110px);
+    }
+
+    .ai-header,
+    .notification-header {
         @apply flex items-center justify-between;
     }
 
+    .ai-header h3,
+    .notification-header h3 {
+        @apply text-lg font-semibold;
+    }
+
+    .ai-header p,
+    .notification-header p {
+        color: var(--text-2);
+        @apply mt-0.5 text-xs;
+    }
+
+    .ai-error {
+        border: 1px solid #fecdd3;
+        background: #fff1f2;
+        color: #be123c;
+        @apply rounded-xl px-3 py-2 text-sm;
+    }
+
     .ai-field {
-        @apply space-y-2;
+        @apply space-y-1;
     }
 
     .ai-log {
-        border: 1px solid var(--border);
-        background: color-mix(in srgb, var(--surface-1) 80%, var(--surface-2));
-        @apply max-h-[250px] space-y-2 overflow-y-auto rounded-xl p-3;
+        border: 1px solid color-mix(in srgb, var(--border) 88%, #dbe4f5);
+        background: linear-gradient(180deg, #f8fbff, #f2f6ff);
+        @apply flex-1 space-y-2 overflow-y-auto rounded-xl p-3;
+        min-height: 240px;
     }
 
     .ai-message {
-        border: 1px solid var(--border);
-        @apply rounded-lg p-2 text-sm;
+        border: 1px solid color-mix(in srgb, var(--border) 90%, #dfe7f7);
+        @apply w-[88%] rounded-xl px-3 py-2 text-sm leading-6;
     }
 
     .ai-message.assistant {
-        background: color-mix(in srgb, var(--brand) 10%, var(--surface-1));
+        background: #eef3ff;
+        @apply mr-auto;
     }
 
     .ai-message.user {
-        background: color-mix(in srgb, var(--brand) 4%, var(--surface-1));
+        background: #fff;
+        @apply ml-auto;
     }
 
     .ai-message p {
@@ -745,17 +779,38 @@
         @apply space-y-2;
     }
 
+    .ai-form-actions {
+        @apply flex items-center justify-between gap-2;
+    }
+
+    .ai-form-actions small {
+        color: var(--text-2);
+        @apply text-xs;
+    }
+
     .notification-panel {
-        border-left: 1px solid var(--border);
-        background: var(--surface-1);
-        @apply fixed right-0 top-0 z-50 h-screen w-[320px] space-y-3 p-4 shadow-2xl;
+        border-left: 1px solid color-mix(in srgb, var(--border) 86%, #dfe7f7);
+        background: #fff;
+        box-shadow: -18px 0 40px rgba(14, 31, 68, 0.22);
+        @apply absolute right-0 top-0 z-[70] flex h-full w-[390px] max-w-[calc(100vw-0.5rem)] flex-col gap-3 p-4 pointer-events-auto;
+    }
+
+    .notification-toolbar {
+        @apply flex items-center justify-between gap-2;
     }
 
     .notification-status {
-        border: 1px solid var(--border);
+        border: 1px solid color-mix(in srgb, var(--border) 90%, #dce5f6);
         @apply flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold;
         color: var(--text-2);
-        background: color-mix(in srgb, var(--brand) 6%, var(--surface-1));
+        background: #f6f9ff;
+    }
+
+    .notification-counter {
+        border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--border));
+        color: #33415f;
+        background: #eef3ff;
+        @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold;
     }
 
     .status-dot {
@@ -776,23 +831,35 @@
         @apply rounded-xl p-3 text-sm;
     }
 
-    .notification-panel ul {
-        @apply space-y-3 text-sm;
+    .notification-list {
+        @apply flex-1 space-y-3 overflow-y-auto text-sm;
     }
 
-    .notification-panel li {
-        border: 1px solid var(--border);
+    .notification-item {
+        border: 1px solid color-mix(in srgb, var(--border) 90%, #dfe7f7);
+        background: #fbfdff;
         @apply rounded-xl p-3;
-        background: color-mix(in srgb, var(--brand) 6%, var(--surface-1));
     }
 
-    .notification-panel li.is-unread {
+    .notification-item.is-unread {
         border-color: color-mix(in srgb, var(--brand) 35%, var(--border));
+        background: #f4f8ff;
     }
 
-    .notification-panel li p {
+    .notification-item p {
         color: var(--text-2);
         @apply mt-1;
+    }
+
+    .notification-type {
+        color: #33415f;
+        border: 1px solid color-mix(in srgb, var(--border) 92%, #dde5f5);
+        background: #fff;
+        @apply inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold;
+    }
+
+    .notification-action {
+        @apply h-8 px-3 text-xs;
     }
 
     .notification-row {
@@ -1229,6 +1296,25 @@
 
         .date-chip {
             @apply hidden;
+        }
+
+        .ai-fab {
+            @apply bottom-4 right-4 px-3 py-2.5 text-xs;
+        }
+
+        .ai-panel {
+            @apply bottom-16 right-2 max-w-[calc(100vw-1rem)] p-3;
+            max-height: calc(100vh - 85px);
+        }
+
+        .notification-panel {
+            @apply w-[calc(100vw-0.5rem)] p-3;
+        }
+
+        .notification-header p,
+        .ai-header p,
+        .ai-form-actions small {
+            display: none;
         }
 
         [data-portal-theme='admin'] .portal-header-meta {

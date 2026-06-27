@@ -41,53 +41,68 @@
         @click="toggleAssistantPanel()"
         aria-label="Abrir IA Assistant"
     >
-        AI Copilot
+        IA Copilot
     </button>
 
-    <aside class="ai-panel" x-show="assistantPanelOpen" x-transition.opacity>
-        <header>
-            <h3>IA Assistant</h3>
-            <button type="button" class="icon-button" @click="toggleAssistantPanel()" aria-label="Cerrar IA">X</button>
-        </header>
+    <div class="ai-layer" x-show="assistantPanelOpen" x-transition.opacity>
+        <div class="ai-overlay" @click="toggleAssistantPanel()"></div>
 
-        <p x-show="assistantError" x-text="assistantError" class="module-copy"></p>
+        <aside class="ai-panel" @click.stop>
+            <header class="ai-header">
+                <div>
+                    <h3>IA Assistant</h3>
+                    <p>Asistente contextual por rol con historial seguro.</p>
+                </div>
+                <button type="button" class="icon-button" @click="toggleAssistantPanel()" aria-label="Cerrar IA">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6 6l12 12M18 6 6 18" />
+                    </svg>
+                </button>
+            </header>
 
-        <div x-show="assistantEnabled" class="ai-field">
-            <label for="ai-conversation-select"><strong>Conversacion</strong></label>
-            <select
-                id="ai-conversation-select"
-                class="crud-input"
-                x-model="assistantConversationId"
-                @change="loadSelectedConversationMessages()"
-            >
-                <option value="">Nueva conversacion</option>
-                <template x-for="item in assistantConversations" :key="item.id">
-                    <option :value="String(item.id)" x-text="conversationLabel(item)"></option>
+            <p x-show="assistantError" x-text="assistantError" class="ai-error"></p>
+
+            <div x-show="assistantEnabled" class="ai-field">
+                <label for="ai-conversation-select" class="crud-label">Conversacion</label>
+                <select
+                    id="ai-conversation-select"
+                    class="crud-input"
+                    x-model="assistantConversationId"
+                    @change="loadSelectedConversationMessages()"
+                >
+                    <option value="">Nueva conversacion</option>
+                    <template x-for="item in assistantConversations" :key="item.id">
+                        <option :value="String(item.id)" x-text="conversationLabel(item)"></option>
+                    </template>
+                </select>
+            </div>
+
+            <div class="ai-log">
+                <template x-for="(item, index) in assistantMessages" :key="index">
+                    <article class="ai-message" :class="item.role === 'assistant' ? 'assistant' : 'user'">
+                        <strong x-text="item.role === 'assistant' ? 'IA' : 'Tu'"></strong>
+                        <p x-text="item.content"></p>
+                    </article>
                 </template>
-            </select>
-        </div>
+                <p x-show="assistantMessages.length === 0" class="module-copy">Haz una pregunta y te respondo segun tu rol.</p>
+            </div>
 
-        <div class="ai-log">
-            <template x-for="(item, index) in assistantMessages" :key="index">
-                <article class="ai-message" :class="item.role === 'assistant' ? 'assistant' : 'user'">
-                    <strong x-text="item.role === 'assistant' ? 'IA' : 'Tu'"></strong>
-                    <p x-text="item.content"></p>
-                </article>
-            </template>
-            <p x-show="assistantMessages.length === 0" class="module-copy">Haz una pregunta y te respondo segun tu rol.</p>
-        </div>
+            <form @submit.prevent="sendAssistantMessage()" class="ai-form">
+                <textarea
+                    x-model="assistantInput"
+                    class="crud-input"
+                    placeholder="Escribe tu consulta"
+                    rows="3"
+                ></textarea>
 
-        <form @submit.prevent="sendAssistantMessage()" class="ai-form">
-            <textarea
-                x-model="assistantInput"
-                class="crud-input"
-                placeholder="Escribe tu consulta"
-                rows="3"
-            ></textarea>
-            <button type="submit" class="btn btn-primary" :disabled="assistantLoading || assistantInput.trim() === ''">
-                <span x-show="!assistantLoading">Enviar</span>
-                <span x-show="assistantLoading">Enviando</span>
-            </button>
-        </form>
-    </aside>
+                <div class="ai-form-actions">
+                    <small>Contexto protegido por tenant y permisos.</small>
+                    <button type="submit" class="btn btn-primary" :disabled="assistantLoading || assistantInput.trim() === ''">
+                        <span x-show="!assistantLoading">Enviar</span>
+                        <span x-show="assistantLoading">Enviando</span>
+                    </button>
+                </div>
+            </form>
+        </aside>
+    </div>
 </div>
