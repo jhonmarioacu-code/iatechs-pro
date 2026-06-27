@@ -234,20 +234,29 @@ jobs:
                 deploy/observability-postdeploy-check.sh 2>/dev/null || true
             }
 
+            clean_untracked_non_ignored_files() {
+              if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+                echo "[deploy] Removing untracked non-ignored files before git sync"
+                git clean -fd
+              fi
+            }
+
             sync_repository_ref() {
               local ref="$1"
 
               git fetch --all --prune
               git checkout "$ref"
+              clean_untracked_non_ignored_files
 
-              if git pull origin "$ref"; then
+              if git pull --ff-only origin "$ref"; then
                 return 0
               fi
 
               echo "[deploy] git pull failed; attempting permission self-heal and retry"
               normalize_repo_worktree_permissions
               restore_runtime_git_files
-              git pull origin "$ref"
+              clean_untracked_non_ignored_files
+              git pull --ff-only origin "$ref"
             }
 
             set_env_value() {
