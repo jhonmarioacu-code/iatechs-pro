@@ -18,6 +18,8 @@ model Tenant {
 
   users       User[]
   auditLogs   AuditLog[]
+  refreshTokens RefreshToken[]
+  mfaChallenges MfaChallenge[]
 }
 
 model User {
@@ -26,12 +28,18 @@ model User {
   email         String
   fullName      String
   passwordHash  String
+  role          String   @default("user")
+  permissions   Json?
+  mfaEnabled    Boolean  @default(false)
+  lastLoginAt   DateTime?
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   deletedAt     DateTime?
 
-  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  tenant         Tenant         @relation(fields: [tenantId], references: [id])
+  refreshTokens  RefreshToken[]
+  mfaChallenges  MfaChallenge[]
 
   @@unique([tenantId, email])
   @@index([tenantId, isActive])
@@ -51,4 +59,43 @@ model AuditLog {
 
   @@index([tenantId, createdAt])
   @@index([tenantId, entityType])
+}
+
+model RefreshToken {
+  id                String      @id @default(uuid())
+  tenantId          String
+  userId            String
+  jti               String      @unique
+  tokenHash         String
+  issuedAt          DateTime    @default(now())
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  revokedReason     String?
+  replacedByTokenId String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  tenant            Tenant      @relation(fields: [tenantId], references: [id])
+  user              User        @relation(fields: [userId], references: [id])
+  replacedBy        RefreshToken? @relation("RefreshTokenReplacement", fields: [replacedByTokenId], references: [id])
+  replaces          RefreshToken[] @relation("RefreshTokenReplacement")
+
+  @@index([tenantId, userId, revokedAt])
+  @@index([tenantId, userId, expiresAt])
+}
+
+model MfaChallenge {
+  id             String    @id @default(uuid())
+  tenantId       String
+  userId         String
+  challengeHash  String
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  user           User      @relation(fields: [userId], references: [id])
+
+  @@index([tenantId, userId, expiresAt])
 }

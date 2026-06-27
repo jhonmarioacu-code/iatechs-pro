@@ -10,3 +10,14 @@ Deliverables initialized:
 6. Local dependencies via Docker Compose
 7. Cloud/infra folder contracts
 8. CI workflow baseline
+
+## Phase A.1 - IAM Core (implemented)
+
+1. Tenant-aware authentication module in API (`x-tenant-id`).
+2. Access and refresh JWT token pair with refresh rotation.
+3. Refresh token persistence with hash-at-rest and replay detection.
+4. MFA challenge flow with expiring and single-use challenge records.
+5. RBAC base with permissions decorator + guard.
+6. Prisma schema extended for IAM (`RefreshToken`, `MfaChallenge`, user role/permissions/mfa flags).
+7. Seed script for tenant and admin bootstrap (`apps/api/prisma/seed.ts`).
+8. Initial Prisma migration for Phase A.1 IAM baseline.
