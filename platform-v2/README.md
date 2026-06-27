@@ -10,6 +10,7 @@ This workspace bootstraps the V2 target architecture:
 - Infra foundation: Docker, Kubernetes, Terraform
 - CRM vertical slice (backend + frontend) on top of IAM core
 - Repairs vertical slice (backend + frontend) integrated with CRM and audit
+- Inventory vertical slice (backend + frontend) with stock adjustments and audit
 
 ## Quick start (local)
 
@@ -22,6 +23,7 @@ This workspace bootstraps the V2 target architecture:
    - `pnpm --filter @iatechs/api prisma:migrate --name init_phase_a1_auth`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_crm_core`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_repairs_core`
+   - `pnpm --filter @iatechs/api prisma:migrate --name add_inventory_core`
    - `pnpm --filter @iatechs/api prisma:seed`
 4. Start API:
    - `pnpm --filter @iatechs/api dev`
@@ -44,3 +46,6 @@ This workspace bootstraps the V2 target architecture:
 - Phase B.2: Repairs orders vertical slice in progress:
   - API: `GET/POST/PATCH /api/v1/repairs/orders*`
   - Web: `/portal/admin/repairs`
+- Phase B.3: Inventory items vertical slice in progress:
+  - API: `GET/POST/PATCH /api/v1/inventory/items*`
+  - Web: `/portal/admin/inventory`

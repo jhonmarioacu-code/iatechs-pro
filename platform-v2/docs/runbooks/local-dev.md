@@ -11,6 +11,7 @@
    - `pnpm --filter @iatechs/api prisma:migrate --name init_phase_a1_auth`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_crm_core`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_repairs_core`
+   - `pnpm --filter @iatechs/api prisma:migrate --name add_inventory_core`
 5. Seed tenant + admin for auth tests:
    - `pnpm --filter @iatechs/api prisma:seed`
 6. Start apps:
@@ -47,3 +48,11 @@
 2. Create repair order + move status.
 3. Validate in API:
    - `GET /api/v1/repairs/orders`
+
+## Inventory smoke test (manual)
+
+1. Open inventory dashboard:
+   - `http://localhost:3000/portal/admin/inventory`
+2. Create inventory item + adjust stock.
+3. Validate in API:
+   - `GET /api/v1/inventory/items`

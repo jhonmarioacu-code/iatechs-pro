@@ -23,6 +23,12 @@ Repairs endpoints (Phase B.2):
 - `POST /api/v1/repairs/orders`
 - `PATCH /api/v1/repairs/orders/:orderId/status`
 
+Inventory endpoints (Phase B.3):
+
+- `GET /api/v1/inventory/items`
+- `POST /api/v1/inventory/items`
+- `PATCH /api/v1/inventory/items/:itemId/stock`
+
 Headers:
 
 - `x-tenant-id`: required for login, optional for refresh, enforced for protected routes.

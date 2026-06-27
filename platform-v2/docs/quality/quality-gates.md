@@ -9,3 +9,4 @@ Required before merge:
 5. Security workflow pass
 6. Auth + CRM smoke test (`/auth/login`, `/portal/admin/crm/leads`, `GET /api/v1/crm/leads`)
 7. Repairs smoke test (`/portal/admin/repairs`, `GET /api/v1/repairs/orders`)
+8. Inventory smoke test (`/portal/admin/inventory`, `GET /api/v1/inventory/items`)

@@ -12,7 +12,9 @@ function parsePermissions(value: string | undefined): string[] {
       "crm:leads:write",
       "repairs:read",
       "repairs:orders:read",
-      "repairs:orders:write"
+      "repairs:orders:write",
+      "inventory:items:read",
+      "inventory:items:write"
     ];
   }
 
@@ -138,6 +140,38 @@ async function main(): Promise<void> {
     }
   }
 
+  await prisma.inventoryItem.upsert({
+    where: {
+      tenantId_sku: {
+        tenantId: tenant.id,
+        sku: "INV-DEMO-001"
+      }
+    },
+    update: {
+      name: "SSD NVMe 1TB",
+      description: "Repuesto demo para ordenes de reparacion.",
+      locationCode: "BOD-A1-RACK-02",
+      quantityOnHand: 12,
+      reorderPoint: 4,
+      unitCostCents: 289900,
+      status: "active",
+      deletedAt: null,
+      lastMovementAt: new Date()
+    },
+    create: {
+      tenantId: tenant.id,
+      sku: "INV-DEMO-001",
+      name: "SSD NVMe 1TB",
+      description: "Repuesto demo para ordenes de reparacion.",
+      locationCode: "BOD-A1-RACK-02",
+      quantityOnHand: 12,
+      reorderPoint: 4,
+      unitCostCents: 289900,
+      status: "active",
+      lastMovementAt: new Date()
+    }
+  });
+
   console.log("[seed] Tenant ready:", {
     id: tenant.id,
     slug: tenant.slug,
@@ -161,6 +195,11 @@ async function main(): Promise<void> {
   console.log("[seed] Repair order seed ready:", {
     tenantId: tenant.id,
     serialNumber: "SN-REPAIR-DEMO-001"
+  });
+
+  console.log("[seed] Inventory seed ready:", {
+    tenantId: tenant.id,
+    sku: "INV-DEMO-001"
   });
 }
 

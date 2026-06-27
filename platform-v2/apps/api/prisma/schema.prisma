@@ -24,6 +24,7 @@ model Tenant {
   crmLeads    CrmLead[]
   crmInteractions CrmInteraction[]
   repairOrders RepairOrder[]
+  inventoryItems InventoryItem[]
 }
 
 model User {
@@ -205,4 +206,28 @@ model RepairOrder {
   @@index([tenantId, serialNumber])
   @@index([tenantId, customerId])
   @@index([tenantId, crmLeadId])
+}
+
+model InventoryItem {
+  id             String   @id @default(uuid())
+  tenantId       String
+  sku            String
+  name           String
+  description    String?
+  locationCode   String?
+  quantityOnHand Int      @default(0)
+  reorderPoint   Int      @default(0)
+  unitCostCents  Int?
+  status         String   @default("active")
+  lastMovementAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  deletedAt      DateTime?
+
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@unique([tenantId, sku])
+  @@index([tenantId, status, name])
+  @@index([tenantId, quantityOnHand])
+  @@index([tenantId, locationCode])
 }

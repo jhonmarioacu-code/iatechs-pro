@@ -47,3 +47,15 @@ Deliverables initialized:
    - `RepairOrder`
 3. Multi-tenant repair order endpoints protected with JWT + permissions.
 4. Frontend admin module for repair order intake, tracking and status workflow.
+
+## Phase B.3 - Inventory Vertical Slice (in progress)
+
+1. Inventory module in API with clean layers:
+   - `domain/`
+   - `application/`
+   - `infrastructure/`
+   - `presentation/`
+2. Inventory data model in Prisma:
+   - `InventoryItem`
+3. Multi-tenant inventory endpoints protected with JWT + permissions.
+4. Frontend admin module for inventory creation, filtering and stock adjustments.
