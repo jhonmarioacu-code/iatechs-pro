@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\Webhook\PaymentWebhookController;
+use App\Http\Middleware\ProtectMetricsEndpoint;
+use App\Http\Controllers\Metrics\PrometheusMetricsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,6 +15,21 @@ use App\Http\Controllers\HealthController;
 */
 
 Route::get('/health', [HealthController::class, 'api']);
+
+Route::get('/metrics/prometheus', PrometheusMetricsController::class)
+    ->middleware([
+        ProtectMetricsEndpoint::class,
+        'throttle:60,1',
+    ])
+    ->name('metrics.prometheus');
+
+Route::prefix('webhooks')->group(function (): void {
+    Route::post('/stripe', [PaymentWebhookController::class, 'stripe'])
+        ->name('webhooks.stripe');
+
+    Route::post('/mercadopago', [PaymentWebhookController::class, 'mercadopago'])
+        ->name('webhooks.mercadopago');
+});
 
 /*
 |--------------------------------------------------------------------------

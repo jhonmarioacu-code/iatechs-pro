@@ -46,6 +46,8 @@ El comando `iatechs:gate-release` valida:
    Azure OpenAI, Redis/Horizon, Mail, S3 (requeridas) y
    Reverb/Pusher (operativas, ver `docs/operations/24-Realtime-Broadcast-Runbook.md`)
    y Stripe/Mercado Pago/Cloudflare/OAuth-JWT-Passport (seguimiento).
+   Observabilidad externa Prometheus/Grafana se documenta en `docs/operations/25-Observability-Prometheus-Grafana-Runbook.md`.
+   Security scanning operativo se documenta en `docs/operations/26-Security-Scanning-Runbook.md`.
 
 ## Checklist de cierre obligatorio por tarea
 

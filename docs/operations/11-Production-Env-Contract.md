@@ -47,8 +47,35 @@ Define the minimum required production environment variables and operational rul
 
 ## Mail
 - `MAIL_MAILER`: `smtp`, `ses`, or `log` per environment.
+- `MAIL_MAILER_TRANSACTIONAL`: dedicated mailer for transactional notifications.
+- `TRANSACTIONAL_EMAIL_PROVIDER`: provider id used for delivery metadata.
 - `MAIL_FROM_ADDRESS`: Sender email.
 - `MAIL_FROM_NAME`: Sender display name.
+
+## Revenue Observability (SLO/SLA)
+- `OBS_PAYMENT_SUCCESS_RATE_MIN`: minimum payment success percentage.
+- `OBS_PAYMENT_FAILED_24H_ALERT`: failed payments alert threshold.
+- `OBS_PENDING_ONLINE_STALE_MINUTES`: stale age window for pending online payments.
+- `OBS_PENDING_ONLINE_ALERT`: stale pending online threshold.
+- `OBS_SUBS_PAST_DUE_ALERT`: past due subscriptions threshold.
+- `OBS_SUBS_CHURN_30D_MAX`: max allowed churn percentage over 30 days.
+- `OBS_EXPORTER_ENABLED`: enable `/api/metrics/prometheus`.
+- `OBS_EXPORTER_TOKEN`: bearer token for metrics scrape authorization.
+- `OBS_EXPORTER_ALLOWED_IPS`: comma separated allowlist for metrics endpoint.
+- `OBS_ALERTS_ENABLED`: enables scheduled observability dispatch command.
+- `OBS_ALERTS_EMAIL_ENABLED`: enables email alert channel.
+- `OBS_ALERTS_EMAIL_RECIPIENTS`: optional comma separated `super_admin` targets.
+- `OBS_ALERTS_SLACK_ENABLED`: enables Slack channel from app dispatcher.
+- `OBS_ALERTS_SLACK_WEBHOOK_URL`: Slack webhook for app dispatcher.
+- `OBS_ALERTS_COOLDOWN_MINUTES`: cooldown for duplicate app alerts.
+- `OBS_ALERTS_CHECK_INTERVAL_MINUTES`: scheduler interval in minutes.
+
+## Prometheus / Grafana / Alertmanager (Docker profile `observability`)
+- `OBS_EXPORTER_TOKEN_FILE`: file path consumed as Docker secret by Prometheus.
+- `OBS_ALERTS_SLACK_WEBHOOK_FILE`: file path consumed as Docker secret by Alertmanager.
+- `PROMETHEUS_RETENTION_TIME`: TSDB retention, default `15d`.
+- `GRAFANA_ADMIN_USER`: Grafana admin user.
+- `GRAFANA_ADMIN_PASSWORD`: Grafana admin password.
 
 ## Security and Secret Management Rules
 - Never commit real credentials or private keys to Git.

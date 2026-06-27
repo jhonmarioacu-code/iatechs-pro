@@ -6,6 +6,7 @@ namespace App\Domains\Notifications\Jobs;
 
 use App\Domains\Notifications\Models\Notification;
 use App\Domains\Notifications\Services\NotificationService;
+use App\Domains\Notifications\Services\TransactionalEmailService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -41,7 +42,15 @@ class SendEmailNotificationJob implements ShouldQueue
             'status' => 'PROCESSING',
         ]);
 
-        $notificationService->markAsSent($notification);
+        $result = app(TransactionalEmailService::class)
+            ->sendNotification($notification->fresh(['user']));
+
+        $notificationService->markAsDelivered(
+            $notification->fresh(),
+            [
+                'email_delivery' => $result,
+            ]
+        );
     }
 
     public function failed(\Throwable $exception): void

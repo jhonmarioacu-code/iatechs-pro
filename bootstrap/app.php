@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
 use App\Tenant\Middleware\TenantMiddleware;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\EnsurePortalAccess;
 use App\Http\Middleware\AttachRequestContext;
 use App\Http\Middleware\RecordRequestMetrics;
@@ -35,6 +36,7 @@ return Application::configure(
     $middleware->statefulApi();
 
     $middleware->append([
+        SecurityHeaders::class,
         AttachRequestContext::class,
         RecordRequestMetrics::class,
     ]);

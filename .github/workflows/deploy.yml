@@ -30,6 +30,21 @@ on:
         required: true
         default: "nginx"
         type: string
+      run_observability_checks:
+        description: "Run observability postdeploy checks"
+        required: true
+        default: true
+        type: boolean
+      validate_prometheus_stack:
+        description: "Require Prometheus/Alertmanager/Grafana stack checks"
+        required: true
+        default: false
+        type: boolean
+      provision_observability_stack:
+        description: "Provision observability secrets/env and run docker compose profile"
+        required: true
+        default: true
+        type: boolean
 
 permissions:
   contents: read
@@ -39,9 +54,42 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  security-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.4"
+          tools: composer:v2
+          coverage: none
+          extensions: mbstring, pgsql, pdo_pgsql, pdo_sqlite, sqlite3
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          npm ci
+
+      - name: Composer audit
+        run: composer audit --locked
+
+      - name: NPM audit (prod)
+        run: npm audit --omit=dev --audit-level=high
+
   precheck:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: security-gates
     environment: ${{ inputs.target_env }}
     steps:
       - name: Validate input
@@ -60,6 +108,8 @@ jobs:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          OBS_EXPORTER_TOKEN: ${{ secrets.OBS_EXPORTER_TOKEN }}
+          OBS_ALERTS_SLACK_WEBHOOK_URL: ${{ secrets.OBS_ALERTS_SLACK_WEBHOOK_URL }}
         run: |
           set -euo pipefail
           [ -n "$SSH_HOST" ] || (echo "Missing secret SSH_HOST" && exit 1)
@@ -67,6 +117,12 @@ jobs:
           [ -n "$SSH_USER" ] || (echo "Missing secret SSH_USER" && exit 1)
           [ -n "$SSH_PRIVATE_KEY" ] || (echo "Missing secret SSH_PRIVATE_KEY" && exit 1)
           [ -n "$DEPLOY_PATH" ] || (echo "Missing secret DEPLOY_PATH" && exit 1)
+
+          if [ "${{ inputs.provision_observability_stack }}" = "true" ]; then
+            [ -n "$OBS_EXPORTER_TOKEN" ] || (echo "Missing secret OBS_EXPORTER_TOKEN" && exit 1)
+            [ -n "$OBS_ALERTS_SLACK_WEBHOOK_URL" ] || (echo "Missing secret OBS_ALERTS_SLACK_WEBHOOK_URL" && exit 1)
+          fi
+
           echo "Secret validation OK"
 
   deploy:
@@ -77,11 +133,19 @@ jobs:
     steps:
       - name: Deploy over SSH with rollback-on-error
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          OBS_EXPORTER_TOKEN_SECRET: ${{ secrets.OBS_EXPORTER_TOKEN }}
+          OBS_ALERTS_SLACK_WEBHOOK_SECRET: ${{ secrets.OBS_ALERTS_SLACK_WEBHOOK_URL }}
+          OBS_EXPORTER_ALLOWED_IPS_SECRET: ${{ secrets.OBS_EXPORTER_ALLOWED_IPS }}
+          PROMETHEUS_RETENTION_TIME_SECRET: ${{ secrets.PROMETHEUS_RETENTION_TIME }}
+          GRAFANA_ADMIN_USER_SECRET: ${{ secrets.GRAFANA_ADMIN_USER }}
+          GRAFANA_ADMIN_PASSWORD_SECRET: ${{ secrets.GRAFANA_ADMIN_PASSWORD }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
+          envs: OBS_EXPORTER_TOKEN_SECRET,OBS_ALERTS_SLACK_WEBHOOK_SECRET,OBS_EXPORTER_ALLOWED_IPS_SECRET,PROMETHEUS_RETENTION_TIME_SECRET,GRAFANA_ADMIN_USER_SECRET,GRAFANA_ADMIN_PASSWORD_SECRET
           script_stop: true
           command_timeout: 30m
           script: |
@@ -92,7 +156,32 @@ jobs:
             RUN_MIGRATIONS="${{ inputs.run_migrations }}"
             PHP_FPM_SERVICE="${{ inputs.php_fpm_service }}"
             NGINX_SERVICE="${{ inputs.nginx_service }}"
+            RUN_OBS_CHECKS="${{ inputs.run_observability_checks }}"
+            VALIDATE_PROM_STACK="${{ inputs.validate_prometheus_stack }}"
+            PROVISION_OBS_STACK="${{ inputs.provision_observability_stack }}"
+            DEPLOY_USER="$(id -un)"
+            DEPLOY_GROUP="$(id -gn)"
+            NPM_CACHE_PATH="${HOME}/.npm"
             TS="$(date +%Y%m%d_%H%M%S)"
+            OBS_EXPORTER_TOKEN_SECRET="${OBS_EXPORTER_TOKEN_SECRET:-}"
+            OBS_ALERTS_SLACK_WEBHOOK_SECRET="${OBS_ALERTS_SLACK_WEBHOOK_SECRET:-}"
+            OBS_EXPORTER_ALLOWED_IPS_SECRET="${OBS_EXPORTER_ALLOWED_IPS_SECRET:-}"
+            PROMETHEUS_RETENTION_TIME_SECRET="${PROMETHEUS_RETENTION_TIME_SECRET:-}"
+            GRAFANA_ADMIN_USER_SECRET="${GRAFANA_ADMIN_USER_SECRET:-}"
+            GRAFANA_ADMIN_PASSWORD_SECRET="${GRAFANA_ADMIN_PASSWORD_SECRET:-}"
+
+            set_env_value() {
+              local key="$1"
+              local value="$2"
+              local escaped
+              escaped="$(printf '%s' "$value" | sed -e 's/[\/&]/\\&/g')"
+
+              if grep -qE "^${key}=" .env; then
+                sed -i "s/^${key}=.*/${key}=${escaped}/" .env
+              else
+                printf '%s=%s\n' "$key" "$value" >> .env
+              fi
+            }
 
             cd "$DEPLOY_PATH"
 
@@ -121,6 +210,45 @@ jobs:
             git checkout "$DEPLOY_REF"
             git pull origin "$DEPLOY_REF"
 
+            if [ "$PROVISION_OBS_STACK" = "true" ]; then
+              mkdir -p docker/observability/secrets
+              umask 077
+              printf '%s\n' "$OBS_EXPORTER_TOKEN_SECRET" > docker/observability/secrets/obs_exporter_token
+              printf '%s\n' "$OBS_ALERTS_SLACK_WEBHOOK_SECRET" > docker/observability/secrets/slack_webhook_url
+              umask 022
+
+              set_env_value OBS_EXPORTER_ENABLED true
+              set_env_value OBS_EXPORTER_TOKEN "$OBS_EXPORTER_TOKEN_SECRET"
+              set_env_value OBS_EXPORTER_TOKEN_FILE "./docker/observability/secrets/obs_exporter_token"
+              set_env_value OBS_ALERTS_ENABLED true
+              set_env_value OBS_ALERTS_SLACK_ENABLED true
+              set_env_value OBS_ALERTS_SLACK_WEBHOOK_URL "$OBS_ALERTS_SLACK_WEBHOOK_SECRET"
+              set_env_value OBS_ALERTS_SLACK_WEBHOOK_FILE "./docker/observability/secrets/slack_webhook_url"
+
+              if [ -n "$OBS_EXPORTER_ALLOWED_IPS_SECRET" ]; then
+                set_env_value OBS_EXPORTER_ALLOWED_IPS "$OBS_EXPORTER_ALLOWED_IPS_SECRET"
+              fi
+              if [ -n "$PROMETHEUS_RETENTION_TIME_SECRET" ]; then
+                set_env_value PROMETHEUS_RETENTION_TIME "$PROMETHEUS_RETENTION_TIME_SECRET"
+              fi
+              if [ -n "$GRAFANA_ADMIN_USER_SECRET" ]; then
+                set_env_value GRAFANA_ADMIN_USER "$GRAFANA_ADMIN_USER_SECRET"
+              fi
+              if [ -n "$GRAFANA_ADMIN_PASSWORD_SECRET" ]; then
+                set_env_value GRAFANA_ADMIN_PASSWORD "$GRAFANA_ADMIN_PASSWORD_SECRET"
+              fi
+
+              if command -v docker >/dev/null 2>&1; then
+                docker compose --profile observability pull prometheus alertmanager grafana || true
+                docker compose --profile observability up -d prometheus alertmanager grafana
+              else
+                echo "Docker is not installed on target host."
+                if [ "$VALIDATE_PROM_STACK" = "true" ]; then
+                  exit 1
+                fi
+              fi
+            fi
+
             # Runtime dirs + permisos (antes de composer)
             sudo mkdir -p bootstrap/cache
             sudo mkdir -p storage/logs
@@ -138,7 +266,14 @@ jobs:
             sudo chmod 664 storage/logs/laravel.log
 
             composer install --no-dev --optimize-autoloader --no-interaction
-            npm ci
+            # Evita EACCES por archivos root-owned de ejecuciones previas.
+            if [ -d node_modules ]; then
+              sudo rm -rf node_modules
+            fi
+            sudo rm -rf "$NPM_CACHE_PATH/_cacache" || true
+            sudo mkdir -p "$NPM_CACHE_PATH"
+            sudo chown -R "$DEPLOY_USER:$DEPLOY_GROUP" "$NPM_CACHE_PATH"
+            npm ci --cache "$NPM_CACHE_PATH" --no-audit --no-fund
             npm run build
 
             if [ "$RUN_MIGRATIONS" = "true" ]; then
@@ -157,6 +292,14 @@ jobs:
             sudo systemctl reload "$NGINX_SERVICE"
 
             curl -fsS http://127.0.0.1/health
+
+            if [ "$RUN_OBS_CHECKS" = "true" ] && [ -f deploy/observability-postdeploy-check.sh ]; then
+              chmod +x deploy/observability-postdeploy-check.sh
+              APP_BASE_URL="http://127.0.0.1" \
+              APP_ENV_FILE=".env" \
+              OBS_VALIDATE_PROM_STACK="$VALIDATE_PROM_STACK" \
+              bash deploy/observability-postdeploy-check.sh
+            fi
 
             trap - ERR
             echo "Deploy finished successfully."

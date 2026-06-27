@@ -1,0 +1,81 @@
+groups:
+  - name: iatechs_operational_slo
+    interval: 30s
+    rules:
+      - alert: IAtechsPaymentSuccessRateLow
+        expr: iatechs_payment_success_rate_24h_percent < iatechs_observability_threshold_payment_success_rate_min_percent
+        for: 10m
+        labels:
+          severity: critical
+          service: billing
+          slo: payments
+        annotations:
+          summary: "Payment success rate below SLO"
+          description: "The 24h payment success rate is below the configured threshold."
+
+      - alert: IAtechsFailedPaymentsSpike
+        expr: iatechs_payments_failed_24h_total >= iatechs_observability_threshold_payment_failed_24h_max
+        for: 10m
+        labels:
+          severity: critical
+          service: billing
+          slo: payments
+        annotations:
+          summary: "Failed payments above threshold"
+          description: "Failed payments in 24h exceeded the configured alert threshold."
+
+      - alert: IAtechsPendingOnlinePaymentsStale
+        expr: iatechs_payments_pending_online_stale >= iatechs_observability_threshold_pending_online_stale_max
+        for: 15m
+        labels:
+          severity: warning
+          service: billing
+          slo: payments
+        annotations:
+          summary: "Stale pending online payments detected"
+          description: "Pending online payments older than threshold exceeded allowed value."
+
+      - alert: IAtechsPastDueSubscriptionsHigh
+        expr: iatechs_subscriptions_past_due >= iatechs_observability_threshold_subscriptions_past_due_max
+        for: 10m
+        labels:
+          severity: critical
+          service: subscriptions
+          slo: subscriptions
+        annotations:
+          summary: "Past due subscriptions above SLA"
+          description: "Past due subscriptions are above configured threshold."
+
+      - alert: IAtechsSubscriptionChurn30dHigh
+        expr: iatechs_subscription_churn_30d_percent > iatechs_observability_threshold_churn_30d_max_percent
+        for: 30m
+        labels:
+          severity: warning
+          service: subscriptions
+          slo: subscriptions
+        annotations:
+          summary: "Subscription churn above threshold"
+          description: "30-day churn is above the allowed maximum percentage."
+
+      - alert: IAtechsObservabilityOverallHigh
+        expr: iatechs_observability_overall_status >= 2
+        for: 5m
+        labels:
+          severity: critical
+          service: observability
+          slo: platform
+        annotations:
+          summary: "Global observability status is HIGH"
+          description: "One or more SLO/SLA critical conditions remain active."
+
+      - alert: IAtechsQueueBacklogHigh
+        expr: iatechs_queue_pending_jobs > 100
+        for: 10m
+        labels:
+          severity: warning
+          service: queue
+          slo: platform
+        annotations:
+          summary: "Queue backlog is high"
+          description: "Pending queue jobs exceeded 100 for more than 10 minutes."
+

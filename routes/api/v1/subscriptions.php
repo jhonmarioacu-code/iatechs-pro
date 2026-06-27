@@ -96,4 +96,11 @@ Route::middleware([
     )
     ->middleware('permission:subscriptions.change-plan')
     ->name('change-plan');
+
+    Route::post(
+        '/{subscription}/checkout',
+        [SubscriptionController::class, 'checkout']
+    )
+    ->middleware('permission:subscriptions.update')
+    ->name('checkout');
 });

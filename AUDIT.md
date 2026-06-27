@@ -1,6 +1,6 @@
 # IAtechs Pro - Technical Audit Snapshot
 
-Fecha: 2026-06-25
+Fecha: 2026-06-27
 
 ## Alcance auditado
 
@@ -25,21 +25,28 @@ Fecha: 2026-06-25
 - Evidencia: pruebas E2E/smoke y flujo de aprobacion/rechazo de cotizacion.
 
 4. Calidad automatizada:
-- Estado: **Parcialmente alineado**.
-- Evidencia: `composer test` en verde (69 tests, 450 assertions).
-- Brecha: mantener `composer analyse` en verde continuo en pipeline de release.
+- Estado: **Alineado ampliado**.
+- Evidencia: `composer test` en verde + `composer analyse` en verde + pipeline `.github/workflows/security.yml` con SCA (`composer audit`, `npm audit`), Trivy (fs/config) y Gitleaks.
 
 5. Despliegue y operaciones:
-- Estado: **Alineado base**.
-- Evidencia: workflows CI/deploy, scripts de provisionamiento, checklist y rollback.
+- Estado: **Alineado ampliado**.
+- Evidencia: workflows CI/deploy, scripts de provisionamiento, checklist/rollback, `Dockerfile` y `docker-compose.yml` productivos.
 
-6. Seguridad de autenticacion:
+6. Seguridad de autenticacion y hardening HTTP:
 - Estado: **Alineado**.
-- Evidencia: flujo de recuperacion/restablecimiento de contrasena y rate limiting (`login`, `register`, `password-email`, `password-reset`, `password-update`).
+- Evidencia: recuperacion/restablecimiento de contrasena, rate limiting tipado, middleware de headers de seguridad, CSP configurable y CORS explicito.
 
 7. Cacheo de rutas para release:
 - Estado: **Alineado**.
 - Evidencia: `composer validate:testing` completo incluyendo `route:cache` en verde.
+
+8. Gobernanza documental:
+- Estado: **Alineado**.
+- Evidencia: `README.md` raiz creado y `release_gate` reforzado con artefactos de produccion y claves de seguridad.
+
+9. Observabilidad avanzada de pagos/suscripciones:
+- Estado: **Alineado**.
+- Evidencia: exportador Prometheus protegido por token/IP (`/api/metrics/prometheus`), alertas operativas automatizadas (`iatechs:observability-alerts`) con despacho por email/Slack, profile Docker de observabilidad (Prometheus/Alertmanager/Grafana), reglas SLO/SLA y dashboard provisionado.
 
 ## Etapa del proyecto
 
@@ -47,6 +54,5 @@ Fecha: 2026-06-25
 
 ## Pendientes para produccion final
 
-1. Completar matriz formal `rol -> permiso -> ruta` en todos los endpoints admin/API.
-2. Reducir logica orquestadora en controllers de portal hacia Services/Actions por dominio.
-3. Ejecutar release candidate en entorno objetivo con evidencia completa de postdeploy.
+1. Ejecutar validacion postdeploy en entorno objetivo para confirmar scrape/alerting y evidencias de Grafana.
+2. Ejecutar release candidate en entorno objetivo con evidencia completa de postdeploy.
