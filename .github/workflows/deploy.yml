@@ -169,6 +169,7 @@ jobs:
             PROMETHEUS_RETENTION_TIME_SECRET="${PROMETHEUS_RETENTION_TIME_SECRET:-}"
             GRAFANA_ADMIN_USER_SECRET="${GRAFANA_ADMIN_USER_SECRET:-}"
             GRAFANA_ADMIN_PASSWORD_SECRET="${GRAFANA_ADMIN_PASSWORD_SECRET:-}"
+            DEFAULT_OBS_EXPORTER_ALLOWED_IPS="127.0.0.1,::1,172.16.0.0/12"
             WEB_USER="$DEPLOY_USER"
             WEB_GROUP="$DEPLOY_GROUP"
 
@@ -322,6 +323,8 @@ jobs:
 
               if [ -n "$OBS_EXPORTER_ALLOWED_IPS_SECRET" ]; then
                 set_env_value_logged OBS_EXPORTER_ALLOWED_IPS "$OBS_EXPORTER_ALLOWED_IPS_SECRET"
+              else
+                set_env_value_logged OBS_EXPORTER_ALLOWED_IPS "$DEFAULT_OBS_EXPORTER_ALLOWED_IPS"
               fi
               if [ -n "$PROMETHEUS_RETENTION_TIME_SECRET" ]; then
                 set_env_value_logged PROMETHEUS_RETENTION_TIME "$PROMETHEUS_RETENTION_TIME_SECRET"
@@ -340,7 +343,7 @@ jobs:
               fi
 
               echo "[deploy] Starting observability docker services"
-              if run_docker_compose --profile observability up -d prometheus alertmanager grafana; then
+              if run_docker_compose --profile observability up -d --no-deps prometheus alertmanager grafana; then
                 echo "Observability stack started."
               else
                 echo "Unable to run docker compose profile=observability on target host."
