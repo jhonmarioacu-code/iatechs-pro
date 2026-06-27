@@ -92,6 +92,9 @@ jobs:
             RUN_MIGRATIONS="${{ inputs.run_migrations }}"
             PHP_FPM_SERVICE="${{ inputs.php_fpm_service }}"
             NGINX_SERVICE="${{ inputs.nginx_service }}"
+            DEPLOY_USER="$(id -un)"
+            DEPLOY_GROUP="$(id -gn)"
+            NPM_CACHE_PATH="${HOME}/.npm"
             TS="$(date +%Y%m%d_%H%M%S)"
 
             cd "$DEPLOY_PATH"
@@ -138,7 +141,13 @@ jobs:
             sudo chmod 664 storage/logs/laravel.log
 
             composer install --no-dev --optimize-autoloader --no-interaction
-            npm ci
+            # Evita EACCES por archivos root-owned de ejecuciones previas.
+            sudo mkdir -p "$NPM_CACHE_PATH"
+            sudo chown -R "$DEPLOY_USER:$DEPLOY_GROUP" "$NPM_CACHE_PATH"
+            if [ -d node_modules ]; then
+              sudo chown -R "$DEPLOY_USER:$DEPLOY_GROUP" node_modules
+            fi
+            npm ci --cache "$NPM_CACHE_PATH" --no-audit --no-fund
             npm run build
 
             if [ "$RUN_MIGRATIONS" = "true" ]; then
