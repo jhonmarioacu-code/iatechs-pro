@@ -232,7 +232,7 @@ Para levantar Prometheus + Alertmanager + Grafana con reglas SLO/SLA operativas:
 ```bash
 cp docker/observability/secrets/obs_exporter_token.example docker/observability/secrets/obs_exporter_token
 cp docker/observability/secrets/slack_webhook_url.example docker/observability/secrets/slack_webhook_url
-docker compose --profile observability up -d prometheus alertmanager grafana
+docker compose --profile observability up -d --no-deps prometheus alertmanager grafana
 ```
 
 Smoke postdeploy automatizable:
@@ -248,3 +248,5 @@ Prometheus target iatechs_app en UP
 Grafana dashboard IAtechs Observability cargado
 Alertmanager enviando notificaciones
 ```
+
+Si se usa validacion estricta de observabilidad (`validate_prometheus_stack=true`), el usuario de despliegue debe tener acceso a Docker (`docker` group o `sudo -n docker`).

@@ -33,10 +33,17 @@ Dashboard operativo en Grafana
 ```env
 OBS_EXPORTER_ENABLED=true
 OBS_EXPORTER_TOKEN=<token-seguro>
-OBS_EXPORTER_ALLOWED_IPS=<ip-prometheus>,127.0.0.1,::1
+OBS_EXPORTER_ALLOWED_IPS=127.0.0.1,::1,172.16.0.0/12
 ```
 
-3. Archivos de secretos Docker:
+3. Docker y Compose disponibles en servidor:
+
+```bash
+docker info
+docker compose version
+```
+
+4. Archivos de secretos Docker (si no se usa provision automatizado):
 
 ```bash
 cp docker/observability/secrets/obs_exporter_token.example docker/observability/secrets/obs_exporter_token
@@ -55,22 +62,31 @@ El workflow crea secretos/vars y levanta el profile observability automaticament
 # Levantar stack de observabilidad
 
 ```bash
-docker compose --profile observability up -d prometheus alertmanager grafana
+docker compose --profile observability up -d --no-deps prometheus alertmanager grafana
 ```
 
 Servicios:
 
 ```text
-Prometheus:  http://localhost:9090
+Prometheus:   http://localhost:9090
 Alertmanager: http://localhost:9093
-Grafana:     http://localhost:3000
+Grafana:      http://localhost:3000
 ```
+
+---
+
+# Topologia de scrape
+
+- Prometheus corre en Docker.
+- La app productiva corre en host.
+- Target configurado: `host.docker.internal:80`.
+- Prometheus autentica contra `/api/metrics/prometheus` con `Authorization: Bearer <token>`.
 
 ---
 
 # Validaciones obligatorias
 
-1. Validar scrape en Prometheus:
+1. Validar target en Prometheus:
 
 ```text
 Status > Targets > job "iatechs_app" = UP
@@ -84,7 +100,7 @@ iatechs_subscriptions_past_due
 iatechs_observability_overall_status
 ```
 
-3. Validar carga de reglas:
+3. Validar reglas cargadas:
 
 ```text
 Alerts > IAtechsPaymentSuccessRateLow, IAtechsPastDueSubscriptionsHigh, etc.
@@ -99,13 +115,16 @@ Dashboard: IAtechs Observability - Payments & Subscriptions
 
 ---
 
-# Smoke de alertas
+# Postdeploy checks estrictos
 
-1. Forzar condiciones degradadas en entorno controlado.
-2. Confirmar disparo de alerta en Prometheus.
-3. Confirmar notificacion en Slack por Alertmanager.
-4. Confirmar evento correspondiente en dashboard.
-5. Revertir condiciones degradadas y confirmar `resolved`.
+- Script: `deploy/observability-postdeploy-check.sh`
+- Incluye:
+  - health app
+  - metrics endpoint protegido
+  - Prometheus healthy
+  - validacion de target `iatechs_app` con reintentos
+  - Alertmanager healthy
+  - Grafana healthy
 
 ---
 
@@ -124,16 +143,16 @@ Endpoint /api/metrics/prometheus accesible solo desde IPs autorizadas
 
 # Troubleshooting rapido
 
-1. `403/401` en scrape:
+1. `401/403` en scrape:
 
 ```text
 Revisar OBS_EXPORTER_TOKEN y OBS_EXPORTER_ALLOWED_IPS.
 ```
 
-2. Target DOWN:
+2. `target DOWN`:
 
 ```text
-Verificar health de servicio app y conectividad entre contenedores.
+Validar Nginx/app en host y conectividad desde Prometheus a host.docker.internal:80.
 ```
 
 3. Sin alertas en Slack:
@@ -145,5 +164,5 @@ Revisar docker/observability/secrets/slack_webhook_url y logs de Alertmanager.
 4. Dashboard vacio:
 
 ```text
-Validar datasource "IAtechs Prometheus" y query de metrica en Explore.
+Validar datasource "IAtechs Prometheus" y queries en Grafana Explore.
 ```

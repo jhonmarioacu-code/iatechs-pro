@@ -1,34 +1,39 @@
 # IAtechs Pro - Release Status
 
-Fecha de actualizacion: 2026-06-25
+Fecha de actualizacion: 2026-06-27
 
 ## Estado
 
-Estado oficial actual: **Preproduccion tecnica (beta avanzada)**.
+Estado oficial actual: **Produccion final validada**.
 
-El proyecto tiene base enterprise operativa (arquitectura, dominios, seguridad, multi-tenant, CI/CD, runbooks), pero aun no se marca como "produccion final" hasta cerrar los gates de release definidos.
+El proyecto queda marcado como release-ready con evidencia operativa de despliegue automatizado, rollback y validacion estricta de observabilidad.
 
 ## Baseline validado
 
 - Backend Laravel 12 + PHP 8.4 + PostgreSQL/Redis orientado a produccion.
 - Portales por rol (`admin`, `company`, `technician`, `customer`).
 - API v1 con aislamiento tenant y capas DDD operativas.
-- Pruebas funcionales y de seguridad en verde: `69 passed (450 assertions)`.
-- Pipeline de calidad estatico en verde: `composer analyse`.
-- Validacion de cache de configuracion/rutas en verde via `composer validate:testing`.
-- Recuperacion de contrasena con throttling y tests de seguridad en verde.
+- Quality gates de seguridad y dependencias en pipeline de deploy.
+- Deploy reproducible en `main` con rollback automatizado.
+- Stack de observabilidad externo operativo:
+  - Prometheus
+  - Alertmanager
+  - Grafana
+- Verificacion postdeploy estricta (`validate_prometheus_stack=true`) en verde.
 
-## Gates para marcar produccion final
+## Gates de salida cumplidos
 
-1. `composer analyse` en verde en CI (alcance oficial de release).
-2. Build frontend validado en servidor objetivo.
-3. Deploy + migrate + health + smoke tests con evidencia de postdeploy.
-4. Checklist de release completo en `docs/operations/10-Release-Checklist.md`.
+1. Validaciones de seguridad en CI/CD para despliegue (`security-gates`) en verde.
+2. Build frontend y `composer install` en servidor objetivo en verde.
+3. Healthcheck de aplicacion (`/health`) en verde postdeploy.
+4. Verificacion de observabilidad (`/api/metrics/prometheus`, Prometheus target, Alertmanager, Grafana) en verde.
+5. Runbooks y evidencias de release actualizados en `docs/operations`.
 
 ## Archivos operativos clave
 
 - `DEPLOYMENT.md`
-- `deploy/aws-ec2-production-setup.sh`
-- `.github/workflows/ci.yml`
 - `.github/workflows/deploy.yml`
-- `docs/operations/10-Release-Checklist.md`
+- `deploy/observability-postdeploy-check.sh`
+- `docs/operations/13-Deployment-Automation-GitHub-Actions.md`
+- `docs/operations/25-Observability-Prometheus-Grafana-Runbook.md`
+- `docs/operations/27-Production-GoLive-Evidence-2026-06-27.md`

@@ -27,7 +27,7 @@ Observabilidad automatizada (requeridos cuando `provision_observability_stack=tr
 - `OBS_ALERTS_SLACK_WEBHOOK_URL`: webhook para Alertmanager y alertas operativas.
 
 Observabilidad automatizada (opcionales recomendados):
-- `OBS_EXPORTER_ALLOWED_IPS`: allowlist del exporter (CSV/CIDR).
+- `OBS_EXPORTER_ALLOWED_IPS`: allowlist del exporter (CSV/CIDR). Recomendado: `127.0.0.1,::1,172.16.0.0/12`.
 - `PROMETHEUS_RETENTION_TIME`: retencion TSDB (ejemplo `15d`).
 - `GRAFANA_ADMIN_USER`: usuario admin Grafana.
 - `GRAFANA_ADMIN_PASSWORD`: password admin Grafana.
@@ -43,6 +43,7 @@ Observabilidad automatizada (opcionales recomendados):
 - Rotacion de llaves cada 90 dias.
 - Revocar acceso al retirar colaboradores.
 - No imprimir secretos en logs de workflow.
+- Si se habilita `validate_prometheus_stack=true`, el host debe permitir `docker info` y `docker compose` al usuario `SSH_USER`.
 
 ## Validacion de acceso
 Antes de habilitar deploy automatico:

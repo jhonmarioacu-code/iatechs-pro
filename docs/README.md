@@ -64,6 +64,7 @@ La documentacion oficial se organiza en 4 bloques:
 - Realtime operativo y autorizacion de canales: `docs/operations/24-Realtime-Broadcast-Runbook.md`
 - Observabilidad externa Prometheus/Grafana: `docs/operations/25-Observability-Prometheus-Grafana-Runbook.md`
 - Security scanning SCA/SAST/secrets: `docs/operations/26-Security-Scanning-Runbook.md`
+- Evidencia de go-live productivo: `docs/operations/27-Production-GoLive-Evidence-2026-06-27.md`
 
 ## Estructura oficial de carpetas de documentacion
 
