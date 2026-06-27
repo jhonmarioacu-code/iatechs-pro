@@ -343,6 +343,13 @@ jobs:
             sudo mkdir -p "$NPM_CACHE_PATH"
             sudo chown -R "$DEPLOY_USER:$DEPLOY_GROUP" "$NPM_CACHE_PATH"
             npm ci --cache "$NPM_CACHE_PATH" --no-audit --no-fund
+
+            echo "[deploy] Normalizing frontend output permissions (public/build)"
+            sudo mkdir -p public/build
+            sudo chown -R "$DEPLOY_USER:$DEPLOY_GROUP" public/build
+            sudo find public/build -type d -exec chmod 775 {} \; || true
+            sudo find public/build -type f -exec chmod 664 {} \; || true
+
             npm run build
 
             if [ "$RUN_MIGRATIONS" = "true" ]; then
