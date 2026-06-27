@@ -6,8 +6,10 @@ import { UpdateCrmLeadStatusUseCase } from "./application/use-cases/update-crm-l
 import { AuditCrmActivityPublisher } from "./infrastructure/publishers/audit-crm-activity.publisher";
 import { PrismaCrmLeadRepository } from "./infrastructure/repositories/prisma-crm-lead.repository";
 import { CrmLeadsController } from "./presentation/crm-leads.controller";
+import { AuthModule } from "../../shared/auth/auth.module";
 
 @Module({
+  imports: [AuthModule],
   controllers: [CrmLeadsController],
   providers: [
     CreateCrmLeadUseCase,

@@ -6,8 +6,10 @@ import { UpdateRepairOrderStatusUseCase } from "./application/use-cases/update-r
 import { AuditRepairsActivityPublisher } from "./infrastructure/publishers/audit-repairs-activity.publisher";
 import { PrismaRepairOrderRepository } from "./infrastructure/repositories/prisma-repair-order.repository";
 import { RepairOrdersController } from "./presentation/repair-orders.controller";
+import { AuthModule } from "../../shared/auth/auth.module";
 
 @Module({
+  imports: [AuthModule],
   controllers: [RepairOrdersController],
   providers: [
     CreateRepairOrderUseCase,

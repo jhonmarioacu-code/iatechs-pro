@@ -12,6 +12,7 @@
    - `pnpm --filter @iatechs/api prisma:migrate --name add_crm_core`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_repairs_core`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_inventory_core`
+   - `pnpm --filter @iatechs/api prisma:migrate --name add_billing_core`
 5. Seed tenant + admin for auth tests:
    - `pnpm --filter @iatechs/api prisma:seed`
 6. Start apps:
@@ -56,3 +57,11 @@
 2. Create inventory item + adjust stock.
 3. Validate in API:
    - `GET /api/v1/inventory/items`
+
+## Billing smoke test (manual)
+
+1. Open billing dashboard:
+   - `http://localhost:3000/portal/admin/billing`
+2. Create invoice + move lifecycle status.
+3. Validate in API:
+   - `GET /api/v1/billing/invoices`

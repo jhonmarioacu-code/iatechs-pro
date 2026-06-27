@@ -59,3 +59,15 @@ Deliverables initialized:
    - `InventoryItem`
 3. Multi-tenant inventory endpoints protected with JWT + permissions.
 4. Frontend admin module for inventory creation, filtering and stock adjustments.
+
+## Phase B.4 - Billing Vertical Slice (in progress)
+
+1. Billing module in API with clean layers:
+   - `domain/`
+   - `application/`
+   - `infrastructure/`
+   - `presentation/`
+2. Billing data model in Prisma:
+   - `Invoice`
+3. Multi-tenant billing endpoints protected with JWT + permissions.
+4. Frontend admin module for invoice creation, lifecycle transitions and filtering.

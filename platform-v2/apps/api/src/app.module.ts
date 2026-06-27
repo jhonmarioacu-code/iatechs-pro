@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { BillingModule } from "./modules/billing/billing.module";
 import { HealthModule } from "./modules/health/health.module";
 import { CrmModule } from "./modules/crm/crm.module";
 import { InventoryModule } from "./modules/inventory/inventory.module";
@@ -8,6 +9,6 @@ import { DatabaseModule } from "./shared/database/database.module";
 import { TenantModule } from "./shared/tenant/tenant.module";
 
 @Module({
-  imports: [DatabaseModule, TenantModule, AuthModule, CrmModule, RepairsModule, InventoryModule, HealthModule]
+  imports: [DatabaseModule, TenantModule, AuthModule, CrmModule, RepairsModule, InventoryModule, BillingModule, HealthModule]
 })
 export class AppModule {}

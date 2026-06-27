@@ -11,6 +11,7 @@ This workspace bootstraps the V2 target architecture:
 - CRM vertical slice (backend + frontend) on top of IAM core
 - Repairs vertical slice (backend + frontend) integrated with CRM and audit
 - Inventory vertical slice (backend + frontend) with stock adjustments and audit
+- Billing vertical slice (backend + frontend) with invoice lifecycle and audit
 
 ## Quick start (local)
 
@@ -24,6 +25,7 @@ This workspace bootstraps the V2 target architecture:
    - `pnpm --filter @iatechs/api prisma:migrate --name add_crm_core`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_repairs_core`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_inventory_core`
+   - `pnpm --filter @iatechs/api prisma:migrate --name add_billing_core`
    - `pnpm --filter @iatechs/api prisma:seed`
 4. Start API:
    - `pnpm --filter @iatechs/api dev`
@@ -49,3 +51,6 @@ This workspace bootstraps the V2 target architecture:
 - Phase B.3: Inventory items vertical slice in progress:
   - API: `GET/POST/PATCH /api/v1/inventory/items*`
   - Web: `/portal/admin/inventory`
+- Phase B.4: Billing invoices vertical slice in progress:
+  - API: `GET/POST/PATCH /api/v1/billing/invoices*`
+  - Web: `/portal/admin/billing`

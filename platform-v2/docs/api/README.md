@@ -29,6 +29,12 @@ Inventory endpoints (Phase B.3):
 - `POST /api/v1/inventory/items`
 - `PATCH /api/v1/inventory/items/:itemId/stock`
 
+Billing endpoints (Phase B.4):
+
+- `GET /api/v1/billing/invoices`
+- `POST /api/v1/billing/invoices`
+- `PATCH /api/v1/billing/invoices/:invoiceId/status`
+
 Headers:
 
 - `x-tenant-id`: required for login, optional for refresh, enforced for protected routes.

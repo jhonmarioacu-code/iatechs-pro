@@ -25,6 +25,7 @@ model Tenant {
   crmInteractions CrmInteraction[]
   repairOrders RepairOrder[]
   inventoryItems InventoryItem[]
+  invoices    Invoice[]
 }
 
 model User {
@@ -121,6 +122,7 @@ model Customer {
   leads       CrmLead[]
   interactions CrmInteraction[]
   repairOrders RepairOrder[]
+  invoices    Invoice[]
 
   @@index([tenantId, status, createdAt])
   @@index([tenantId, email])
@@ -200,6 +202,7 @@ model RepairOrder {
   tenant                Tenant    @relation(fields: [tenantId], references: [id])
   customer              Customer? @relation(fields: [customerId], references: [id])
   crmLead               CrmLead?  @relation(fields: [crmLeadId], references: [id])
+  invoices              Invoice[]
 
   @@index([tenantId, status, priority, createdAt])
   @@index([tenantId, assignedTechnicianId])
@@ -230,4 +233,34 @@ model InventoryItem {
   @@index([tenantId, status, name])
   @@index([tenantId, quantityOnHand])
   @@index([tenantId, locationCode])
+}
+
+model Invoice {
+  id             String    @id @default(uuid())
+  tenantId       String
+  invoiceNumber  String
+  customerId     String?
+  repairOrderId  String?
+  status         String    @default("draft")
+  currency       String    @default("COP")
+  subtotalCents  Int
+  taxCents       Int       @default(0)
+  discountCents  Int       @default(0)
+  totalCents     Int
+  issuedAt       DateTime?
+  dueAt          DateTime?
+  paidAt         DateTime?
+  notes          String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  repairOrder    RepairOrder? @relation(fields: [repairOrderId], references: [id])
+
+  @@unique([tenantId, invoiceNumber])
+  @@index([tenantId, status, dueAt])
+  @@index([tenantId, customerId])
+  @@index([tenantId, repairOrderId])
 }

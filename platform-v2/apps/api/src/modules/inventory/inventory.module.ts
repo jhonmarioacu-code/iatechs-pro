@@ -6,8 +6,10 @@ import { ListInventoryItemsUseCase } from "./application/use-cases/list-inventor
 import { AuditInventoryActivityPublisher } from "./infrastructure/publishers/audit-inventory-activity.publisher";
 import { PrismaInventoryItemRepository } from "./infrastructure/repositories/prisma-inventory-item.repository";
 import { InventoryItemsController } from "./presentation/inventory-items.controller";
+import { AuthModule } from "../../shared/auth/auth.module";
 
 @Module({
+  imports: [AuthModule],
   controllers: [InventoryItemsController],
   providers: [
     CreateInventoryItemUseCase,

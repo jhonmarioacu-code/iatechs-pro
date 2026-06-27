@@ -14,7 +14,9 @@ function parsePermissions(value: string | undefined): string[] {
       "repairs:orders:read",
       "repairs:orders:write",
       "inventory:items:read",
-      "inventory:items:write"
+      "inventory:items:write",
+      "billing:invoices:read",
+      "billing:invoices:write"
     ];
   }
 
@@ -140,6 +142,14 @@ async function main(): Promise<void> {
     }
   }
 
+  const seededRepairOrder = await prisma.repairOrder.findFirst({
+    where: {
+      tenantId: tenant.id,
+      serialNumber: "SN-REPAIR-DEMO-001",
+      deletedAt: null
+    }
+  });
+
   await prisma.inventoryItem.upsert({
     where: {
       tenantId_sku: {
@@ -172,6 +182,44 @@ async function main(): Promise<void> {
     }
   });
 
+  await prisma.invoice.upsert({
+    where: {
+      tenantId_invoiceNumber: {
+        tenantId: tenant.id,
+        invoiceNumber: "INV-DEMO-001"
+      }
+    },
+    update: {
+      customerId: null,
+      repairOrderId: seededRepairOrder?.id ?? null,
+      status: "draft",
+      currency: "COP",
+      subtotalCents: 450000,
+      taxCents: 85500,
+      discountCents: 0,
+      totalCents: 535500,
+      dueAt: new Date("2026-12-31T00:00:00.000Z"),
+      issuedAt: null,
+      paidAt: null,
+      notes: "Factura seed para validar ciclo de facturacion V2.",
+      deletedAt: null
+    },
+    create: {
+      tenantId: tenant.id,
+      invoiceNumber: "INV-DEMO-001",
+      customerId: null,
+      repairOrderId: seededRepairOrder?.id ?? null,
+      status: "draft",
+      currency: "COP",
+      subtotalCents: 450000,
+      taxCents: 85500,
+      discountCents: 0,
+      totalCents: 535500,
+      dueAt: new Date("2026-12-31T00:00:00.000Z"),
+      notes: "Factura seed para validar ciclo de facturacion V2."
+    }
+  });
+
   console.log("[seed] Tenant ready:", {
     id: tenant.id,
     slug: tenant.slug,
@@ -200,6 +248,12 @@ async function main(): Promise<void> {
   console.log("[seed] Inventory seed ready:", {
     tenantId: tenant.id,
     sku: "INV-DEMO-001"
+  });
+
+  console.log("[seed] Billing seed ready:", {
+    tenantId: tenant.id,
+    invoiceNumber: "INV-DEMO-001",
+    repairOrderId: seededRepairOrder?.id ?? null
   });
 }
 
