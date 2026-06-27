@@ -36,10 +36,6 @@
 <div
     class="portal-grid"
     x-init="resetTransientUi()"
-    @portal-toggle-notifications.window="toggleNotifications()"
-    @portal-close-notifications.window="closeNotifications()"
-    @portal-toggle-assistant.window="toggleAssistantPanel()"
-    @portal-close-assistant.window="closeAssistantPanel()"
     data-assistant-enabled="{{ $assistantEnabled ? '1' : '0' }}"
     data-portal-theme="{{ $portal }}"
     data-realtime-enabled="{{ $realtimeEnabled ? '1' : '0' }}"

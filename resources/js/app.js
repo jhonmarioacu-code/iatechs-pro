@@ -117,6 +117,12 @@ window.portalUi = function portalUi() {
             window.addEventListener('popstate', () => {
                 this.resetTransientUi();
             });
+            window.setTimeout(() => {
+                this.resetTransientUi();
+            }, 0);
+            window.setTimeout(() => {
+                this.resetTransientUi();
+            }, 300);
             this.bootstrapRealtime();
         },
         bootstrapRealtime() {
