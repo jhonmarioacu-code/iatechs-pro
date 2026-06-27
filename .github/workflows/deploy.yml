@@ -206,6 +206,26 @@ jobs:
               return 1
             }
 
+            normalize_repo_runtime_permissions() {
+              sudo mkdir -p bootstrap/cache storage public/build
+              sudo chown -R "$DEPLOY_USER:$DEPLOY_GROUP" bootstrap/cache storage public/build || true
+              sudo find bootstrap/cache storage public/build -type d -exec chmod 775 {} \; || true
+              sudo find bootstrap/cache storage public/build -type f -exec chmod 664 {} \; || true
+            }
+
+            restore_runtime_git_files() {
+              git checkout -- \
+                bootstrap/cache/.gitignore \
+                storage/app/.gitignore \
+                storage/framework/.gitignore \
+                storage/framework/cache/.gitignore \
+                storage/framework/cache/data/.gitignore \
+                storage/framework/sessions/.gitignore \
+                storage/framework/testing/.gitignore \
+                storage/framework/views/.gitignore \
+                storage/logs/.gitignore 2>/dev/null || true
+            }
+
             set_env_value() {
               local key="$1"
               local value="$2"
@@ -233,7 +253,9 @@ jobs:
               local failed_command="${3:-unknown}"
               echo "Deploy failed on line ${failed_line} while running: ${failed_command} (exit code ${exit_code})"
               echo "Starting rollback to $PREV_SHA..."
-              git reset --hard "$PREV_SHA"
+              normalize_repo_runtime_permissions
+              restore_runtime_git_files
+              git reset --hard "$PREV_SHA" || true
               php artisan optimize:clear || true
               php artisan config:cache || true
               php artisan route:cache || true
@@ -260,6 +282,10 @@ jobs:
               sudo chown "${DEPLOY_USER}:${DEPLOY_GROUP}" .env
             fi
 
+            echo "[deploy] Normalizing runtime repo permissions before git sync"
+            normalize_repo_runtime_permissions
+            restore_runtime_git_files
+
             sudo cp .env "/tmp/iatechs-pro.env.$TS.bak"
             sudo tar -czf "/tmp/iatechs-pro.storage.$TS.bak.tgz" storage
 
@@ -268,6 +294,14 @@ jobs:
             git pull origin "$DEPLOY_REF"
             echo "[deploy] Repository synced to ${DEPLOY_REF}"
             echo "[deploy] Input flags -> provision_observability_stack=${PROVISION_OBS_STACK}, validate_prometheus_stack=${VALIDATE_PROM_STACK}, run_observability_checks=${RUN_OBS_CHECKS}"
+
+            if [ "$VALIDATE_PROM_STACK" = "true" ]; then
+              echo "[deploy] Strict observability validation enabled; checking docker compose access"
+              if ! run_docker_compose version >/dev/null 2>&1; then
+                echo "[deploy][ERROR] Docker compose is not accessible for deploy user. Install docker or grant access (docker group or passwordless sudo)."
+                exit 1
+              fi
+            fi
 
             if [ "$PROVISION_OBS_STACK" = "true" ]; then
               echo "[deploy] Provisioning observability secrets and env keys..."
@@ -362,8 +396,9 @@ jobs:
             php artisan view:cache
 
             echo "[deploy] Applying final permissions and restarting services"
-            sudo chown -R "$WEB_USER":"$WEB_GROUP" storage bootstrap/cache
-            sudo chmod -R 775 storage bootstrap/cache
+            sudo chown -R "$DEPLOY_USER":"$WEB_GROUP" storage bootstrap/cache
+            sudo find storage bootstrap/cache -type d -exec chmod 2775 {} \;
+            sudo find storage bootstrap/cache -type f -exec chmod 664 {} \;
 
             sudo systemctl restart "$PHP_FPM_SERVICE"
             sudo systemctl reload "$NGINX_SERVICE"
