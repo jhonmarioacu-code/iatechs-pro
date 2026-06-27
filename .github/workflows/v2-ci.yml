@@ -1,0 +1,47 @@
+name: V2 CI
+
+on:
+  pull_request:
+    paths:
+      - "platform-v2/**"
+      - ".github/workflows/v2-ci.yml"
+  push:
+    branches: [ main ]
+    paths:
+      - "platform-v2/**"
+      - ".github/workflows/v2-ci.yml"
+
+jobs:
+  v2-ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: platform-v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile=false
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
