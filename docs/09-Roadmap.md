@@ -1,67 +1,69 @@
 # IAtechs Pro - Roadmap y Estado Real
 
-Fecha de actualizacion: 2026-06-25
+Fecha de actualizacion: 2026-06-27
 
 ## Objetivo
 
-Mantener sincronizado el roadmap estrategico con el estado real del codigo, QA y despliegue.
+Mantener sincronizado el roadmap estrategico con el estado real del codigo, QA, seguridad y despliegue productivo.
 
 ## Vista por fases
 
-1. Fase 1 - Core SaaS: implementada en base (multi-tenant, companies, branches, users, plans, subscriptions, auth, RBAC).
-2. Fase 2 - CRM: implementacion operativa inicial (leads, opportunities, notas y actividades).
-3. Fase 3 - Operaciones tecnicas: implementacion operativa (tickets, diagnostics, quotes, repairs, warranties).
-4. Fase 4 - Inventario y compras: implementacion funcional base (products, inventory movements, suppliers, purchase orders, goods receipts).
-5. Fase 5 - Finanzas: implementacion funcional base (invoices, invoice items, payments, billing, accounting base).
+1. Fase 1 - Core SaaS: implementada y estable (multi-tenant, companies, branches, users, plans, subscriptions, auth, RBAC).
+2. Fase 2 - CRM: implementacion operativa estable (leads, opportunities, notas y actividades).
+3. Fase 3 - Operaciones tecnicas: implementacion operativa estable (tickets, diagnostics, quotes, repairs, warranties).
+4. Fase 4 - Inventario y compras: implementacion funcional estable (products, inventory movements, suppliers, purchase orders, goods receipts).
+5. Fase 5 - Finanzas: implementacion funcional estable (invoices, invoice items, payments, billing, accounting base).
 6. Fase 6 - Portal cliente y portales de rol: implementacion operativa (admin/company/technician/customer).
-7. Fase 7 - IA y conocimiento: implementacion inicial (AI assistant, providers, conversaciones, KB).
-8. Fase 8 - Analytics y BI: implementacion inicial (analytics, reports, business intelligence).
-9. Fase 9 - Hardening enterprise: en curso (auditoria, seguridad, permisos, pruebas, runbooks).
+7. Fase 7 - IA y conocimiento: implementacion operativa (AI assistant, providers, conversaciones, KB).
+8. Fase 8 - Analytics y BI: implementacion operativa (analytics, reports, business intelligence).
+9. Fase 9 - Hardening enterprise: **cerrada** (auditoria, seguridad, permisos, pruebas, runbooks, deploy estricto, observabilidad).
 10. Fase 10 - Expansion (marketplace, academia, mobile): pendiente.
 
-## Actualizacion 2026-06-26
+## Actualizacion 2026-06-27
 
-- Frontend de portales redisenado por rol (admin/company/technician/customer).
-- Sistema visual unificado documentado en `docs/architecture/17-Frontend-Portal-UX-System.md`.
-- Interactividad reforzada con Alpine (tabs operativos, panel IA, centro de notificaciones).
-- Matriz unica de acceso por portal/modulo/permiso/ruta implementada en `config/portal_matrix.php` con enforcement por middleware.
+- Deploy automatizado en produccion validado en modo estricto.
+- Observabilidad externa operativa: Prometheus, Alertmanager, Grafana y exporter protegido.
+- Security gates y prechecks de despliegue en verde.
+- Dashboard admin redisenado con estilo premium sin cambiar estructura ni logica de negocio.
 
 ## Estado actual del proyecto
 
-- Etapa actual: **Preproduccion tecnica (beta avanzada)**.
+- Etapa actual: **Produccion final validada**.
 - Arquitectura: DDD + multi-tenant + policies + service/repository + form requests + resources.
-- Cobertura funcional: flujos core de negocio implementados y probados para escenarios criticos.
-- CI/CD: pipeline de CI y workflow de deploy presentes.
-- Operaciones: runbooks de release, rollback, monitoring y backup documentados.
+- Cobertura funcional: flujos core de negocio implementados y verificados.
+- CI/CD: pipeline activo con seguridad, despliegue y rollback.
+- Operaciones: runbooks y evidencia de go-live actualizados.
 
 ## Evidencia de madurez (baseline actual)
 
-- Suite funcional y de seguridad: `69 passed (450 assertions)`.
-- Health checks operativos: `/health` y `/api/health`.
-- Automatizacion de deploy con rollback.
+- Suite funcional y de seguridad: `101 passed (614 assertions)` (`composer test`).
+- Gate de release: `Release gate passed` (`php artisan iatechs:gate-release`).
+- Auditoria de arquitectura: `Architecture audit passed` (`php artisan iatechs:audit-architecture` + phpstan en verde).
+- Seguridad de dependencias:
+  - `composer audit --locked`: sin vulnerabilidades.
+  - `npm audit --omit=dev --audit-level=high`: `found 0 vulnerabilities`.
+- Evidencia operativa de produccion:
+  - `RELEASE_READY.md`
+  - `docs/operations/27-Production-GoLive-Evidence-2026-06-27.md`
 
-## Brechas para declarar produccion final
+## Brechas bloqueantes para produccion final
 
-1. Cerrar gates de calidad estaticos en el alcance oficial de release (`composer analyse`).
-2. Ejecutar checklist de release en servidor objetivo con evidencia (build, migrate, health, smoke postdeploy).
-3. Finalizar matriz formal `rol -> permiso -> ruta` para modulos admin/API.
-4. Reducir logica orquestadora en `PortalController` hacia `Services/Actions` de dominio.
+No hay brechas bloqueantes abiertas al 2026-06-27.
+
+## Deuda tecnica no bloqueante
+
+1. Continuar extraccion progresiva de orquestacion del `PortalController` hacia servicios de dominio.
+2. Continuar evolucion de Fase 10 (expansion funcional y canales complementarios).
 
 ## Criterio de salida a produccion
 
-Se declara produccion final solo cuando:
-
-1. `composer analyse` y `composer test` estan en verde en CI.
-2. Build frontend de release validado en servidor objetivo.
-3. Migraciones aplicadas sin incidentes y rollback probado.
-4. Health checks + smoke por portal en verde postdeploy.
-5. Checklist de seguridad y permisos firmado para release.
+Cumplido al 2026-06-27 con evidencia de gates, deploy, rollback y observabilidad estricta en verde.
 
 ## Proxima etapa inmediata
 
-**Cierre de hardening preproduccion**:
+**Inicio de Fase 10 - Expansion controlada**:
 
-1. Terminar alineacion de permisos por endpoint.
-2. Extraer logica de portal hacia capa de dominio.
-3. Ejecutar release candidate en entorno objetivo con evidencia completa.
+1. Priorizacion de funcionalidades de marketplace/academia/mobile.
+2. Plan de capacidad y SLO por modulo de mayor trafico.
+3. Ciclo de mejora continua sobre UX y eficiencia operativa.
 

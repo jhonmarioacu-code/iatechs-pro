@@ -3,6 +3,10 @@
 ## Objetivo
 Estandarizar la configuracion de `Environments`, `Secrets` y controles de ejecucion para despliegues seguros.
 
+## Estado al 2026-06-27
+
+Configuracion validada en produccion con despliegue automatizado y verificacion estricta de observabilidad en verde.
+
 ## Environments requeridos
 - `staging` (opcional pero recomendado)
 - `production` (obligatorio)
@@ -59,11 +63,19 @@ git status
 - Prohibido deploy directo desde ramas feature.
 
 ## Checklist de configuracion inicial
-- [ ] Environment `production` creado.
-- [ ] Reviewers obligatorios configurados.
-- [ ] Secretos base de despliegue cargados y verificados.
-- [ ] Secretos de observabilidad cargados para `provision_observability_stack=true`.
-- [ ] Runner puede conectarse al host remoto.
-- [ ] Healthcheck URL validada.
-- [ ] Permisos minimos aplicados.
+- [x] Environment `production` creado.
+- [x] Reviewers obligatorios configurados.
+- [x] Secretos base de despliegue cargados y verificados.
+- [x] Secretos de observabilidad cargados para `provision_observability_stack=true`.
+- [x] Runner puede conectarse al host remoto.
+- [x] Healthcheck URL validada.
+- [x] Permisos minimos aplicados.
+
+## Evidencia de cierre
+
+- Workflow `Deploy` ejecutado en verde con `target_env=production`.
+- Provision de secretos de observabilidad aplicado y validado en pipeline.
+- `validate_prometheus_stack=true` en verde con Prometheus/Alertmanager/Grafana healthy.
+- Seguridad de secretos gestionada via GitHub Environments sin exponer credenciales en repositorio.
+- Referencia operativa: `docs/operations/27-Production-GoLive-Evidence-2026-06-27.md`.
 
