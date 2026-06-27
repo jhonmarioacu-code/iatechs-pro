@@ -102,6 +102,10 @@ window.portalUi = function portalUi() {
                 this.assistantMessagesUrlTemplate = aiHost.getAttribute('data-ai-messages-url-template') || '';
             }
 
+            this.syncOverlayState();
+            window.addEventListener('beforeunload', () => {
+                document.body.classList.remove('portal-overlay-open');
+            });
             this.bootstrapRealtime();
         },
         bootstrapRealtime() {
@@ -224,6 +228,18 @@ window.portalUi = function portalUi() {
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
         },
+        syncOverlayState() {
+            const hasOverlayOpen = this.notificationsOpen || this.assistantPanelOpen;
+            document.body.classList.toggle('portal-overlay-open', hasOverlayOpen);
+        },
+        closeNotifications() {
+            this.notificationsOpen = false;
+            this.syncOverlayState();
+        },
+        closeAssistantPanel() {
+            this.assistantPanelOpen = false;
+            this.syncOverlayState();
+        },
         toggleNotifications() {
             const willOpen = !this.notificationsOpen;
             this.notificationsOpen = willOpen;
@@ -235,6 +251,8 @@ window.portalUi = function portalUi() {
             if (willOpen && this.notifications.length === 0 && this.realtimeEnabled) {
                 void this.loadNotifications();
             }
+
+            this.syncOverlayState();
         },
         toggleAssistant() {
             this.toggleAssistantPanel();
@@ -246,8 +264,10 @@ window.portalUi = function portalUi() {
             if (willOpen) {
                 this.notificationsOpen = false;
                 this.assistantError = '';
-                this.loadAssistantConversations();
+                void this.loadAssistantConversations();
             }
+
+            this.syncOverlayState();
         },
         toggleTheme() {
             this.darkMode = !this.darkMode;

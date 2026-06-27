@@ -102,14 +102,16 @@
                             <td>{{ optional($quote->expires_at)->toDateString() ?? 'N/A' }}</td>
                             <td>
                                 @if ($quote->status === 'PENDING_APPROVAL')
-                                    <form method="POST" action="{{ route('portal.customer.quotes.approve', $quote) }}" style="display:inline-block;">
-                                        @csrf
-                                        <button class="btn btn-primary" type="submit">Aprobar</button>
-                                    </form>
-                                    <form method="POST" action="{{ route('portal.customer.quotes.reject', $quote) }}" style="display:inline-block;">
-                                        @csrf
-                                        <button class="btn btn-secondary" type="submit">Rechazar</button>
-                                    </form>
+                                    <div class="inline-actions">
+                                        <form method="POST" action="{{ route('portal.customer.quotes.approve', $quote) }}">
+                                            @csrf
+                                            <button class="btn btn-primary" type="submit">Aprobar</button>
+                                        </form>
+                                        <form method="POST" action="{{ route('portal.customer.quotes.reject', $quote) }}">
+                                            @csrf
+                                            <button class="btn btn-secondary" type="submit">Rechazar</button>
+                                        </form>
+                                    </div>
                                 @else
                                     Sin accion
                                 @endif

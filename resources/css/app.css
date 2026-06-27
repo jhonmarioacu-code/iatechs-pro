@@ -69,6 +69,10 @@
         min-height: 100vh;
     }
 
+    body.portal-overlay-open {
+        overflow: hidden;
+    }
+
     h1,
     h2,
     h3,
@@ -575,6 +579,37 @@
         @apply text-lg font-semibold;
     }
 
+    .surface-subtitle {
+        color: var(--text-2);
+        @apply text-sm;
+    }
+
+    .surface-stack {
+        @apply space-y-4;
+    }
+
+    .surface-divider {
+        border-top: 1px solid color-mix(in srgb, var(--border) 92%, #dbe3f4);
+        @apply my-4;
+    }
+
+    .panel-tabs {
+        border: 1px solid color-mix(in srgb, var(--border) 90%, #dce4f5);
+        background: color-mix(in srgb, var(--surface-1) 85%, #f4f8ff);
+        @apply inline-flex flex-wrap items-center gap-1 rounded-xl p-1;
+    }
+
+    .panel-tab {
+        @apply inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition;
+        color: #4a5b79;
+    }
+
+    .panel-tab.is-active {
+        color: #fff;
+        background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+        box-shadow: 0 10px 22px color-mix(in srgb, var(--brand-strong) 25%, transparent);
+    }
+
     .surface-list {
         color: var(--text-2);
         @apply space-y-2 text-sm leading-6;
@@ -591,7 +626,9 @@
     }
 
     .table-wrap {
-        @apply overflow-x-auto;
+        border: 1px solid color-mix(in srgb, var(--border) 92%, #dde5f5);
+        background: color-mix(in srgb, var(--surface-1) 96%, #f9fbff);
+        @apply overflow-x-auto rounded-xl;
     }
 
     .data-table {
@@ -606,7 +643,7 @@
 
     .data-table tbody td {
         border-bottom: 1px solid var(--border);
-        @apply px-3 py-3;
+        @apply px-3 py-3 align-middle;
     }
 
     .data-table tbody tr:hover td {
@@ -616,6 +653,11 @@
     .module-copy {
         color: var(--text-2);
         @apply mb-3 text-sm leading-7;
+    }
+
+    .module-emphasis {
+        color: var(--text-1);
+        @apply font-semibold;
     }
 
     .query-box {
@@ -631,6 +673,14 @@
 
     .crud-actions {
         @apply flex flex-wrap items-center gap-2;
+    }
+
+    .inline-actions {
+        @apply inline-flex items-center gap-2;
+    }
+
+    .inline-actions form {
+        @apply inline-flex;
     }
 
     .crud-feedback {
@@ -673,6 +723,17 @@
         @apply min-h-10 rounded-lg px-3 py-2 text-sm;
     }
 
+    .crud-input:focus {
+        border-color: color-mix(in srgb, var(--brand) 62%, #b7cbf3);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 18%, transparent);
+        outline: none;
+    }
+
+    textarea.crud-input {
+        min-height: 108px;
+        resize: vertical;
+    }
+
     .crud-checkbox {
         @apply mt-2 inline-flex items-center gap-2 text-sm;
     }
@@ -698,6 +759,33 @@
     .btn-danger {
         @apply inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-semibold text-white;
         background: linear-gradient(135deg, #d13f58, #9f1f3e);
+    }
+
+    .auth-social-grid {
+        @apply mb-4 grid gap-2 md:grid-cols-2;
+    }
+
+    .auth-social-grid .btn {
+        @apply w-full;
+    }
+
+    .auth-social-grid .btn:last-child {
+        @apply md:col-span-2;
+    }
+
+    .pagination-shell {
+        @apply mt-4 overflow-x-auto;
+    }
+
+    .pill-list {
+        @apply flex flex-wrap gap-2;
+    }
+
+    .pill-list span {
+        border: 1px solid color-mix(in srgb, var(--brand) 24%, var(--border));
+        background: color-mix(in srgb, var(--brand) 8%, var(--surface-1));
+        color: #344362;
+        @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
     }
 
     .ai-fab {
@@ -1276,6 +1364,51 @@
     }
 
     @media (max-width: 767px) {
+        .topbar {
+            @apply items-start;
+        }
+
+        .topbar-start,
+        .topbar-end {
+            @apply w-full;
+        }
+
+        .topbar-start {
+            @apply items-center;
+        }
+
+        .search-wrap {
+            @apply flex-1;
+        }
+
+        .search-input {
+            @apply w-full min-w-0;
+        }
+
+        .company-selector {
+            @apply max-w-[170px];
+        }
+
+        .surface-header {
+            @apply flex-col items-start;
+        }
+
+        .crud-actions {
+            @apply w-full;
+        }
+
+        .crud-actions .btn {
+            @apply w-full justify-center;
+        }
+
+        .panel-tabs {
+            @apply w-full;
+        }
+
+        .panel-tab {
+            @apply flex-1 justify-center;
+        }
+
         .kpi-card {
             @apply grid-cols-1;
         }
@@ -1319,6 +1452,18 @@
         .ai-header p,
         .ai-form-actions small {
             display: none;
+        }
+
+        .data-table {
+            @apply min-w-[560px];
+        }
+
+        .inline-actions {
+            @apply flex-wrap;
+        }
+
+        .inline-actions .btn {
+            @apply w-full justify-center;
         }
 
         [data-portal-theme='admin'] .portal-header-meta {

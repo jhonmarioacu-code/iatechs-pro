@@ -23,7 +23,7 @@
                 <h2>Iniciar sesion</h2>
             </header>
 
-            <div class="public-actions" style="margin-bottom: 1rem;">
+            <div class="auth-social-grid">
                 <a href="{{ route('auth.social.redirect', ['provider' => 'google']) }}" class="btn btn-secondary">Entrar con Google</a>
                 <a href="{{ route('auth.social.redirect', ['provider' => 'microsoft']) }}" class="btn btn-secondary">Entrar con Microsoft</a>
                 <a href="{{ route('auth.social.redirect', ['provider' => 'github']) }}" class="btn btn-secondary">Entrar con GitHub</a>

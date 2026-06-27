@@ -42,6 +42,8 @@
             </table>
         </div>
 
-        {{ $invoices->links() }}
+        <div class="pagination-shell">
+            {{ $invoices->links() }}
+        </div>
     </section>
 @endsection

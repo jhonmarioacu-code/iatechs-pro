@@ -10,6 +10,10 @@
             <p class="public-summary">
                 Ingresa tu correo y te enviaremos un enlace seguro para restablecer tu contrasena.
             </p>
+            <div class="public-actions">
+                <a href="{{ route('login') }}" class="btn btn-secondary">Volver a iniciar sesion</a>
+                <a href="{{ route('public.home') }}" class="btn btn-secondary">Ir al inicio</a>
+            </div>
         </section>
 
         <section class="surface-card auth-card">

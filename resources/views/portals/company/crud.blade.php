@@ -27,7 +27,7 @@
         </header>
 
         <p class="module-copy">
-            Módulo conectado a endpoints API: <strong>/api/v1/{{ $module }}</strong>
+            Modulo conectado a endpoints API: <strong>/api/v1/{{ $module }}</strong>
         </p>
 
         <div class="crud-feedback" data-crud-feedback></div>

@@ -1,7 +1,7 @@
 @extends('layouts.customer')
 
 @section('portal-content')
-    <section class="surface-card">
+    <section class="surface-card surface-stack">
         <header class="surface-header">
             <h2>Factura {{ $invoice->invoice_number }}</h2>
             <a class="btn btn-secondary" href="{{ route('portal.customer.invoices.index') }}">Volver a facturas</a>
@@ -12,7 +12,7 @@
         @endif
 
         @if ($errors->any())
-            <div class="crud-feedback">
+            <div class="crud-feedback error">
                 <strong>Corrige los siguientes errores:</strong>
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -22,12 +22,12 @@
             </div>
         @endif
 
-        <p class="module-copy">
-            Estado: <strong>{{ $invoice->status }}</strong> |
-            Total: <strong>{{ $invoice->total }} {{ $invoice->currency }}</strong> |
-            Pagado: <strong>{{ number_format($completedAmount, 2) }} {{ $invoice->currency }}</strong> |
-            Saldo: <strong>{{ number_format($remainingAmount, 2) }} {{ $invoice->currency }}</strong>
-        </p>
+        <div class="pill-list">
+            <span>Estado: {{ $invoice->status }}</span>
+            <span>Total: {{ $invoice->total }} {{ $invoice->currency }}</span>
+            <span>Pagado: {{ number_format($completedAmount, 2) }} {{ $invoice->currency }}</span>
+            <span>Saldo: {{ number_format($remainingAmount, 2) }} {{ $invoice->currency }}</span>
+        </div>
 
         <div class="crud-actions">
             <a class="btn btn-secondary" href="{{ route('portal.customer.invoices.download', $invoice) }}">
@@ -73,23 +73,33 @@
             <h2>Pagar factura</h2>
         </header>
         @if ($remainingAmount > 0)
-            <form method="POST" action="{{ route('portal.customer.invoices.pay', $invoice) }}">
+            <form method="POST" action="{{ route('portal.customer.invoices.pay', $invoice) }}" class="crud-form">
                 @csrf
-                <label for="payment_method">Metodo de pago</label>
-                <select id="payment_method" name="payment_method" required>
-                    <option value="">Seleccionar metodo</option>
-                    @foreach (['CARD','BANK_TRANSFER','PSE','NEQUI','DAVIPLATA','PAYPAL','STRIPE','MERCADOPAGO','OTHER'] as $method)
-                        <option value="{{ $method }}" @selected(old('payment_method') === $method)>{{ $method }}</option>
-                    @endforeach
-                </select>
+                <div class="crud-grid">
+                    <label class="crud-field" for="payment_method">
+                        <span class="crud-label">Metodo de pago</span>
+                        <select id="payment_method" class="crud-input" name="payment_method" required>
+                            <option value="">Seleccionar metodo</option>
+                            @foreach (['CARD','BANK_TRANSFER','PSE','NEQUI','DAVIPLATA','PAYPAL','STRIPE','MERCADOPAGO','OTHER'] as $method)
+                                <option value="{{ $method }}" @selected(old('payment_method') === $method)>{{ $method }}</option>
+                            @endforeach
+                        </select>
+                    </label>
 
-                <label for="amount">Monto a pagar (max {{ number_format($remainingAmount, 2) }})</label>
-                <input id="amount" name="amount" type="number" min="0.01" step="0.01" value="{{ old('amount', number_format($remainingAmount, 2, '.', '')) }}" required>
+                    <label class="crud-field" for="amount">
+                        <span class="crud-label">Monto a pagar (max {{ number_format($remainingAmount, 2) }})</span>
+                        <input id="amount" class="crud-input" name="amount" type="number" min="0.01" step="0.01" value="{{ old('amount', number_format($remainingAmount, 2, '.', '')) }}" required>
+                    </label>
 
-                <label for="reference">Referencia (opcional)</label>
-                <input id="reference" name="reference" type="text" value="{{ old('reference') }}">
+                    <label class="crud-field" for="reference">
+                        <span class="crud-label">Referencia (opcional)</span>
+                        <input id="reference" class="crud-input" name="reference" type="text" value="{{ old('reference') }}">
+                    </label>
+                </div>
 
-                <button class="btn btn-primary" type="submit">Pagar y generar comprobante</button>
+                <div class="crud-actions">
+                    <button class="btn btn-primary" type="submit">Pagar y generar comprobante</button>
+                </div>
             </form>
         @else
             <p class="module-copy">Esta factura ya esta totalmente pagada.</p>
