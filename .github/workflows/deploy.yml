@@ -169,6 +169,24 @@ jobs:
             PROMETHEUS_RETENTION_TIME_SECRET="${PROMETHEUS_RETENTION_TIME_SECRET:-}"
             GRAFANA_ADMIN_USER_SECRET="${GRAFANA_ADMIN_USER_SECRET:-}"
             GRAFANA_ADMIN_PASSWORD_SECRET="${GRAFANA_ADMIN_PASSWORD_SECRET:-}"
+            WEB_USER="$DEPLOY_USER"
+            WEB_GROUP="$DEPLOY_GROUP"
+
+            for candidate_user in www-data nginx apache apache2; do
+              if id -u "$candidate_user" >/dev/null 2>&1; then
+                WEB_USER="$candidate_user"
+                break
+              fi
+            done
+
+            for candidate_group in www-data nginx apache apache2; do
+              if getent group "$candidate_group" >/dev/null 2>&1; then
+                WEB_GROUP="$candidate_group"
+                break
+              fi
+            done
+
+            echo "[deploy] Runtime users -> deploy=${DEPLOY_USER}:${DEPLOY_GROUP}, web=${WEB_USER}:${WEB_GROUP}"
 
             run_docker_compose() {
               if ! command -v docker >/dev/null 2>&1; then
@@ -225,7 +243,7 @@ jobs:
 
             on_error() {
               local exit_code="$?"
-              local failed_line="${BASH_LINENO[0]}"
+              local failed_line="${BASH_LINENO[0]-unknown}"
               local failed_command="${BASH_COMMAND:-unknown}"
               rollback "$exit_code" "$failed_line" "$failed_command"
               exit "$exit_code"
@@ -245,14 +263,18 @@ jobs:
             git fetch --all --prune
             git checkout "$DEPLOY_REF"
             git pull origin "$DEPLOY_REF"
+            echo "[deploy] Repository synced to ${DEPLOY_REF}"
+            echo "[deploy] Input flags -> provision_observability_stack=${PROVISION_OBS_STACK}, validate_prometheus_stack=${VALIDATE_PROM_STACK}, run_observability_checks=${RUN_OBS_CHECKS}"
 
             if [ "$PROVISION_OBS_STACK" = "true" ]; then
+              echo "[deploy] Provisioning observability secrets and env keys..."
               mkdir -p docker/observability/secrets
               umask 077
               printf '%s\n' "$OBS_EXPORTER_TOKEN_SECRET" > docker/observability/secrets/obs_exporter_token
               printf '%s\n' "$OBS_ALERTS_SLACK_WEBHOOK_SECRET" > docker/observability/secrets/slack_webhook_url
               umask 022
 
+              echo "[deploy] Updating observability keys in .env"
               set_env_value OBS_EXPORTER_ENABLED true
               set_env_value OBS_EXPORTER_TOKEN "$OBS_EXPORTER_TOKEN_SECRET"
               set_env_value OBS_EXPORTER_TOKEN_FILE "./docker/observability/secrets/obs_exporter_token"
@@ -280,16 +302,18 @@ jobs:
                 echo "Skipping docker pull for observability stack (docker unavailable or insufficient permissions)."
               fi
 
+              echo "[deploy] Starting observability docker services"
               if run_docker_compose --profile observability up -d prometheus alertmanager grafana; then
                 echo "Observability stack started."
               else
                 echo "Unable to run docker compose profile=observability on target host."
                 if [ "$VALIDATE_PROM_STACK" = "true" ]; then
-                  exit 1
+                  false
                 fi
               fi
             fi
 
+            echo "[deploy] Preparing runtime directories and permissions"
             # Runtime dirs + permisos (antes de composer)
             sudo mkdir -p bootstrap/cache
             sudo mkdir -p storage/logs
@@ -298,14 +322,15 @@ jobs:
             sudo mkdir -p storage/framework/views
             sudo mkdir -p storage/framework/testing
 
-            sudo chown -R "$DEPLOY_USER":www-data storage bootstrap/cache
+            sudo chown -R "$DEPLOY_USER":"$WEB_GROUP" storage bootstrap/cache
             sudo find storage bootstrap/cache -type d -exec chmod 2775 {} \;
             sudo find storage bootstrap/cache -type f -exec chmod 664 {} \;
 
             sudo touch storage/logs/laravel.log
-            sudo chown "$DEPLOY_USER":www-data storage/logs/laravel.log
+            sudo chown "$DEPLOY_USER":"$WEB_GROUP" storage/logs/laravel.log
             sudo chmod 664 storage/logs/laravel.log
 
+            echo "[deploy] Installing backend/frontend dependencies and building assets"
             composer install --no-dev --optimize-autoloader --no-interaction
             # Evita EACCES por archivos root-owned de ejecuciones previas.
             if [ -d node_modules ]; then
@@ -326,7 +351,8 @@ jobs:
             php artisan route:cache
             php artisan view:cache
 
-            sudo chown -R www-data:www-data storage bootstrap/cache
+            echo "[deploy] Applying final permissions and restarting services"
+            sudo chown -R "$WEB_USER":"$WEB_GROUP" storage bootstrap/cache
             sudo chmod -R 775 storage bootstrap/cache
 
             sudo systemctl restart "$PHP_FPM_SERVICE"
@@ -335,6 +361,7 @@ jobs:
             curl -fsS http://127.0.0.1/health
 
             if [ "$RUN_OBS_CHECKS" = "true" ] && [ -f deploy/observability-postdeploy-check.sh ]; then
+              echo "[deploy] Running observability postdeploy checks"
               chmod +x deploy/observability-postdeploy-check.sh
               APP_BASE_URL="http://127.0.0.1" \
               APP_ENV_FILE=".env" \
