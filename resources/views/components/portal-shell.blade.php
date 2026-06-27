@@ -35,6 +35,7 @@
 
 <div
     class="portal-grid"
+    x-init="resetTransientUi()"
     @portal-toggle-notifications.window="toggleNotifications()"
     @portal-close-notifications.window="closeNotifications()"
     @portal-toggle-assistant.window="toggleAssistantPanel()"

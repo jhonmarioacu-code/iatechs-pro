@@ -86,6 +86,11 @@ window.portalUi = function portalUi() {
         assistantChatUrl: '',
         assistantConversationsUrl: '',
         assistantMessagesUrlTemplate: '',
+        resetTransientUi() {
+            this.notificationsOpen = false;
+            this.assistantPanelOpen = false;
+            this.syncOverlayState();
+        },
         initTheme() {
             const stored = window.localStorage.getItem('iatechs-theme');
             this.darkMode = stored === 'dark';
@@ -102,9 +107,15 @@ window.portalUi = function portalUi() {
                 this.assistantMessagesUrlTemplate = aiHost.getAttribute('data-ai-messages-url-template') || '';
             }
 
-            this.syncOverlayState();
+            this.resetTransientUi();
             window.addEventListener('beforeunload', () => {
                 document.body.classList.remove('portal-overlay-open');
+            });
+            window.addEventListener('pageshow', () => {
+                this.resetTransientUi();
+            });
+            window.addEventListener('popstate', () => {
+                this.resetTransientUi();
             });
             this.bootstrapRealtime();
         },

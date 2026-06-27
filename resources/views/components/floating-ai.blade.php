@@ -45,8 +45,8 @@
         IA Copilot
     </button>
 
-    <div class="ai-layer" x-show="assistantPanelOpen" x-transition.opacity x-cloak @keydown.escape.window="$dispatch('portal-close-assistant')">
-        <div class="ai-overlay" @click="$dispatch('portal-close-assistant')"></div>
+    <div class="ai-layer" x-show="assistantPanelOpen" x-transition.opacity x-cloak @keydown.escape.window="closeAssistantPanel()">
+        <div class="ai-overlay" @click="closeAssistantPanel()"></div>
 
         <aside class="ai-panel" @click.stop>
             <header class="ai-header">
@@ -54,7 +54,7 @@
                     <h3>IA Assistant</h3>
                     <p>Asistente contextual por rol con historial seguro.</p>
                 </div>
-                <button type="button" class="icon-button" @click="$dispatch('portal-close-assistant')" aria-label="Cerrar IA">
+                <button type="button" class="icon-button" @click="closeAssistantPanel()" aria-label="Cerrar IA">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M6 6l12 12M18 6 6 18" />
                     </svg>
