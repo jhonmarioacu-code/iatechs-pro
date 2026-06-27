@@ -48,10 +48,36 @@ COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/zz-opcache.ini
 COPY docker/entrypoint.sh /entrypoint.sh
 
 RUN chmod +x /entrypoint.sh \
-    && mkdir -p /run/nginx /var/log/supervisor /var/log/php /var/log/nginx \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    && mkdir -p \
+        /run/nginx \
+        /run/php \
+        /tmp/nginx \
+        /var/lib/nginx \
+        /var/log/supervisor \
+        /var/log/php \
+        /var/log/nginx \
+        /usr/local/var/run \
+        /usr/local/var/log \
+        /var/www/html/storage/logs \
+        /var/www/html/storage/framework/cache \
+        /var/www/html/storage/framework/sessions \
+        /var/www/html/storage/framework/views \
+        /var/www/html/bootstrap/cache \
+    && chown -R www-data:www-data \
+        /var/www/html \
+        /run/nginx \
+        /run/php \
+        /tmp/nginx \
+        /var/lib/nginx \
+        /var/log/supervisor \
+        /var/log/php \
+        /var/log/nginx \
+        /usr/local/var/run \
+        /usr/local/var/log
 
 EXPOSE 8080
+
+USER www-data
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]
