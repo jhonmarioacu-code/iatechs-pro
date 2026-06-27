@@ -209,15 +209,10 @@ jobs:
             set_env_value() {
               local key="$1"
               local value="$2"
-              local normalized escaped
+              local normalized
               normalized="$(printf '%s' "$value" | tr -d '\r\n')"
-              escaped="$(printf '%s' "$normalized" | sed -e 's/[\/&]/\\&/g')"
-
-              if grep -qE "^${key}=" .env; then
-                sed -i -e "s/^${key}=.*/${key}=${escaped}/" .env
-              else
-                printf '%s=%s\n' "$key" "$normalized" >> .env
-              fi
+              sed -i -e "/^${key}=/d" .env
+              printf '%s=%s\n' "$key" "$normalized" >> .env
             }
 
             set_env_value_logged() {
