@@ -146,7 +146,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           envs: OBS_EXPORTER_TOKEN_SECRET,OBS_ALERTS_SLACK_WEBHOOK_SECRET,OBS_EXPORTER_ALLOWED_IPS_SECRET,PROMETHEUS_RETENTION_TIME_SECRET,GRAFANA_ADMIN_USER_SECRET,GRAFANA_ADMIN_PASSWORD_SECRET
-          script_stop: true
+          script_stop: false
           command_timeout: 30m
           script: |
             set -Eeuo pipefail
@@ -388,7 +388,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          script_stop: true
+          script_stop: false
           command_timeout: 10m
           script: |
             set -euo pipefail
