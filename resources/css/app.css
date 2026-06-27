@@ -231,6 +231,17 @@
         @apply flex items-center justify-between pb-5;
     }
 
+    .sidebar-brand-copy {
+        @apply flex items-center gap-3;
+    }
+
+    .sidebar-brand-mark {
+        color: #fff;
+        background: linear-gradient(135deg, #5b6dff, #1363df);
+        box-shadow: 0 10px 22px rgba(19, 99, 223, 0.33);
+        @apply inline-flex h-10 w-10 items-center justify-center rounded-xl text-xs font-bold;
+    }
+
     .sidebar-brand-label {
         color: #7ac2ff;
         @apply text-[11px] font-bold uppercase tracking-[0.2em];
@@ -242,6 +253,11 @@
 
     .sidebar-nav {
         @apply mt-3 flex flex-col gap-2;
+    }
+
+    .sidebar-section-title {
+        color: rgba(255, 255, 255, 0.52);
+        @apply mt-4 text-[10px] font-bold uppercase tracking-[0.18em];
     }
 
     .sidebar-link {
@@ -276,6 +292,30 @@
         @apply mt-5 space-y-1 pt-4 text-xs;
     }
 
+    .sidebar-upgrade-card {
+        border: 1px solid rgba(124, 167, 255, 0.45);
+        background: linear-gradient(145deg, rgba(26, 75, 165, 0.95), rgba(39, 99, 222, 0.95));
+        @apply mt-5 space-y-2 rounded-2xl p-4 text-white;
+    }
+
+    .sidebar-upgrade-kicker {
+        color: #c7dcff;
+        @apply text-[10px] font-bold uppercase tracking-[0.18em];
+    }
+
+    .sidebar-upgrade-card h3 {
+        @apply text-base font-semibold;
+    }
+
+    .sidebar-upgrade-card p {
+        color: #dfeaff;
+        @apply text-xs leading-5;
+    }
+
+    .sidebar-upgrade-card .btn {
+        @apply mt-1 w-full;
+    }
+
     .sidebar-backdrop {
         @apply fixed inset-0 z-30 bg-black/40 lg:hidden;
     }
@@ -296,11 +336,29 @@
         @apply flex items-center gap-2;
     }
 
+    .topbar-end {
+        @apply flex-wrap justify-end;
+    }
+
     .icon-button {
         border: 1px solid var(--border);
         background: var(--surface-1);
         color: var(--text-1);
         @apply inline-flex h-9 w-9 items-center justify-center rounded-xl text-[10px] font-bold;
+    }
+
+    .icon-button svg {
+        width: 15px;
+        height: 15px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.9;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .theme-toggle-text {
+        @apply text-[10px] font-bold tracking-[0.06em];
     }
 
     .notification-toggle {
@@ -324,7 +382,17 @@
 
     .search-icon {
         color: var(--brand);
-        @apply text-[10px] font-bold;
+        @apply inline-flex;
+    }
+
+    .search-icon svg {
+        width: 14px;
+        height: 14px;
+        stroke: currentColor;
+        fill: none;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
     }
 
     .search-input {
@@ -333,30 +401,46 @@
     }
 
     .company-selector,
-    .clock-chip {
+    .clock-chip,
+    .date-chip {
         border: 1px solid var(--border);
         background: var(--surface-1);
         color: var(--text-1);
         @apply h-9 rounded-xl px-3 text-sm;
     }
 
+    .date-chip,
     .clock-chip {
         @apply inline-flex items-center font-semibold;
+    }
+
+    .date-chip {
+        color: var(--text-2);
     }
 
     .user-chip {
         border: 1px solid var(--border);
         background: var(--surface-1);
-        @apply hidden rounded-xl px-3 py-1 text-right md:block;
+        @apply hidden items-center gap-2 rounded-xl px-2.5 py-1.5 md:inline-flex;
+    }
+
+    .user-avatar {
+        color: #fff;
+        background: linear-gradient(135deg, var(--brand), var(--brand-strong));
+        @apply inline-flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold;
     }
 
     .user-chip strong {
-        @apply block text-xs font-semibold;
+        @apply block text-xs font-semibold leading-4;
     }
 
-    .user-chip span {
+    .user-chip > span:last-child > span {
         color: var(--text-2);
         @apply block text-[11px] uppercase;
+    }
+
+    .topbar-action-link {
+        @apply inline-flex h-9;
     }
 
     .portal-content {
@@ -416,9 +500,20 @@
 
     .kpi-card {
         border: 1px solid var(--border);
-        background: linear-gradient(180deg, var(--surface-1), color-mix(in srgb, var(--surface-1) 80%, var(--surface-2)));
-        @apply rounded-2xl p-4;
+        background: linear-gradient(180deg, var(--surface-1), color-mix(in srgb, var(--surface-1) 78%, #f6f9ff));
+        box-shadow: 0 10px 26px color-mix(in srgb, #0f44a5 8%, transparent);
+        @apply grid grid-cols-[44px_1fr] items-start gap-3 rounded-2xl p-4;
         animation: fadeUp 0.35s ease;
+    }
+
+    .kpi-icon {
+        color: #fff;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--brand) 75%, #4f46e5), var(--brand-strong));
+        @apply inline-flex h-11 w-11 items-center justify-center rounded-xl text-xs font-bold;
+    }
+
+    .kpi-body {
+        @apply min-w-0;
     }
 
     .kpi-label {
@@ -427,12 +522,35 @@
     }
 
     .kpi-value {
-        @apply mt-2 block text-2xl;
+        @apply mt-1.5 block text-3xl leading-none;
+    }
+
+    .kpi-meta {
+        @apply mt-2 flex flex-wrap items-center gap-2;
+    }
+
+    .kpi-meta small {
+        color: var(--text-2);
+        @apply text-xs;
     }
 
     .kpi-trend {
-        color: var(--ok);
-        @apply mt-1 block text-sm font-semibold;
+        @apply inline-flex items-center rounded-full px-2 py-1 text-xs font-semibold;
+    }
+
+    .kpi-trend.is-up {
+        color: #047857;
+        background: #dcfce7;
+    }
+
+    .kpi-trend.is-down {
+        color: #be123c;
+        background: #ffe4e6;
+    }
+
+    .kpi-trend.is-neutral {
+        color: #1d4ed8;
+        background: #dbeafe;
     }
 
     .surface-grid {
@@ -679,5 +797,442 @@
 
     .notification-row {
         @apply flex items-center justify-between gap-2;
+    }
+
+    .admin-dashboard {
+        @apply space-y-4;
+    }
+
+    .admin-grid {
+        @apply grid gap-4;
+    }
+
+    .admin-grid-main {
+        @apply 2xl:grid-cols-[1.25fr_1fr];
+    }
+
+    .admin-grid-bottom {
+        @apply xl:grid-cols-3;
+    }
+
+    .admin-surface {
+        border-color: color-mix(in srgb, var(--border) 82%, #e8edf8);
+        background: linear-gradient(180deg, #fff, color-mix(in srgb, #fff 86%, #f6f8fd));
+        box-shadow: 0 14px 34px color-mix(in srgb, #0e1a30 8%, transparent);
+    }
+
+    .admin-card-header {
+        @apply mb-4 flex items-start justify-between gap-3;
+    }
+
+    .admin-card-header h2 {
+        @apply text-lg font-semibold;
+    }
+
+    .admin-card-header p {
+        color: var(--text-2);
+        @apply mt-1 text-sm;
+    }
+
+    .admin-chip {
+        border: 1px solid color-mix(in srgb, var(--border) 92%, #d8deea);
+        background: #fff;
+        color: #3f4d66;
+        @apply inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold;
+    }
+
+    .admin-legend {
+        @apply mb-3 flex items-center gap-6 text-xs font-semibold;
+        color: #4b5c79;
+    }
+
+    .admin-legend span {
+        @apply inline-flex items-center gap-2;
+    }
+
+    .admin-dot {
+        @apply inline-flex h-2.5 w-2.5 rounded-full;
+    }
+
+    .admin-dot.is-primary {
+        background: #4e52ff;
+    }
+
+    .admin-dot.is-secondary {
+        background: #bac4d5;
+    }
+
+    .admin-line-chart {
+        border: 1px solid color-mix(in srgb, var(--border) 85%, #e5ebf7);
+        background: linear-gradient(180deg, #fefefe, #f9fbff);
+        @apply rounded-2xl p-3;
+    }
+
+    .admin-line-chart svg {
+        @apply h-56 w-full;
+    }
+
+    .admin-grid-line {
+        stroke: #e5ebf7;
+        stroke-width: 1;
+    }
+
+    .admin-line {
+        fill: none;
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .admin-line-primary {
+        stroke: #4f46e5;
+    }
+
+    .admin-line-secondary {
+        stroke: #c3ccda;
+    }
+
+    .admin-line-node.is-primary {
+        fill: #4f46e5;
+        stroke: #fff;
+        stroke-width: 2;
+    }
+
+    .admin-line-node.is-secondary {
+        fill: #b8c4d7;
+        stroke: #fff;
+        stroke-width: 2;
+    }
+
+    .admin-axis-labels {
+        color: #5e6f8d;
+        @apply mt-2 grid grid-cols-9 gap-2 text-center text-[11px] font-medium;
+    }
+
+    .admin-map-layout {
+        @apply grid gap-4 lg:grid-cols-[1fr_230px];
+    }
+
+    .admin-world-map {
+        border: 1px solid color-mix(in srgb, var(--border) 85%, #e5ebf7);
+        background:
+            radial-gradient(circle at 16% 45%, rgba(99, 102, 241, 0.24), transparent 34%),
+            radial-gradient(circle at 60% 55%, rgba(59, 130, 246, 0.14), transparent 32%),
+            linear-gradient(180deg, #fcfdff, #f8fafe);
+        @apply relative min-h-56 overflow-hidden rounded-2xl;
+    }
+
+    .admin-world-map::before {
+        content: '';
+        position: absolute;
+        inset: 15% 8%;
+        border-radius: 999px;
+        border: 1px dashed #dbe4f4;
+        opacity: 0.8;
+    }
+
+    .admin-world-map span {
+        position: absolute;
+        left: var(--x);
+        top: var(--y);
+        width: var(--size);
+        height: var(--size);
+        border-radius: 999px;
+        background: #4f46e5;
+        box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.16);
+        transform: translate(-50%, -50%);
+    }
+
+    .admin-country-list {
+        @apply space-y-2.5;
+    }
+
+    .admin-country-list li {
+        border: 1px solid color-mix(in srgb, var(--border) 92%, #e6ebf7);
+        background: #fff;
+        @apply flex items-center justify-between rounded-xl px-3 py-2.5;
+    }
+
+    .admin-country-copy {
+        @apply flex items-center gap-2 text-sm font-semibold;
+    }
+
+    .admin-flag {
+        border: 1px solid #dbe4f4;
+        color: #3f4c67;
+        background: #f8faff;
+        @apply inline-flex h-6 min-w-6 items-center justify-center rounded-md px-1 text-[10px] font-bold;
+    }
+
+    .admin-country-list strong {
+        @apply text-sm font-bold;
+    }
+
+    .admin-list-card,
+    .admin-revenue-card {
+        @apply flex h-full flex-col;
+    }
+
+    .admin-project-list,
+    .admin-activity-list,
+    .admin-revenue-list {
+        @apply space-y-2.5;
+    }
+
+    .admin-project-list li,
+    .admin-activity-list li,
+    .admin-revenue-list li {
+        border: 1px solid color-mix(in srgb, var(--border) 94%, #e7ecf8);
+        background: #fff;
+        @apply flex items-center justify-between gap-3 rounded-xl px-3 py-2.5;
+    }
+
+    .admin-project-icon {
+        color: #fff;
+        background: var(--tone);
+        @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-[11px] font-bold;
+    }
+
+    .admin-project-copy,
+    .admin-activity-copy {
+        @apply min-w-0 flex-1;
+    }
+
+    .admin-project-copy strong,
+    .admin-activity-copy strong {
+        @apply block truncate text-sm font-semibold;
+    }
+
+    .admin-project-copy p,
+    .admin-activity-copy p {
+        color: #5f6f8c;
+        @apply truncate text-xs;
+    }
+
+    .admin-state-badge {
+        @apply inline-flex shrink-0 rounded-full px-2.5 py-1 text-[11px] font-semibold;
+    }
+
+    .admin-state-badge.is-active {
+        color: #047857;
+        background: #dcfce7;
+    }
+
+    .admin-state-badge.is-progress {
+        color: #b45309;
+        background: #fef3c7;
+    }
+
+    .admin-state-badge.is-review {
+        color: #1d4ed8;
+        background: #dbeafe;
+    }
+
+    .admin-avatar {
+        color: #fff;
+        background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+        @apply inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-[11px] font-bold;
+    }
+
+    .admin-activity-list time {
+        color: #6c7f9f;
+        @apply shrink-0 text-xs font-semibold;
+    }
+
+    .admin-revenue-layout {
+        @apply grid gap-4 lg:grid-cols-[170px_1fr];
+    }
+
+    .admin-ring {
+        --segments: #4f46e5 0% 40%, #25d18f 40% 68%, #f6be3f 68% 86%, #4aa9ff 86% 100%;
+        background: conic-gradient(var(--segments));
+        @apply relative mx-auto h-40 w-40 rounded-full;
+    }
+
+    .admin-ring::before {
+        content: '';
+        position: absolute;
+        inset: 14px;
+        border-radius: 999px;
+        background: #fff;
+    }
+
+    .admin-ring-center {
+        @apply absolute inset-0 z-[1] flex flex-col items-center justify-center text-center;
+    }
+
+    .admin-ring-center strong {
+        @apply text-2xl font-bold;
+    }
+
+    .admin-ring-center span {
+        color: #627492;
+        @apply text-sm;
+    }
+
+    .admin-revenue-list li {
+        @apply gap-4;
+    }
+
+    .admin-revenue-copy {
+        @apply flex items-center gap-2 text-sm font-semibold;
+    }
+
+    .admin-revenue-copy i {
+        @apply inline-flex h-2.5 w-2.5 rounded-full;
+    }
+
+    .admin-revenue-amount {
+        @apply text-right;
+    }
+
+    .admin-revenue-amount strong {
+        @apply block text-sm font-bold;
+    }
+
+    .admin-revenue-amount small {
+        color: #6b7c98;
+        @apply text-xs font-medium;
+    }
+
+    [data-portal-theme='admin'] .portal-content {
+        max-width: min(1620px, 100%);
+        @apply space-y-4 p-4 md:p-6;
+    }
+
+    [data-portal-theme='admin'] .sidebar {
+        border-right: 1px solid #e6ecf8;
+        background: #fff;
+        color: #344261;
+    }
+
+    [data-portal-theme='admin'] .sidebar-brand-label {
+        color: #6678a4;
+    }
+
+    [data-portal-theme='admin'] .sidebar-brand-title {
+        color: #0f1c2f;
+    }
+
+    [data-portal-theme='admin'] .sidebar-section-title {
+        color: #98a5c2;
+    }
+
+    [data-portal-theme='admin'] .sidebar-link {
+        color: #334361;
+    }
+
+    [data-portal-theme='admin'] .sidebar-link:hover {
+        border-color: #d6e1f5;
+        background: #f5f8ff;
+        color: #111c35;
+    }
+
+    [data-portal-theme='admin'] .sidebar-link.active {
+        border-color: #b8ccfb;
+        background: linear-gradient(135deg, #5c63ff, #5a7bff);
+        box-shadow: 0 12px 26px rgba(92, 99, 255, 0.25);
+        color: #fff;
+    }
+
+    [data-portal-theme='admin'] .sidebar-link-icon {
+        color: inherit;
+        background: #eef3ff;
+    }
+
+    [data-portal-theme='admin'] .sidebar-link.active .sidebar-link-icon {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.22);
+    }
+
+    [data-portal-theme='admin'] .sidebar-footer {
+        border-top-color: #e8eef9;
+        color: #7f8fac;
+    }
+
+    [data-portal-theme='admin'] .topbar {
+        border-bottom: 1px solid #e8eef8;
+        background: rgba(255, 255, 255, 0.94);
+        @apply px-4 py-3 md:px-6;
+    }
+
+    [data-portal-theme='admin'] .search-wrap {
+        border-color: #dce6f6;
+        box-shadow: 0 8px 20px rgba(37, 62, 120, 0.06);
+        @apply pr-4;
+    }
+
+    [data-portal-theme='admin'] .search-input {
+        @apply w-52 md:w-80;
+    }
+
+    [data-portal-theme='admin'] .topbar .icon-button {
+        border-color: #d9e4f7;
+        background: #fff;
+        color: #22304f;
+    }
+
+    [data-portal-theme='admin'] .date-chip,
+    [data-portal-theme='admin'] .clock-chip,
+    [data-portal-theme='admin'] .company-selector,
+    [data-portal-theme='admin'] .user-chip {
+        border-color: #d9e3f5;
+        background: #fff;
+    }
+
+    [data-portal-theme='admin'] .user-chip {
+        box-shadow: 0 8px 18px rgba(30, 55, 109, 0.08);
+    }
+
+    [data-portal-theme='admin'] .portal-header {
+        border-color: #e3e9f7;
+        background: #fff;
+        box-shadow: 0 14px 32px rgba(20, 39, 85, 0.07);
+    }
+
+    [data-portal-theme='admin'] .portal-eyebrow {
+        color: #4f5fcf;
+    }
+
+    [data-portal-theme='admin'] .portal-subtitle {
+        color: #5b6e8e;
+    }
+
+    [data-portal-theme='admin'] .meta-pill {
+        border-color: #dce5f8;
+        background: #f6f9ff;
+        color: #3e4d6b;
+    }
+
+    @media (max-width: 767px) {
+        .kpi-card {
+            @apply grid-cols-1;
+        }
+
+        .kpi-icon {
+            @apply h-10 w-10;
+        }
+
+        .admin-axis-labels {
+            @apply grid-cols-3 gap-y-1 text-[10px];
+        }
+
+        .admin-activity-list li,
+        .admin-project-list li,
+        .admin-revenue-list li {
+            @apply flex-wrap;
+        }
+
+        .admin-activity-list time {
+            @apply w-full text-left;
+        }
+
+        .date-chip {
+            @apply hidden;
+        }
+
+        [data-portal-theme='admin'] .portal-header-meta {
+            @apply grid-cols-1;
+        }
     }
 }
