@@ -149,7 +149,7 @@ jobs:
           script_stop: true
           command_timeout: 30m
           script: |
-            set -euo pipefail
+            set -Eeuo pipefail
 
             DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
             DEPLOY_REF="${{ inputs.deploy_ref }}"
@@ -170,6 +170,24 @@ jobs:
             GRAFANA_ADMIN_USER_SECRET="${GRAFANA_ADMIN_USER_SECRET:-}"
             GRAFANA_ADMIN_PASSWORD_SECRET="${GRAFANA_ADMIN_PASSWORD_SECRET:-}"
 
+            run_docker_compose() {
+              if ! command -v docker >/dev/null 2>&1; then
+                return 1
+              fi
+
+              if docker info >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+                docker compose "$@"
+                return $?
+              fi
+
+              if sudo -n docker info >/dev/null 2>&1 && sudo -n docker compose version >/dev/null 2>&1; then
+                sudo -n docker compose "$@"
+                return $?
+              fi
+
+              return 1
+            }
+
             set_env_value() {
               local key="$1"
               local value="$2"
@@ -189,7 +207,11 @@ jobs:
             echo "Previous SHA: $PREV_SHA"
 
             rollback() {
-              echo "Deploy failed. Starting rollback to $PREV_SHA..."
+              local exit_code="${1:-1}"
+              local failed_line="${2:-unknown}"
+              local failed_command="${3:-unknown}"
+              echo "Deploy failed on line ${failed_line} while running: ${failed_command} (exit code ${exit_code})"
+              echo "Starting rollback to $PREV_SHA..."
               git reset --hard "$PREV_SHA"
               php artisan optimize:clear || true
               php artisan config:cache || true
@@ -201,7 +223,21 @@ jobs:
               echo "Rollback completed."
             }
 
-            trap rollback ERR
+            on_error() {
+              local exit_code="$?"
+              local failed_line="${BASH_LINENO[0]}"
+              local failed_command="${BASH_COMMAND:-unknown}"
+              rollback "$exit_code" "$failed_line" "$failed_command"
+              exit "$exit_code"
+            }
+
+            trap on_error ERR
+
+            [ -f .env ] || (echo "Missing .env file in ${DEPLOY_PATH}" && exit 1)
+            if [ ! -w .env ]; then
+              echo "Adjusting .env ownership to ${DEPLOY_USER}:${DEPLOY_GROUP}"
+              sudo chown "${DEPLOY_USER}:${DEPLOY_GROUP}" .env
+            fi
 
             sudo cp .env "/tmp/iatechs-pro.env.$TS.bak"
             sudo tar -czf "/tmp/iatechs-pro.storage.$TS.bak.tgz" storage
@@ -238,11 +274,16 @@ jobs:
                 set_env_value GRAFANA_ADMIN_PASSWORD "$GRAFANA_ADMIN_PASSWORD_SECRET"
               fi
 
-              if command -v docker >/dev/null 2>&1; then
-                docker compose --profile observability pull prometheus alertmanager grafana || true
-                docker compose --profile observability up -d prometheus alertmanager grafana
+              if run_docker_compose --profile observability pull prometheus alertmanager grafana; then
+                echo "Observability images pulled."
               else
-                echo "Docker is not installed on target host."
+                echo "Skipping docker pull for observability stack (docker unavailable or insufficient permissions)."
+              fi
+
+              if run_docker_compose --profile observability up -d prometheus alertmanager grafana; then
+                echo "Observability stack started."
+              else
+                echo "Unable to run docker compose profile=observability on target host."
                 if [ "$VALIDATE_PROM_STACK" = "true" ]; then
                   exit 1
                 fi
@@ -257,12 +298,12 @@ jobs:
             sudo mkdir -p storage/framework/views
             sudo mkdir -p storage/framework/testing
 
-            sudo chown -R ubuntu:www-data storage bootstrap/cache
+            sudo chown -R "$DEPLOY_USER":www-data storage bootstrap/cache
             sudo find storage bootstrap/cache -type d -exec chmod 2775 {} \;
             sudo find storage bootstrap/cache -type f -exec chmod 664 {} \;
 
             sudo touch storage/logs/laravel.log
-            sudo chown ubuntu:www-data storage/logs/laravel.log
+            sudo chown "$DEPLOY_USER":www-data storage/logs/laravel.log
             sudo chmod 664 storage/logs/laravel.log
 
             composer install --no-dev --optimize-autoloader --no-interaction
