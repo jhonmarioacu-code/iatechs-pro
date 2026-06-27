@@ -209,29 +209,15 @@ jobs:
             set_env_value() {
               local key="$1"
               local value="$2"
-              local normalized tmp_file
+              local normalized escaped
               normalized="$(printf '%s' "$value" | tr -d '\r\n')"
-              tmp_file="$(mktemp "${TMPDIR:-/tmp}/iatechs-env.${key}.XXXXXX")"
+              escaped="$(printf '%s' "$normalized" | sed -e 's/[\/&]/\\&/g')"
 
-              awk -v k="$key" -v v="$normalized" '
-                BEGIN { updated = 0 }
-                $0 ~ ("^" k "=") {
-                  if (updated == 0) {
-                    print k "=" v
-                    updated = 1
-                  }
-                  next
-                }
-                { print }
-                END {
-                  if (updated == 0) {
-                    print k "=" v
-                  }
-                }
-              ' .env > "$tmp_file"
-
-              cat "$tmp_file" > .env
-              rm -f "$tmp_file"
+              if grep -qE "^${key}=" .env; then
+                sed -i -e "s/^${key}=.*/${key}=${escaped}/" .env
+              else
+                printf '%s=%s\n' "$key" "$normalized" >> .env
+              fi
             }
 
             set_env_value_logged() {
