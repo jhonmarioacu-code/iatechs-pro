@@ -5,11 +5,17 @@
 
 @php
     $secondarySlugs = ['ai-assistant', 'observability', 'operations'];
+    $hiddenSlugs = $portal === 'admin' ? ['dashboards'] : [];
     $primaryMenu = [];
     $secondaryMenu = [];
 
     foreach ($menu as $item) {
         $slug = (string) ($item['slug'] ?? '');
+
+        if (in_array($slug, $hiddenSlugs, true)) {
+            continue;
+        }
+
         if (in_array($slug, $secondarySlugs, true)) {
             $secondaryMenu[] = $item;
             continue;
