@@ -224,3 +224,27 @@ curl https://tu-dominio.com/health
 ```
 
 El endpoint `/health` debe responder `status: ok`.
+
+## Observabilidad externa (opcional)
+
+Para levantar Prometheus + Alertmanager + Grafana con reglas SLO/SLA operativas:
+
+```bash
+cp docker/observability/secrets/obs_exporter_token.example docker/observability/secrets/obs_exporter_token
+cp docker/observability/secrets/slack_webhook_url.example docker/observability/secrets/slack_webhook_url
+docker compose --profile observability up -d prometheus alertmanager grafana
+```
+
+Smoke postdeploy automatizable:
+
+```bash
+bash deploy/observability-postdeploy-check.sh
+```
+
+Validar:
+
+```text
+Prometheus target iatechs_app en UP
+Grafana dashboard IAtechs Observability cargado
+Alertmanager enviando notificaciones
+```

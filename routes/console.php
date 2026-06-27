@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 use App\Support\Architecture\ArchitectureAuditor;
 use App\Support\Architecture\ReleaseReadinessAuditor;
+use App\Support\Observability\ObservabilityAlertDispatcher;
 
 Artisan::command('iatechs:health', function () {
     $this->info('IAtechs Pro console is ready.');
@@ -86,3 +88,45 @@ Artisan::command('iatechs:gate-release {--json}', function () {
 
     return 0;
 });
+
+Artisan::command('iatechs:observability-alerts {--force} {--json}', function () {
+    $result = app(ObservabilityAlertDispatcher::class)->dispatch(
+        (bool) $this->option('force')
+    );
+
+    if ($this->option('json')) {
+        $this->line((string) json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        return 0;
+    }
+
+    $this->info('Observability Alerts Report');
+    $this->line('Status: '.(string) ($result['status'] ?? 'unknown'));
+    $this->line('Degraded alerts: '.(string) ($result['degraded_count'] ?? 0));
+    $this->line('Dispatched alerts: '.(string) ($result['dispatched_count'] ?? 0));
+    $this->line('Suppressed alerts: '.(string) ($result['suppressed_count'] ?? 0));
+    $this->line('Generated at: '.(string) ($result['generated_at'] ?? now()->toIso8601String()));
+    $this->newLine();
+
+    foreach ((array) ($result['results'] ?? []) as $item) {
+        $this->line(sprintf(
+            '- %s [%s] dispatched=%s',
+            (string) ($item['alert'] ?? 'Alert'),
+            (string) ($item['severity'] ?? 'MEDIUM'),
+            (bool) ($item['dispatched'] ?? false) ? 'yes' : 'no'
+        ));
+    }
+
+    return 0;
+});
+
+$observabilityAlertInterval = max(
+    1,
+    min((int) config('observability.alerts.check_interval_minutes', 5), 60)
+);
+
+Schedule::command('iatechs:observability-alerts')
+    ->cron("*/{$observabilityAlertInterval} * * * *")
+    ->withoutOverlapping()
+    ->onOneServer()
+    ->runInBackground()
+    ->when(static fn (): bool => (bool) config('observability.alerts.enabled', true));

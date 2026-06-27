@@ -7,12 +7,15 @@ namespace App\Providers;
 use Illuminate\Http\Request;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 use App\Tenant\Contracts\TenantResolverInterface;
 
 use App\Tenant\Resolvers\TenantResolver;
 use App\Tenant\Managers\TenantManager;
+use SocialiteProviders\Microsoft\Provider as MicrosoftProvider;
+use SocialiteProviders\Manager\SocialiteWasCalled;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -49,6 +52,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(SocialiteWasCalled::class, static function (SocialiteWasCalled $event): void {
+            $event->extendSocialite('microsoft', MicrosoftProvider::class);
+        });
+
         RateLimiter::for('login', function (Request $request): Limit {
             $email = (string) $request->input('email', '');
 

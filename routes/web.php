@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\ObservabilityController;
 use App\Http\Controllers\Admin\OperationsController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
+use App\Http\Controllers\Auth\SocialAuthController;
 
 Route::get('/', [PortalController::class, 'public'])
     ->name('public.home');
@@ -37,6 +38,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
         ->middleware('throttle:login')
         ->name('login.store');
+
+    Route::get('/auth/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+        ->where('provider', 'google|github|microsoft')
+        ->name('auth.social.redirect');
+
+    Route::get('/auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+        ->where('provider', 'google|github|microsoft')
+        ->name('auth.social.callback');
 
     Route::get('/forgot-password', [ForgotPasswordController::class, 'create'])
         ->name('password.request');

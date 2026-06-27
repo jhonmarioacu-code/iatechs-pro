@@ -20,6 +20,9 @@
 
 /database/*.sqlite
 
+/docker/observability/secrets/*
+!/docker/observability/secrets/*.example
+
 *.pem
 *.ppk
 *.key

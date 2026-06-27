@@ -13,45 +13,58 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Redis;
 use App\Http\Controllers\Controller;
+use App\Support\Observability\RevenueObservabilityService;
 
 class ObservabilityController extends Controller
 {
+    public function __construct(
+        private readonly RevenueObservabilityService $revenueObservabilityService
+    ) {}
+
     public function index(): View
     {
+        $revenueObservability = $this->revenueObservabilityService->snapshot();
+
         return view('admin.observability', [
             'portalTitle' => 'Observability',
             'portalSubtitle' => 'Operacion diaria con estado tecnico consolidado.',
-            'kpis' => $this->kpis(),
+            'kpis' => $this->kpis($revenueObservability),
             'services' => $this->services(),
             'statusBuckets' => $this->statusBuckets(),
             'horizon' => $this->horizonStatus(),
             'queueDetails' => $this->queueDetails(),
             'logDetails' => $this->logDetails(),
+            'revenueObservability' => $revenueObservability,
         ]);
     }
 
-    private function kpis(): array
+    private function kpis(array $revenueObservability): array
     {
+        $paymentSuccessRate = (float) ($revenueObservability['payments']['success_rate_24h'] ?? 100.0);
+        $pastDueSubscriptions = (int) ($revenueObservability['subscriptions']['past_due'] ?? 0);
+        $mrr = (float) ($revenueObservability['revenue']['mrr'] ?? 0);
+        $overall = (string) ($revenueObservability['overall_status'] ?? 'OK');
+
         return [
             [
-                'label' => 'HTTP Requests',
-                'value' => (string) (int) Cache::get('metrics:http:requests_total', 0),
-                'trend' => '24h',
+                'label' => 'Payment Success 24h',
+                'value' => $paymentSuccessRate.'%',
+                'trend' => 'SLO',
             ],
             [
-                'label' => 'Ultima Latencia',
-                'value' => (string) ((int) Cache::get('metrics:http:last_duration_ms', 0)).' ms',
-                'trend' => 'ultimo request',
+                'label' => 'Past Due Subs',
+                'value' => (string) $pastDueSubscriptions,
+                'trend' => 'SLA',
             ],
             [
-                'label' => 'Pendientes Cola',
-                'value' => (string) $this->safeQueueSize(),
-                'trend' => (string) config('queue.default'),
+                'label' => 'MRR',
+                'value' => '$ '.number_format($mrr, 2, '.', ','),
+                'trend' => 'Run-rate',
             ],
             [
-                'label' => 'Errores 500',
-                'value' => (string) (int) Cache::get('metrics:http:status:500', 0),
-                'trend' => '24h',
+                'label' => 'Obs Status',
+                'value' => $overall,
+                'trend' => 'Global',
             ],
         ];
     }

@@ -81,6 +81,30 @@ class NotificationService
         return $updated;
     }
 
+    public function markAsDelivered(
+        Notification $notification,
+        array $context = []
+    ): Notification {
+        $payload = [
+            'status' => 'DELIVERED',
+            'delivered_at' => now(),
+        ];
+
+        if ($context !== []) {
+            $existingData = is_array($notification->data) ? $notification->data : [];
+            $payload['data'] = array_merge($existingData, $context);
+        }
+
+        $updated = $this->repository->update(
+            $notification,
+            $payload
+        );
+
+        NotificationStreamed::dispatch($updated, 'delivered');
+
+        return $updated;
+    }
+
     public function markAsRead(
         Notification $notification
     ): Notification {

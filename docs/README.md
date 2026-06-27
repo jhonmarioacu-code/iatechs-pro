@@ -62,6 +62,8 @@ La documentacion oficial se organiza en 4 bloques:
 - Auditoria automatica: `docs/operations/22-Architecture-Audit-Runbook.md`
 - Gate de release y checklist obligatorio: `docs/operations/23-Release-Gate-And-Delivery-Checklist.md`
 - Realtime operativo y autorizacion de canales: `docs/operations/24-Realtime-Broadcast-Runbook.md`
+- Observabilidad externa Prometheus/Grafana: `docs/operations/25-Observability-Prometheus-Grafana-Runbook.md`
+- Security scanning SCA/SAST/secrets: `docs/operations/26-Security-Scanning-Runbook.md`
 
 ## Estructura oficial de carpetas de documentacion
 

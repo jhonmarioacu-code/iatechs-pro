@@ -10,9 +10,12 @@ use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 
 use App\Domains\Plans\Models\Plan;
+use App\Domains\Shared\Exceptions\DomainOperationException;
 
 use App\Domains\Subscriptions\Models\Subscription;
 use App\Domains\Subscriptions\Services\SubscriptionService;
+use App\Domains\Subscriptions\Services\StripeSubscriptionGatewayService;
+use App\Domains\Subscriptions\Services\MercadoPagoSubscriptionGatewayService;
 
 use App\Domains\Subscriptions\Requests\StoreSubscriptionRequest;
 use App\Domains\Subscriptions\Requests\UpdateSubscriptionRequest;
@@ -22,7 +25,9 @@ use App\Domains\Subscriptions\Resources\SubscriptionResource;
 class SubscriptionController extends Controller
 {
     public function __construct(
-        protected SubscriptionService $service
+        protected SubscriptionService $service,
+        protected StripeSubscriptionGatewayService $stripeSubscriptionGatewayService,
+        protected MercadoPagoSubscriptionGatewayService $mercadoPagoSubscriptionGatewayService
     ) {}
 
     /**
@@ -174,5 +179,53 @@ class SubscriptionController extends Controller
                 $plan
             )
         );
+    }
+
+    public function checkout(
+        Request $request,
+        Subscription $subscription
+    ): JsonResponse {
+        $this->authorize('update', $subscription);
+
+        $validated = $request->validate([
+            'provider' => ['required', 'in:stripe,mercadopago'],
+        ]);
+
+        $provider = (string) $validated['provider'];
+        $email = (string) $request->user()->email;
+
+        try {
+            if ($provider === 'stripe') {
+                $checkout = $this->stripeSubscriptionGatewayService->createCheckout($subscription, $email);
+                $subscription->update([
+                    'payment_provider' => 'STRIPE',
+                ]);
+
+                return response()->json([
+                    'success' => true,
+                    'provider' => 'STRIPE',
+                    'checkout_url' => $checkout['checkout_url'],
+                    'checkout_session_id' => $checkout['checkout_session_id'],
+                ]);
+            }
+
+            $checkout = $this->mercadoPagoSubscriptionGatewayService->createCheckout($subscription, $email);
+            $subscription->update([
+                'payment_provider' => 'MERCADOPAGO',
+                'external_subscription_id' => $checkout['external_subscription_id'],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'provider' => 'MERCADOPAGO',
+                'checkout_url' => $checkout['checkout_url'],
+                'external_subscription_id' => $checkout['external_subscription_id'],
+            ]);
+        } catch (DomainOperationException $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => $exception->getMessage(),
+            ], 422);
+        }
     }
 }

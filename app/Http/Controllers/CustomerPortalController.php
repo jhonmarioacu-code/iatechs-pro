@@ -20,6 +20,8 @@ use App\Domains\Payments\Models\Payment;
 use App\Domains\Customers\Models\Customer;
 use App\Domains\ServiceContracts\Models\ServiceContract;
 use App\Domains\Payments\Services\PaymentService;
+use App\Domains\Payments\Services\OnlinePaymentGatewayService;
+use App\Domains\Shared\Exceptions\DomainOperationException;
 use App\Domains\Quotes\Services\QuoteService;
 use App\Domains\Tickets\Services\TicketService;
 
@@ -27,6 +29,7 @@ class CustomerPortalController extends Controller
 {
     public function __construct(
         private readonly PaymentService $paymentService,
+        private readonly OnlinePaymentGatewayService $onlinePaymentGatewayService,
         private readonly QuoteService $quoteService,
         private readonly TicketService $ticketService
     ) {}
@@ -328,6 +331,25 @@ class CustomerPortalController extends Controller
             'external_transaction_id' => 'SIM-'.Str::upper(Str::random(10)),
             'notes' => 'Pago generado desde portal cliente.',
         ]);
+
+        if (in_array($validated['payment_method'], ['STRIPE', 'MERCADOPAGO'], true)) {
+            try {
+                $checkout = $this->onlinePaymentGatewayService->createCheckout($payment, $invoice);
+            } catch (DomainOperationException $exception) {
+                report($exception);
+
+                return back()->withErrors([
+                    'payment_method' => $exception->getMessage(),
+                ]);
+            }
+
+            $payment = $this->paymentService->update($payment, [
+                'external_transaction_id' => $checkout['external_id'],
+                'notes' => 'Pago online iniciado desde portal cliente.',
+            ]);
+
+            return redirect()->away($checkout['checkout_url']);
+        }
 
         $payment = $this->paymentService->complete($payment);
 

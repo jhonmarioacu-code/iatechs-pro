@@ -39,6 +39,8 @@ class User extends Authenticatable
 
         'phone',
         'avatar',
+        'social_provider',
+        'social_provider_id',
 
         'is_active',
         'technician_course_enabled',
