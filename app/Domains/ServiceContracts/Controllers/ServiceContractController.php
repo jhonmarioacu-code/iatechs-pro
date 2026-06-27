@@ -20,6 +20,8 @@ class ServiceContractController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', ServiceContract::class);
+
         return ServiceContractResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class ServiceContractController extends Controller
     public function store(
         StoreServiceContractRequest $request
     ): ServiceContractResource {
+        $this->authorize('create', ServiceContract::class);
 
         return new ServiceContractResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class ServiceContractController extends Controller
     public function show(
         ServiceContract $serviceContract
     ): ServiceContractResource {
+        $this->authorize('view', $serviceContract);
 
         return new ServiceContractResource($serviceContract);
     }
@@ -45,6 +49,7 @@ class ServiceContractController extends Controller
         UpdateServiceContractRequest $request,
         ServiceContract $serviceContract
     ): ServiceContractResource {
+        $this->authorize('update', $serviceContract);
 
         return new ServiceContractResource(
             $this->service->update($serviceContract, $request->validated())
@@ -54,6 +59,7 @@ class ServiceContractController extends Controller
     public function destroy(
         ServiceContract $serviceContract
     ): JsonResponse {
+        $this->authorize('delete', $serviceContract);
 
         $this->service->delete($serviceContract);
 

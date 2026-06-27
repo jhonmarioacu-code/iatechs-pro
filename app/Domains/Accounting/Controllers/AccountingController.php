@@ -23,6 +23,8 @@ class AccountingController extends Controller
 
     public function accounts()
     {
+        $this->authorize('viewAny', Account::class);
+
         return $this->service
             ->paginateAccounts();
     }
@@ -30,6 +32,8 @@ class AccountingController extends Controller
     public function storeAccount(
         StoreAccountRequest $request
     ) {
+        $this->authorize('create', Account::class);
+
         return $this->service
             ->createAccount(
                 $request->validated()
@@ -40,6 +44,8 @@ class AccountingController extends Controller
         UpdateAccountRequest $request,
         Account $account
     ) {
+        $this->authorize('update', $account);
+
         return $this->service
             ->updateAccount(
                 $account,
@@ -49,6 +55,8 @@ class AccountingController extends Controller
 
     public function journalEntries()
     {
+        $this->authorize('viewAny', JournalEntry::class);
+
         return $this->service
             ->paginateJournalEntries();
     }
@@ -56,6 +64,8 @@ class AccountingController extends Controller
     public function storeJournalEntry(
         StoreJournalEntryRequest $request
     ) {
+        $this->authorize('create', JournalEntry::class);
+
         return $this->service
             ->createJournalEntry(
                 $request->validated()
@@ -65,6 +75,8 @@ class AccountingController extends Controller
     public function post(
         JournalEntry $journalEntry
     ) {
+        $this->authorize('post', $journalEntry);
+
         return $this->service
             ->postEntry(
                 $journalEntry
@@ -74,6 +86,8 @@ class AccountingController extends Controller
     public function cancel(
         JournalEntry $journalEntry
     ) {
+        $this->authorize('cancel', $journalEntry);
+
         return $this->service
             ->cancelEntry(
                 $journalEntry

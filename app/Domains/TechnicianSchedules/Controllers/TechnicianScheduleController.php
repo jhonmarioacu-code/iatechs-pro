@@ -20,6 +20,8 @@ class TechnicianScheduleController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', TechnicianSchedule::class);
+
         return TechnicianScheduleResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class TechnicianScheduleController extends Controller
     public function store(
         StoreTechnicianScheduleRequest $request
     ): TechnicianScheduleResource {
+        $this->authorize('create', TechnicianSchedule::class);
 
         return new TechnicianScheduleResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class TechnicianScheduleController extends Controller
     public function show(
         TechnicianSchedule $technicianSchedule
     ): TechnicianScheduleResource {
+        $this->authorize('view', $technicianSchedule);
 
         return new TechnicianScheduleResource($technicianSchedule);
     }
@@ -45,6 +49,7 @@ class TechnicianScheduleController extends Controller
         UpdateTechnicianScheduleRequest $request,
         TechnicianSchedule $technicianSchedule
     ): TechnicianScheduleResource {
+        $this->authorize('update', $technicianSchedule);
 
         return new TechnicianScheduleResource(
             $this->service->update($technicianSchedule, $request->validated())
@@ -54,6 +59,7 @@ class TechnicianScheduleController extends Controller
     public function destroy(
         TechnicianSchedule $technicianSchedule
     ): JsonResponse {
+        $this->authorize('delete', $technicianSchedule);
 
         $this->service->delete($technicianSchedule);
 

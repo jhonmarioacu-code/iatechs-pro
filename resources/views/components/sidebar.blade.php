@@ -27,57 +27,8 @@
                     continue;
                 }
 
-                $isCompanyCrudModule = $portal === 'company'
-                    && in_array($item['slug'], ['customers', 'tickets', 'invoices'], true);
-                $isAdminObservability = $portal === 'admin'
-                    && $item['slug'] === 'observability';
-                $isAdminOperations = $portal === 'admin'
-                    && $item['slug'] === 'operations';
-                $isCustomerTickets = $portal === 'customer'
-                    && $item['slug'] === 'tickets';
-                $isCustomerInvoices = $portal === 'customer'
-                    && $item['slug'] === 'invoices';
-                $isCustomerMarketplace = $portal === 'customer'
-                    && $item['slug'] === 'marketplace';
-
-                if ($item['slug'] === 'dashboard') {
-                    $href = route('portal.'.$portal.'.dashboard');
-                } elseif ($isAdminObservability) {
-                    $href = route('portal.admin.observability');
-                } elseif ($isAdminOperations) {
-                    $href = route('portal.admin.operations');
-                } elseif ($isCustomerTickets) {
-                    $href = route('portal.customer.tickets.index');
-                } elseif ($isCustomerInvoices) {
-                    $href = route('portal.customer.invoices.index');
-                } elseif ($isCustomerMarketplace) {
-                    $href = route('portal.customer.marketplace');
-                } elseif ($isCompanyCrudModule) {
-                    $href = route('portal.company.module.index', ['module' => $item['slug']]);
-                } else {
-                    $href = route('portal.module', ['portal' => $portal, 'module' => $item['slug']]);
-                }
-
-                $icon = match ($item['slug']) {
-                    'dashboard' => 'DB',
-                    'dashboards' => 'BI',
-                    'customers' => 'CU',
-                    'devices' => 'DV',
-                    'tickets' => 'TK',
-                    'diagnostics' => 'DG',
-                    'repairs' => 'RE',
-                    'invoices' => 'IN',
-                    'payments' => 'PY',
-                    'inventory', 'assigned-inventory' => 'IV',
-                    'reports' => 'RP',
-                    'analytics' => 'AN',
-                    'ai-assistant' => 'AI',
-                    'operations' => 'OP',
-                    'observability' => 'OB',
-                    'marketplace' => 'MK',
-                    'settings' => 'ST',
-                    default => 'MD',
-                };
+                $href = $item['href'] ?? route('portal.module', ['portal' => $portal, 'module' => $item['slug']]);
+                $icon = $item['icon'] ?? 'MD';
 
                 $isActive = request()->url() === $href;
             @endphp

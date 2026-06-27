@@ -20,6 +20,8 @@ class ComplianceRecordController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', ComplianceRecord::class);
+
         return ComplianceRecordResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class ComplianceRecordController extends Controller
     public function store(
         StoreComplianceRecordRequest $request
     ): ComplianceRecordResource {
+        $this->authorize('create', ComplianceRecord::class);
 
         return new ComplianceRecordResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class ComplianceRecordController extends Controller
     public function show(
         ComplianceRecord $complianceRecord
     ): ComplianceRecordResource {
+        $this->authorize('view', $complianceRecord);
 
         return new ComplianceRecordResource($complianceRecord);
     }
@@ -45,6 +49,7 @@ class ComplianceRecordController extends Controller
         UpdateComplianceRecordRequest $request,
         ComplianceRecord $complianceRecord
     ): ComplianceRecordResource {
+        $this->authorize('update', $complianceRecord);
 
         return new ComplianceRecordResource(
             $this->service->update($complianceRecord, $request->validated())
@@ -54,6 +59,7 @@ class ComplianceRecordController extends Controller
     public function destroy(
         ComplianceRecord $complianceRecord
     ): JsonResponse {
+        $this->authorize('delete', $complianceRecord);
 
         $this->service->delete($complianceRecord);
 

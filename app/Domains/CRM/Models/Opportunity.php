@@ -6,6 +6,7 @@ namespace App\Domains\CRM\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Users\Models\User;
 
 class Opportunity extends Model
 {
@@ -48,7 +49,7 @@ class Opportunity extends Model
     public function assignedUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\User::class,
+            User::class,
             'assigned_to'
         );
     }

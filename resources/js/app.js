@@ -62,6 +62,19 @@ window.portalUi = function portalUi() {
         sidebarOpen: false,
         darkMode: false,
         notificationsOpen: false,
+        notifications: [],
+        notificationsLoading: false,
+        unreadNotificationsCount: 0,
+        realtimeEnabled: false,
+        realtimeConnected: false,
+        realtimeStatusLabel: 'Realtime inactivo',
+        realtimeConnection: 'log',
+        realtimeCompanyChannel: '',
+        realtimeUserChannel: '',
+        notificationsUrl: '',
+        notificationReadUrlTemplate: '',
+        echo: null,
+        realtimePollId: null,
         assistantEnabled: false,
         assistantPanelOpen: false,
         assistantInput: '',
@@ -77,9 +90,9 @@ window.portalUi = function portalUi() {
             const stored = window.localStorage.getItem('iatechs-theme');
             this.darkMode = stored === 'dark';
 
-            const assistantHost = document.querySelector('[data-assistant-enabled]');
-            if (assistantHost) {
-                this.assistantEnabled = assistantHost.getAttribute('data-assistant-enabled') === '1';
+            const portalHost = document.querySelector('[data-assistant-enabled]');
+            if (portalHost) {
+                this.assistantEnabled = portalHost.getAttribute('data-assistant-enabled') === '1';
             }
 
             const aiHost = document.querySelector('[data-ai-enabled]');
@@ -88,12 +101,134 @@ window.portalUi = function portalUi() {
                 this.assistantConversationsUrl = aiHost.getAttribute('data-ai-conversations-url') || '';
                 this.assistantMessagesUrlTemplate = aiHost.getAttribute('data-ai-messages-url-template') || '';
             }
+
+            this.bootstrapRealtime();
+        },
+        bootstrapRealtime() {
+            const host = document.querySelector('[data-realtime-enabled]');
+
+            if (!host) {
+                return;
+            }
+
+            this.realtimeEnabled = host.getAttribute('data-realtime-enabled') === '1';
+            this.realtimeConnection = host.getAttribute('data-broadcast-connection') || 'log';
+            this.realtimeCompanyChannel = host.getAttribute('data-company-channel') || '';
+            this.realtimeUserChannel = host.getAttribute('data-user-channel') || '';
+            this.notificationsUrl = host.getAttribute('data-notifications-url') || '';
+            this.notificationReadUrlTemplate = host.getAttribute('data-notification-read-template') || '';
+
+            if (!this.realtimeEnabled) {
+                this.realtimeStatusLabel = 'Sin permiso de notificaciones';
+                return;
+            }
+
+            void this.loadNotifications();
+            this.initRealtimeConnection(host);
+        },
+        initRealtimeConnection(host) {
+            if (this.echo || typeof window.createPortalEcho !== 'function') {
+                return;
+            }
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            const runtime = {
+                broadcaster: this.realtimeConnection,
+                authEndpoint: '/broadcasting/auth',
+                csrfToken,
+            };
+
+            if (this.realtimeConnection === 'pusher') {
+                runtime.key = host.getAttribute('data-pusher-key') || '';
+                runtime.host = host.getAttribute('data-pusher-host') || '';
+                runtime.port = host.getAttribute('data-pusher-port') || '';
+                runtime.scheme = host.getAttribute('data-pusher-scheme') || 'https';
+                runtime.cluster = host.getAttribute('data-pusher-cluster') || 'mt1';
+            } else {
+                runtime.key = host.getAttribute('data-reverb-key') || '';
+                runtime.host = host.getAttribute('data-reverb-host') || '';
+                runtime.port = host.getAttribute('data-reverb-port') || '';
+                runtime.scheme = host.getAttribute('data-reverb-scheme') || 'http';
+            }
+
+            this.echo = window.createPortalEcho(runtime);
+
+            if (!this.echo) {
+                this.realtimeStatusLabel = 'Realtime deshabilitado';
+                return;
+            }
+
+            this.registerRealtimeConnectionState();
+            this.subscribeNotificationChannels();
+
+            if (this.realtimePollId === null) {
+                this.realtimePollId = window.setInterval(() => {
+                    if (!this.realtimeConnected) {
+                        void this.loadNotifications();
+                    }
+                }, 60000);
+            }
+        },
+        registerRealtimeConnectionState() {
+            const pusher = this.echo?.connector?.pusher;
+            const connection = pusher?.connection;
+
+            if (!connection) {
+                this.realtimeStatusLabel = 'Realtime sin conector';
+                return;
+            }
+
+            connection.bind('connected', () => {
+                this.realtimeConnected = true;
+                this.realtimeStatusLabel = 'Realtime conectado';
+            });
+
+            connection.bind('disconnected', () => {
+                this.realtimeConnected = false;
+                this.realtimeStatusLabel = 'Realtime desconectado';
+            });
+
+            connection.bind('unavailable', () => {
+                this.realtimeConnected = false;
+                this.realtimeStatusLabel = 'Realtime no disponible';
+            });
+
+            connection.bind('error', () => {
+                this.realtimeConnected = false;
+                this.realtimeStatusLabel = 'Realtime con error';
+            });
+        },
+        subscribeNotificationChannels() {
+            if (!this.echo) {
+                return;
+            }
+
+            const bindChannel = (channelName) => {
+                if (!channelName) {
+                    return;
+                }
+
+                this.echo
+                    .private(channelName)
+                    .listen('.notifications.streamed', (payload) => {
+                        this.handleRealtimeNotification(payload);
+                    });
+            };
+
+            bindChannel(this.realtimeCompanyChannel);
+            if (this.realtimeUserChannel && this.realtimeUserChannel !== this.realtimeCompanyChannel) {
+                bindChannel(this.realtimeUserChannel);
+            }
         },
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
         },
         toggleNotifications() {
             this.notificationsOpen = !this.notificationsOpen;
+            if (this.notificationsOpen && this.notifications.length === 0 && this.realtimeEnabled) {
+                void this.loadNotifications();
+            }
         },
         toggleAssistant() {
             this.assistantPanelOpen = !this.assistantPanelOpen;
@@ -107,6 +242,116 @@ window.portalUi = function portalUi() {
         toggleTheme() {
             this.darkMode = !this.darkMode;
             window.localStorage.setItem('iatechs-theme', this.darkMode ? 'dark' : 'light');
+        },
+        async loadNotifications() {
+            if (!this.notificationsUrl || !this.realtimeEnabled) {
+                return;
+            }
+
+            this.notificationsLoading = true;
+
+            try {
+                const response = await fetch(this.notificationsUrl, {
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`No se pudieron cargar notificaciones (${response.status})`);
+                }
+
+                const payload = await response.json();
+                const rows = Array.isArray(payload?.data) ? payload.data : [];
+                this.notifications = rows.slice(0, 30);
+                this.syncUnreadCount();
+            } catch (error) {
+                this.realtimeStatusLabel = error.message || 'Error cargando notificaciones';
+            } finally {
+                this.notificationsLoading = false;
+            }
+        },
+        handleRealtimeNotification(payload) {
+            const item = payload?.notification;
+
+            if (!item || typeof item.id === 'undefined') {
+                return;
+            }
+
+            const index = this.notifications.findIndex((notification) => notification.id === item.id);
+
+            if (index >= 0) {
+                this.notifications.splice(index, 1, item);
+            } else {
+                this.notifications.unshift(item);
+            }
+
+            this.notifications = this.notifications.slice(0, 30);
+            this.syncUnreadCount();
+        },
+        async markNotificationAsRead(notificationId) {
+            if (!this.notificationReadUrlTemplate || !notificationId) {
+                return;
+            }
+
+            const url = this.notificationReadUrlTemplate.replace('__NOTIFICATION__', String(notificationId));
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`No se pudo marcar notificacion (${response.status})`);
+                }
+
+                const payload = await response.json();
+                const updated = payload?.data;
+
+                if (updated?.id) {
+                    this.handleRealtimeNotification({
+                        notification: updated,
+                    });
+                    return;
+                }
+
+                const index = this.notifications.findIndex((notification) => notification.id === notificationId);
+                if (index >= 0) {
+                    this.notifications[index] = {
+                        ...this.notifications[index],
+                        status: 'READ',
+                        read_at: new Date().toISOString(),
+                    };
+                    this.syncUnreadCount();
+                }
+            } catch (error) {
+                this.realtimeStatusLabel = error.message || 'Error marcando notificacion';
+            }
+        },
+        syncUnreadCount() {
+            this.unreadNotificationsCount = this.notifications.reduce((total, item) => (
+                item?.status === 'READ' ? total : total + 1
+            ), 0);
+        },
+        notificationTimestamp(item) {
+            const raw = item?.read_at || item?.sent_at || item?.created_at || item?.updated_at || '';
+
+            if (!raw) {
+                return 'Sin fecha';
+            }
+
+            const date = new Date(raw);
+
+            if (Number.isNaN(date.getTime())) {
+                return 'Sin fecha';
+            }
+
+            return date.toLocaleString();
         },
         async loadAssistantConversations() {
             if (!this.assistantEnabled || !this.assistantConversationsUrl) {

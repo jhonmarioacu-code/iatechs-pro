@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Domains\Notifications\Jobs\SendEmailNotificationJob;
 use App\Domains\Notifications\Jobs\SendSmsNotificationJob;
 use App\Domains\Notifications\Jobs\SendWhatsappNotificationJob;
+use App\Domains\Notifications\Events\NotificationStreamed;
 use App\Domains\Notifications\Models\Notification;
 use App\Domains\Notifications\Repositories\NotificationRepository;
 
@@ -58,6 +59,7 @@ class NotificationService
         ]);
 
         $this->dispatchByChannel($notification);
+        NotificationStreamed::dispatch($notification->fresh(), 'created');
 
         return $notification;
     }
@@ -66,37 +68,49 @@ class NotificationService
         Notification $notification
     ): Notification {
 
-        return $this->repository->update(
+        $updated = $this->repository->update(
             $notification,
             [
                 'status' => 'SENT',
                 'sent_at' => now()
             ]
         );
+
+        NotificationStreamed::dispatch($updated, 'sent');
+
+        return $updated;
     }
 
     public function markAsRead(
         Notification $notification
     ): Notification {
 
-        return $this->repository->update(
+        $updated = $this->repository->update(
             $notification,
             [
                 'status' => 'READ',
                 'read_at' => now()
             ]
         );
+
+        NotificationStreamed::dispatch($updated, 'read');
+
+        return $updated;
     }
 
     public function update(
         Notification $notification,
         array $data
     ): Notification {
-        return $this->repository
+        $updated = $this->repository
             ->update(
                 $notification,
                 $data
             );
+
+        NotificationStreamed::dispatch($updated, 'updated');
+
+        return $updated;
     }
 
     public function markAsFailed(
@@ -104,13 +118,17 @@ class NotificationService
         string $error
     ): Notification {
 
-        return $this->repository->update(
+        $updated = $this->repository->update(
             $notification,
             [
                 'status' => 'FAILED',
                 'error_message' => $error
             ]
         );
+
+        NotificationStreamed::dispatch($updated, 'failed');
+
+        return $updated;
     }
 
     private function dispatchByChannel(

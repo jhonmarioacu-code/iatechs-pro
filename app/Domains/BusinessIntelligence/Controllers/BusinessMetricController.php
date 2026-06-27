@@ -20,6 +20,8 @@ class BusinessMetricController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', BusinessMetric::class);
+
         return BusinessMetricResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class BusinessMetricController extends Controller
     public function store(
         StoreBusinessMetricRequest $request
     ): BusinessMetricResource {
+        $this->authorize('create', BusinessMetric::class);
 
         return new BusinessMetricResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class BusinessMetricController extends Controller
     public function show(
         BusinessMetric $businessMetric
     ): BusinessMetricResource {
+        $this->authorize('view', $businessMetric);
 
         return new BusinessMetricResource($businessMetric);
     }
@@ -45,6 +49,7 @@ class BusinessMetricController extends Controller
         UpdateBusinessMetricRequest $request,
         BusinessMetric $businessMetric
     ): BusinessMetricResource {
+        $this->authorize('update', $businessMetric);
 
         return new BusinessMetricResource(
             $this->service->update($businessMetric, $request->validated())
@@ -54,6 +59,7 @@ class BusinessMetricController extends Controller
     public function destroy(
         BusinessMetric $businessMetric
     ): JsonResponse {
+        $this->authorize('delete', $businessMetric);
 
         $this->service->delete($businessMetric);
 

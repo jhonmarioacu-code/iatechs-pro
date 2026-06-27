@@ -19,6 +19,8 @@ class InventoryController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', InventoryMovement::class);
+
         return InventoryMovementResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class InventoryController extends Controller
         StoreInventoryMovementRequest $request
     )
     {
+        $this->authorize('create', InventoryMovement::class);
+
         return new InventoryMovementResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class InventoryController extends Controller
         InventoryMovement $inventoryMovement
     )
     {
+        $this->authorize('view', $inventoryMovement);
+
         return new InventoryMovementResource(
             $inventoryMovement->load([
                 'product',
@@ -53,6 +59,8 @@ class InventoryController extends Controller
         InventoryMovement $inventoryMovement
     )
     {
+        $this->authorize('update', $inventoryMovement);
+
         $inventoryMovement->update(
             $request->validated()
         );
@@ -66,6 +74,8 @@ class InventoryController extends Controller
         InventoryMovement $inventoryMovement
     )
     {
+        $this->authorize('delete', $inventoryMovement);
+
         $inventoryMovement->delete();
 
         return response()->json([

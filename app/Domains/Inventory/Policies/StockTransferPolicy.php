@@ -11,7 +11,7 @@ class StockTransferPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('stock_transfers.view');
+        return $user->can('inventory.view');
     }
 
     public function view(
@@ -26,28 +26,35 @@ class StockTransferPolicy
     public function create(User $user): bool
     {
         return $user->can(
-            'stock_transfers.create'
+            'inventory.create'
+        );
+    }
+
+    public function update(User $user): bool
+    {
+        return $user->can(
+            'inventory.update'
         );
     }
 
     public function approve(User $user): bool
     {
         return $user->can(
-            'stock_transfers.approve'
+            'inventory.approve'
         );
     }
 
     public function complete(User $user): bool
     {
         return $user->can(
-            'stock_transfers.complete'
+            'inventory.complete'
         );
     }
 
     public function cancel(User $user): bool
     {
         return $user->can(
-            'stock_transfers.cancel'
+            'inventory.cancel'
         );
     }
 }

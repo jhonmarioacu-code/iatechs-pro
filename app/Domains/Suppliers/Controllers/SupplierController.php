@@ -19,6 +19,8 @@ class SupplierController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Supplier::class);
+
         return SupplierResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class SupplierController extends Controller
         StoreSupplierRequest $request
     )
     {
+        $this->authorize('create', Supplier::class);
+
         return new SupplierResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class SupplierController extends Controller
         Supplier $supplier
     )
     {
+        $this->authorize('view', $supplier);
+
         return new SupplierResource(
             $supplier
         );
@@ -49,6 +55,8 @@ class SupplierController extends Controller
         Supplier $supplier
     )
     {
+        $this->authorize('update', $supplier);
+
         return new SupplierResource(
             $this->service->update(
                 $supplier,
@@ -61,6 +69,8 @@ class SupplierController extends Controller
         Supplier $supplier
     )
     {
+        $this->authorize('delete', $supplier);
+
         $supplier->delete();
 
         return response()->json([
@@ -72,6 +82,8 @@ class SupplierController extends Controller
         Supplier $supplier
     )
     {
+        $this->authorize('activate', $supplier);
+
         return new SupplierResource(
             $this->service->activate(
                 $supplier
@@ -83,6 +95,8 @@ class SupplierController extends Controller
         Supplier $supplier
     )
     {
+        $this->authorize('deactivate', $supplier);
+
         return new SupplierResource(
             $this->service->deactivate(
                 $supplier
@@ -94,6 +108,8 @@ class SupplierController extends Controller
         Supplier $supplier
     )
     {
+        $this->authorize('block', $supplier);
+
         return new SupplierResource(
             $this->service->block(
                 $supplier

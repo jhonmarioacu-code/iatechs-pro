@@ -19,6 +19,8 @@ class DashboardController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Dashboard::class);
+
         return DashboardResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class DashboardController extends Controller
         Dashboard $dashboard
     )
     {
+        $this->authorize('view', $dashboard);
+
         return new DashboardResource(
             $dashboard->load(
                 'widgets'

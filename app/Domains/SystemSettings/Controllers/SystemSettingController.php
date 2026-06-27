@@ -20,6 +20,8 @@ class SystemSettingController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', SystemSetting::class);
+
         return SystemSettingResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class SystemSettingController extends Controller
     public function store(
         StoreSystemSettingRequest $request
     ): SystemSettingResource {
+        $this->authorize('create', SystemSetting::class);
 
         return new SystemSettingResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class SystemSettingController extends Controller
     public function show(
         SystemSetting $systemSetting
     ): SystemSettingResource {
+        $this->authorize('view', $systemSetting);
 
         return new SystemSettingResource($systemSetting);
     }
@@ -45,6 +49,7 @@ class SystemSettingController extends Controller
         UpdateSystemSettingRequest $request,
         SystemSetting $systemSetting
     ): SystemSettingResource {
+        $this->authorize('update', $systemSetting);
 
         return new SystemSettingResource(
             $this->service->update($systemSetting, $request->validated())
@@ -54,6 +59,7 @@ class SystemSettingController extends Controller
     public function destroy(
         SystemSetting $systemSetting
     ): JsonResponse {
+        $this->authorize('delete', $systemSetting);
 
         $this->service->delete($systemSetting);
 

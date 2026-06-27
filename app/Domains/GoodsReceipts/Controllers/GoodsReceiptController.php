@@ -19,6 +19,8 @@ class GoodsReceiptController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', GoodsReceipt::class);
+
         return GoodsReceiptResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class GoodsReceiptController extends Controller
         StoreGoodsReceiptRequest $request
     )
     {
+        $this->authorize('create', GoodsReceipt::class);
+
         return new GoodsReceiptResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class GoodsReceiptController extends Controller
         GoodsReceipt $goodsReceipt
     )
     {
+        $this->authorize('view', $goodsReceipt);
+
         return new GoodsReceiptResource(
             $goodsReceipt->load([
                 'supplier',
@@ -53,6 +59,8 @@ class GoodsReceiptController extends Controller
         GoodsReceipt $goodsReceipt
     )
     {
+        $this->authorize('update', $goodsReceipt);
+
         $goodsReceipt->update(
             $request->validated()
         );
@@ -66,6 +74,8 @@ class GoodsReceiptController extends Controller
         GoodsReceipt $goodsReceipt
     )
     {
+        $this->authorize('receive', $goodsReceipt);
+
         return new GoodsReceiptResource(
             $this->service->receive(
                 $goodsReceipt,

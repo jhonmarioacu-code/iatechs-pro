@@ -20,6 +20,8 @@ class AuditLogController extends Controller
         FilterAuditLogRequest $request
     )
     {
+        $this->authorize('viewAny', AuditLog::class);
+
         return AuditLogResource::collection(
             $this->repository->paginate(
                 $request->integer(
@@ -34,6 +36,8 @@ class AuditLogController extends Controller
         AuditLog $auditLog
     )
     {
+        $this->authorize('view', $auditLog);
+
         return new AuditLogResource(
             $auditLog->load([
                 'company',

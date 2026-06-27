@@ -11,7 +11,7 @@ class PurchaseOrderPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('purchase_orders.view');
+        return $user->can('purchase-orders.view');
     }
 
     public function view(
@@ -25,26 +25,26 @@ class PurchaseOrderPolicy
 
     public function create(User $user): bool
     {
-        return $user->can('purchase_orders.create');
+        return $user->can('purchase-orders.create');
     }
 
     public function update(User $user): bool
     {
-        return $user->can('purchase_orders.update');
+        return $user->can('purchase-orders.update');
     }
 
     public function approve(User $user): bool
     {
-        return $user->can('purchase_orders.approve');
+        return $user->can('purchase-orders.approve');
     }
 
     public function receive(User $user): bool
     {
-        return $user->can('purchase_orders.receive');
+        return $user->can('purchase-orders.update');
     }
 
     public function cancel(User $user): bool
     {
-        return $user->can('purchase_orders.cancel');
+        return $user->can('purchase-orders.cancel');
     }
 }

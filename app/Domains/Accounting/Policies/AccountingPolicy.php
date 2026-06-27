@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\Accounting\Policies;
 
-use App\Models\User;
+use App\Domains\Users\Models\User;
 
 class AccountingPolicy
 {
@@ -30,7 +30,7 @@ class AccountingPolicy
 
     public function delete(User $user): bool
     {
-        return $user->can('accounting.delete');
+        return $user->can('accounting.update');
     }
 
     public function post(User $user): bool

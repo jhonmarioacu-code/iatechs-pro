@@ -3,6 +3,23 @@
 use Illuminate\Support\Str;
 use Pdo\Mysql;
 
+$databaseConnection = (string) env('DB_CONNECTION', 'sqlite');
+$isTestingEnvironment = env('APP_ENV') === 'testing';
+
+if ($isTestingEnvironment && $databaseConnection === 'pgsql' && ! extension_loaded('pdo_pgsql')) {
+    $databaseConnection = 'sqlite';
+}
+
+$sqliteDatabase = (string) env('DB_DATABASE', database_path('database.sqlite'));
+
+if ($isTestingEnvironment && $databaseConnection === 'sqlite') {
+    $isPathValue = str_contains($sqliteDatabase, '/') || str_contains($sqliteDatabase, '\\');
+
+    if ($sqliteDatabase !== ':memory:' && !$isPathValue) {
+        $sqliteDatabase = database_path('testing.sqlite');
+    }
+}
+
 return [
 
     /*
@@ -17,7 +34,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'sqlite'),
+    'default' => $databaseConnection,
 
     /*
     |--------------------------------------------------------------------------
@@ -35,7 +52,7 @@ return [
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
-            'database' => env('DB_DATABASE', database_path('database.sqlite')),
+            'database' => $sqliteDatabase,
             'prefix' => '',
             'prefix_indexes' => null,
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),

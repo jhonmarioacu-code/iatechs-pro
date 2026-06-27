@@ -74,11 +74,15 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
         ->name('portal.admin.dashboard');
 
     Route::get('/admin/observability', [ObservabilityController::class, 'index'])
-        ->middleware('portal.access:admin')
+        ->middleware(['portal.access:admin', 'portal.module'])
+        ->defaults('portal', 'admin')
+        ->defaults('module', 'observability')
         ->name('portal.admin.observability');
 
     Route::get('/admin/operations', [OperationsController::class, 'index'])
-        ->middleware('portal.access:admin')
+        ->middleware(['portal.access:admin', 'portal.module'])
+        ->defaults('portal', 'admin')
+        ->defaults('module', 'operations')
         ->name('portal.admin.operations');
 
     Route::post('/admin/operations/company', [OperationsController::class, 'storeCompany'])
@@ -114,7 +118,9 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
         ->name('portal.admin.operations.subscription.update');
 
     Route::get('/company', [CompanyPortalController::class, 'dashboard'])
-        ->middleware('portal.access:company')
+        ->middleware(['portal.access:company', 'portal.module', 'plan.module'])
+        ->defaults('portal', 'company')
+        ->defaults('module', 'dashboard')
         ->name('portal.company.dashboard');
 
     Route::post('/company/technicians/{technician}/training', [CompanyPortalController::class, 'updateTechnicianTraining'])
@@ -122,7 +128,7 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
         ->whereNumber('technician')
         ->name('portal.company.technicians.training.update');
 
-    Route::middleware(['portal.access:company', 'plan.module'])
+    Route::middleware(['portal.access:company', 'portal.module', 'plan.module'])
         ->prefix('company/ai')
         ->name('portal.company.ai.')
         ->group(function () {
@@ -143,7 +149,9 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
     });
 
     Route::get('/technician', [TechnicianPortalController::class, 'dashboard'])
-        ->middleware('portal.access:technician')
+        ->middleware(['portal.access:technician', 'portal.module'])
+        ->defaults('portal', 'technician')
+        ->defaults('module', 'dashboard')
         ->name('portal.technician.dashboard');
 
     Route::middleware('portal.access:technician')->prefix('technician')->group(function () {
@@ -180,24 +188,35 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
         Route::post('/tickets/{ticket}/repair-assets', [TechnicianPortalController::class, 'updateRepairAssets'])
             ->name('portal.technician.tickets.repair-assets.update');
 
-        Route::prefix('ai')->name('portal.technician.ai.')->group(function () {
+        Route::prefix('ai')->name('portal.technician.ai.')->middleware('portal.module')->group(function () {
             Route::get('/conversations', [AIAssistantController::class, 'conversations'])
+                ->defaults('portal', 'technician')
+                ->defaults('module', 'ai-assistant')
                 ->name('conversations');
 
             Route::post('/chat', [AIAssistantController::class, 'chat'])
+                ->defaults('portal', 'technician')
+                ->defaults('module', 'ai-assistant')
                 ->name('chat');
 
             Route::get('/conversations/{conversation}/messages', [AIAssistantController::class, 'messages'])
+                ->defaults('portal', 'technician')
+                ->defaults('module', 'ai-assistant')
                 ->name('messages');
         });
     });
 
     Route::get('/customer', [CustomerPortalController::class, 'dashboard'])
-        ->middleware('portal.access:customer')
+        ->middleware(['portal.access:customer', 'portal.module'])
+        ->defaults('portal', 'customer')
+        ->defaults('module', 'dashboard')
         ->name('portal.customer.dashboard');
 
     Route::middleware('portal.access:customer')->prefix('customer')->group(function () {
         Route::get('/tickets', [CustomerPortalController::class, 'tickets'])
+            ->middleware('portal.module')
+            ->defaults('portal', 'customer')
+            ->defaults('module', 'tickets')
             ->name('portal.customer.tickets.index');
 
         Route::get('/tickets/{ticket}', [CustomerPortalController::class, 'showTicket'])
@@ -210,6 +229,9 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
             ->name('portal.customer.quotes.reject');
 
         Route::get('/invoices', [CustomerPortalController::class, 'invoices'])
+            ->middleware('portal.module')
+            ->defaults('portal', 'customer')
+            ->defaults('module', 'invoices')
             ->name('portal.customer.invoices.index');
 
         Route::get('/invoices/{invoice}', [CustomerPortalController::class, 'showInvoice'])
@@ -225,33 +247,40 @@ Route::middleware(['auth', 'tenant'])->prefix('portal')->group(function () {
             ->name('portal.customer.payments.receipt');
 
         Route::get('/marketplace', [CustomerPortalController::class, 'marketplace'])
+            ->middleware('portal.module')
+            ->defaults('portal', 'customer')
+            ->defaults('module', 'marketplace')
             ->name('portal.customer.marketplace');
     });
 
     Route::get('/company/{module}', [PortalController::class, 'companyModuleIndex'])
-        ->middleware('portal.access:company')
+        ->middleware(['portal.access:company', 'portal.module', 'plan.module'])
+        ->defaults('portal', 'company')
         ->where('module', 'customers|tickets|invoices')
         ->name('portal.company.module.index');
 
     Route::get('/company/{module}/create', [PortalController::class, 'companyModuleCreate'])
-        ->middleware('portal.access:company')
+        ->middleware(['portal.access:company', 'portal.module', 'plan.module'])
+        ->defaults('portal', 'company')
         ->where('module', 'customers|tickets|invoices')
         ->name('portal.company.module.create');
 
     Route::get('/company/{module}/{id}', [PortalController::class, 'companyModuleShow'])
-        ->middleware('portal.access:company')
+        ->middleware(['portal.access:company', 'portal.module', 'plan.module'])
+        ->defaults('portal', 'company')
         ->where('module', 'customers|tickets|invoices')
         ->whereNumber('id')
         ->name('portal.company.module.show');
 
     Route::get('/company/{module}/{id}/edit', [PortalController::class, 'companyModuleEdit'])
-        ->middleware('portal.access:company')
+        ->middleware(['portal.access:company', 'portal.module', 'plan.module'])
+        ->defaults('portal', 'company')
         ->where('module', 'customers|tickets|invoices')
         ->whereNumber('id')
         ->name('portal.company.module.edit');
 
     Route::get('/{portal}/{module}', [PortalController::class, 'module'])
-        ->middleware(['portal.access', 'plan.module'])
+        ->middleware(['portal.access', 'portal.module', 'plan.module'])
         ->name('portal.module');
 });
 

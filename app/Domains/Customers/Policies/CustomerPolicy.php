@@ -197,7 +197,7 @@ class CustomerPolicy
     ): bool {
 
         return $user->can(
-            'customers.export'
+            'customers.view'
         );
     }
 

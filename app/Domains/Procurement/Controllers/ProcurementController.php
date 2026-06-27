@@ -20,6 +20,8 @@ class ProcurementController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Procurement::class);
+
         return ProcurementResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class ProcurementController extends Controller
     public function store(
         StoreProcurementRequest $request
     ): ProcurementResource {
+        $this->authorize('create', Procurement::class);
 
         return new ProcurementResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class ProcurementController extends Controller
     public function show(
         Procurement $procurement
     ): ProcurementResource {
+        $this->authorize('view', $procurement);
 
         return new ProcurementResource($procurement);
     }
@@ -45,6 +49,7 @@ class ProcurementController extends Controller
         UpdateProcurementRequest $request,
         Procurement $procurement
     ): ProcurementResource {
+        $this->authorize('update', $procurement);
 
         return new ProcurementResource(
             $this->service->update($procurement, $request->validated())
@@ -54,6 +59,7 @@ class ProcurementController extends Controller
     public function destroy(
         Procurement $procurement
     ): JsonResponse {
+        $this->authorize('delete', $procurement);
 
         $this->service->delete($procurement);
 

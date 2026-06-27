@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domains\Accounting\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Companies\Models\Company;
 
 class Account extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
 
     protected $table = 'accounts';
 
@@ -38,7 +41,7 @@ class Account extends Model
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\Company::class
+            Company::class
         );
     }
 

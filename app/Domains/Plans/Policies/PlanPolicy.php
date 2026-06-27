@@ -64,7 +64,7 @@ class PlanPolicy
         User $user,
         Plan $plan
     ): bool {
-        return $user->can('plans.activate');
+        return $user->can('plans.update');
     }
 
     /**
@@ -74,7 +74,7 @@ class PlanPolicy
         User $user,
         Plan $plan
     ): bool {
-        return $user->can('plans.deactivate');
+        return $user->can('plans.update');
     }
 
     /**
@@ -84,7 +84,7 @@ class PlanPolicy
         User $user,
         Plan $plan
     ): bool {
-        return $user->can('plans.restore');
+        return $user->can('plans.update');
     }
 
     /**
@@ -94,6 +94,6 @@ class PlanPolicy
         User $user,
         Plan $plan
     ): bool {
-        return $user->can('plans.force-delete');
+        return $user->can('plans.delete');
     }
 }

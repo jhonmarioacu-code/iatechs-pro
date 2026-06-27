@@ -51,6 +51,10 @@ Route::prefix('v1')
             'routes/api/v1/billings.php'
         );
 
+        require base_path(
+            'routes/api/v1/accounting.php'
+        );
+
         /*
         |--------------------------------------------------------------------------
         | ERP
@@ -66,6 +70,26 @@ Route::prefix('v1')
         );
 
         require base_path(
+            'routes/api/v1/products.php'
+        );
+
+        require base_path(
+            'routes/api/v1/suppliers.php'
+        );
+
+        require base_path(
+            'routes/api/v1/inventory.php'
+        );
+
+        require base_path(
+            'routes/api/v1/purchase-orders.php'
+        );
+
+        require base_path(
+            'routes/api/v1/goods-receipts.php'
+        );
+
+        require base_path(
             'routes/api/v1/invoices.php'
         );
 
@@ -78,6 +102,10 @@ Route::prefix('v1')
         );
 
         require base_path(
+            'routes/api/v1/warranties.php'
+        );
+
+        require base_path(
             'routes/api/v1/purchases.php'
         );
 
@@ -87,6 +115,30 @@ Route::prefix('v1')
 
         require base_path(
             'routes/api/v1/work-orders.php'
+        );
+
+        require base_path(
+            'routes/api/v1/quotes.php'
+        );
+
+        require base_path(
+            'routes/api/v1/notifications.php'
+        );
+
+        require base_path(
+            'routes/api/v1/reports.php'
+        );
+
+        require base_path(
+            'routes/api/v1/audit-logs.php'
+        );
+
+        require base_path(
+            'routes/api/v1/knowledge-base.php'
+        );
+
+        require base_path(
+            'routes/api/v1/crm.php'
         );
 
         require base_path(

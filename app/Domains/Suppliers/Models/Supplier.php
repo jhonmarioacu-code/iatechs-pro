@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\Suppliers\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Supplier extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
     use SoftDeletes;
 
     protected $fillable = [

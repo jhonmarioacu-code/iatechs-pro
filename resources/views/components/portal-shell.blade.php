@@ -9,58 +9,9 @@
     /** @var \App\Domains\Users\Models\User|null $authUser */
     $authUser = auth()->user();
 
-    $menu = match ($portal) {
-        'admin' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'analytics.view'],
-            ['label' => 'Dashboards', 'slug' => 'dashboards', 'permission' => 'analytics.view'],
-            ['label' => 'Clientes', 'slug' => 'customers', 'permission' => 'customers.view'],
-            ['label' => 'CRM', 'slug' => 'crm', 'permission' => 'crm.view'],
-            ['label' => 'Marketplace', 'slug' => 'marketplace', 'permission' => 'products.view'],
-            ['label' => 'Service Desk', 'slug' => 'service-desk', 'permission' => 'tickets.view'],
-            ['label' => 'Inventory', 'slug' => 'inventory', 'permission' => 'products.view'],
-            ['label' => 'Accounting', 'slug' => 'accounting', 'permission' => 'reports.view'],
-            ['label' => 'Knowledge Base', 'slug' => 'knowledge-base', 'permission' => 'knowledge.view'],
-            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
-            ['label' => 'Reports', 'slug' => 'reports', 'permission' => 'reports.view'],
-            ['label' => 'Observability', 'slug' => 'observability', 'permission' => 'analytics.view'],
-            ['label' => 'Operations', 'slug' => 'operations', 'permission' => 'companies.create'],
-            ['label' => 'Settings', 'slug' => 'settings', 'permission' => 'system-settings.view'],
-        ],
-        'company' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'analytics.view'],
-            ['label' => 'Customers', 'slug' => 'customers', 'permission' => 'customers.view'],
-            ['label' => 'Devices', 'slug' => 'devices', 'permission' => 'devices.view'],
-            ['label' => 'Tickets', 'slug' => 'tickets', 'permission' => 'tickets.view'],
-            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
-            ['label' => 'Products', 'slug' => 'products', 'permission' => 'products.view'],
-            ['label' => 'Invoices', 'slug' => 'invoices', 'permission' => 'invoices.view'],
-            ['label' => 'Payments', 'slug' => 'payments', 'permission' => 'payments.view'],
-            ['label' => 'Analytics', 'slug' => 'analytics', 'permission' => 'analytics.view'],
-            ['label' => 'Settings', 'slug' => 'settings', 'permission' => 'system-settings.view'],
-        ],
-        'technician' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'analytics.view'],
-            ['label' => 'Tickets', 'slug' => 'tickets', 'permission' => 'tickets.view'],
-            ['label' => 'Diagnostics', 'slug' => 'diagnostics', 'permission' => 'diagnostics.view'],
-            ['label' => 'Repairs', 'slug' => 'repairs', 'permission' => 'repairs.view'],
-            ['label' => 'AI Assistant', 'slug' => 'ai-assistant', 'permission' => 'ai.use'],
-            ['label' => 'Work Orders', 'slug' => 'work-orders', 'permission' => 'work-orders.view'],
-            ['label' => 'Assigned Inventory', 'slug' => 'assigned-inventory', 'permission' => 'inventory.view'],
-        ],
-        'customer' => [
-            ['label' => 'Dashboard', 'slug' => 'dashboard', 'permission' => 'customer.portal.view'],
-            ['label' => 'My Tickets', 'slug' => 'tickets', 'permission' => 'customer.portal.tickets.view'],
-            ['label' => 'My Invoices', 'slug' => 'invoices', 'permission' => 'customer.portal.invoices.view'],
-            ['label' => 'Marketplace', 'slug' => 'marketplace', 'permission' => 'customer.portal.marketplace.view'],
-        ],
-        default => [],
-    };
-
-    if ($portal === 'company' && $authUser !== null && !$authUser->hasRole('super_admin')) {
-        $menu = array_values(array_filter($menu, static function (array $item) use ($authUser): bool {
-            return \App\Support\PlanAccess::canUseCompanyModule($authUser, $item['slug']);
-        }));
-    }
+    $menu = $authUser !== null
+        ? \App\Support\PortalMatrix::menuForPortal($authUser, $portal)
+        : [];
 
     $assistantEnabled = $authUser !== null
         && $authUser->can('ai.use')
@@ -69,12 +20,38 @@
     if ($assistantEnabled && $portal === 'company' && $authUser !== null && !$authUser->hasRole('super_admin')) {
         $assistantEnabled = \App\Support\PlanAccess::canUseCompanyModule($authUser, 'ai-assistant');
     }
+
+    $realtimeEnabled = $authUser !== null && $authUser->can('notifications.view');
+    $broadcastConnection = (string) config('broadcasting.default', 'log');
+    $reverbConfig = (array) config('broadcasting.connections.reverb', []);
+    $pusherConfig = (array) config('broadcasting.connections.pusher', []);
+    $reverbOptions = (array) ($reverbConfig['options'] ?? []);
+    $pusherOptions = (array) ($pusherConfig['options'] ?? []);
+    $notificationIndexUrl = route('notifications.index');
+    $notificationReadUrlTemplate = route('notifications.read', ['notification' => '__NOTIFICATION__']);
+    $companyChannel = $authUser !== null ? 'company.'.$authUser->company_id.'.notifications' : '';
+    $userChannel = $authUser !== null ? 'user.'.$authUser->id.'.notifications' : '';
 @endphp
 
 <div
     class="portal-grid"
     data-assistant-enabled="{{ $assistantEnabled ? '1' : '0' }}"
     data-portal-theme="{{ $portal }}"
+    data-realtime-enabled="{{ $realtimeEnabled ? '1' : '0' }}"
+    data-broadcast-connection="{{ $broadcastConnection }}"
+    data-reverb-key="{{ (string) ($reverbConfig['key'] ?? '') }}"
+    data-reverb-host="{{ (string) ($reverbOptions['host'] ?? '') }}"
+    data-reverb-port="{{ (string) ($reverbOptions['port'] ?? '') }}"
+    data-reverb-scheme="{{ (string) ($reverbOptions['scheme'] ?? 'http') }}"
+    data-pusher-key="{{ (string) ($pusherConfig['key'] ?? '') }}"
+    data-pusher-host="{{ (string) ($pusherOptions['host'] ?? '') }}"
+    data-pusher-port="{{ (string) ($pusherOptions['port'] ?? '') }}"
+    data-pusher-scheme="{{ (string) ($pusherOptions['scheme'] ?? '') }}"
+    data-pusher-cluster="{{ (string) ($pusherOptions['cluster'] ?? '') }}"
+    data-notifications-url="{{ $notificationIndexUrl }}"
+    data-notification-read-template="{{ $notificationReadUrlTemplate }}"
+    data-company-channel="{{ $companyChannel }}"
+    data-user-channel="{{ $userChannel }}"
 >
     <x-sidebar :portal="$portal" :menu="$menu" />
 

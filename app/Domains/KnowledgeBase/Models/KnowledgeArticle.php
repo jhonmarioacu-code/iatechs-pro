@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Domains\KnowledgeBase\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Companies\Models\Company;
+use App\Domains\Users\Models\User;
 
 class KnowledgeArticle extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
 
     protected $table = 'knowledge_articles';
 
@@ -46,7 +50,7 @@ class KnowledgeArticle extends Model
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\Company::class
+            Company::class
         );
     }
 
@@ -69,7 +73,7 @@ class KnowledgeArticle extends Model
     public function creator(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\User::class,
+            User::class,
             'created_by'
         );
     }
@@ -77,7 +81,7 @@ class KnowledgeArticle extends Model
     public function updater(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\User::class,
+            User::class,
             'updated_by'
         );
     }

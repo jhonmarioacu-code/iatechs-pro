@@ -20,6 +20,8 @@ class AnalyticController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', Analytic::class);
+
         return AnalyticResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,7 @@ class AnalyticController extends Controller
     public function store(
         StoreAnalyticRequest $request
     ): AnalyticResource {
+        $this->authorize('create', Analytic::class);
 
         return new AnalyticResource(
             $this->service->create($request->validated())
@@ -37,6 +40,7 @@ class AnalyticController extends Controller
     public function show(
         Analytic $analytic
     ): AnalyticResource {
+        $this->authorize('view', $analytic);
 
         return new AnalyticResource($analytic);
     }
@@ -45,6 +49,7 @@ class AnalyticController extends Controller
         UpdateAnalyticRequest $request,
         Analytic $analytic
     ): AnalyticResource {
+        $this->authorize('update', $analytic);
 
         return new AnalyticResource(
             $this->service->update($analytic, $request->validated())
@@ -54,6 +59,7 @@ class AnalyticController extends Controller
     public function destroy(
         Analytic $analytic
     ): JsonResponse {
+        $this->authorize('delete', $analytic);
 
         $this->service->delete($analytic);
 

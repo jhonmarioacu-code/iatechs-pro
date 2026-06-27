@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Domains\Warranties\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Warranty extends Model
 {
+    use BelongsToCompany;
     use HasFactory;
     use SoftDeletes;
 

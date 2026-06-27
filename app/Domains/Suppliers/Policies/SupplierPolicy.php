@@ -68,9 +68,11 @@ class SupplierPolicy
         Supplier $supplier
     ): bool {
 
-        return $user->can(
-            'suppliers.activate'
-        );
+        return
+            $user->can('suppliers.update')
+            &&
+            $user->company_id ===
+            $supplier->company_id;
     }
 
     public function deactivate(
@@ -78,9 +80,11 @@ class SupplierPolicy
         Supplier $supplier
     ): bool {
 
-        return $user->can(
-            'suppliers.deactivate'
-        );
+        return
+            $user->can('suppliers.update')
+            &&
+            $user->company_id ===
+            $supplier->company_id;
     }
 
     public function block(
@@ -88,8 +92,10 @@ class SupplierPolicy
         Supplier $supplier
     ): bool {
 
-        return $user->can(
-            'suppliers.block'
-        );
+        return
+            $user->can('suppliers.update')
+            &&
+            $user->company_id ===
+            $supplier->company_id;
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domains\KnowledgeBase\Policies;
 
-use App\Models\User;
+use App\Domains\Users\Models\User;
 use App\Domains\KnowledgeBase\Models\KnowledgeArticle;
 
 class KnowledgeBasePolicy
@@ -14,7 +14,7 @@ class KnowledgeBasePolicy
     ): bool {
 
         return $user->can(
-            'knowledge-base.view'
+            'knowledge.view'
         );
     }
 
@@ -24,7 +24,7 @@ class KnowledgeBasePolicy
     ): bool {
 
         return $user->can(
-            'knowledge-base.view'
+            'knowledge.view'
         );
     }
 
@@ -33,7 +33,7 @@ class KnowledgeBasePolicy
     ): bool {
 
         return $user->can(
-            'knowledge-base.create'
+            'knowledge.create'
         );
     }
 
@@ -43,7 +43,7 @@ class KnowledgeBasePolicy
     ): bool {
 
         return $user->can(
-            'knowledge-base.update'
+            'knowledge.update'
         );
     }
 
@@ -53,7 +53,7 @@ class KnowledgeBasePolicy
     ): bool {
 
         return $user->can(
-            'knowledge-base.delete'
+            'knowledge.delete'
         );
     }
 
@@ -62,7 +62,7 @@ class KnowledgeBasePolicy
     ): bool {
 
         return $user->can(
-            'knowledge-base.publish'
+            'knowledge.update'
         );
     }
 
@@ -71,7 +71,7 @@ class KnowledgeBasePolicy
     ): bool {
 
         return $user->can(
-            'knowledge-base.archive'
+            'knowledge.update'
         );
     }
 }

@@ -28,6 +28,8 @@ class PlanController extends Controller
      */
     public function index()
     {
+        $this->authorize('viewAny', Plan::class);
+
         return PlanResource::collection(
             $this->service->paginate()
         );
@@ -39,6 +41,7 @@ class PlanController extends Controller
     public function store(
         StorePlanRequest $request
     ): PlanResource {
+        $this->authorize('create', Plan::class);
 
         $plan = $this->service->create(
             $request->validated()
@@ -55,6 +58,7 @@ class PlanController extends Controller
     public function show(
         Plan $plan
     ): PlanResource {
+        $this->authorize('view', $plan);
 
         return new PlanResource(
             $plan
@@ -68,6 +72,7 @@ class PlanController extends Controller
         UpdatePlanRequest $request,
         Plan $plan
     ): PlanResource {
+        $this->authorize('update', $plan);
 
         $plan = $this->service->update(
             $plan,
@@ -85,6 +90,7 @@ class PlanController extends Controller
     public function destroy(
         Plan $plan
     ): JsonResponse {
+        $this->authorize('delete', $plan);
 
         $this->service->delete(
             $plan
@@ -102,6 +108,7 @@ class PlanController extends Controller
     public function activate(
         Plan $plan
     ): PlanResource {
+        $this->authorize('activate', $plan);
 
         return new PlanResource(
             $this->service->activate(
@@ -116,6 +123,7 @@ class PlanController extends Controller
     public function deactivate(
         Plan $plan
     ): PlanResource {
+        $this->authorize('deactivate', $plan);
 
         return new PlanResource(
             $this->service->deactivate(

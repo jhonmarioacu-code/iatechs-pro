@@ -11,7 +11,7 @@ class GoodsReceiptPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->can('goods_receipts.view');
+        return $user->can('goods-receipts.view');
     }
 
     public function view(
@@ -19,22 +19,23 @@ class GoodsReceiptPolicy
         GoodsReceipt $receipt
     ): bool {
 
-        return $user->company_id ===
-            $receipt->company_id;
+        return $user->can('goods-receipts.view')
+            && $user->company_id ===
+                $receipt->company_id;
     }
 
     public function create(User $user): bool
     {
-        return $user->can('goods_receipts.create');
+        return $user->can('goods-receipts.create');
     }
 
     public function update(User $user): bool
     {
-        return $user->can('goods_receipts.update');
+        return $user->can('goods-receipts.update');
     }
 
     public function receive(User $user): bool
     {
-        return $user->can('goods_receipts.receive');
+        return $user->can('goods-receipts.update');
     }
 }

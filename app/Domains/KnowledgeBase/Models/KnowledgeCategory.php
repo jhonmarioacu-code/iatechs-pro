@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domains\KnowledgeBase\Models;
 
+use App\Tenant\Traits\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domains\Companies\Models\Company;
 
 class KnowledgeCategory extends Model
 {
     use HasFactory;
+    use BelongsToCompany;
 
     protected $table = 'knowledge_categories';
 
@@ -36,7 +39,7 @@ class KnowledgeCategory extends Model
     public function company(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(
-            \App\Models\Company::class
+            Company::class
         );
     }
 

@@ -131,6 +131,10 @@ use App\Domains\Compliance\Models\ComplianceRecord;
 use App\Domains\Compliance\Policies\ComplianceRecordPolicy;
 use App\Domains\BusinessIntelligence\Models\BusinessMetric;
 use App\Domains\BusinessIntelligence\Policies\BusinessMetricPolicy;
+use App\Domains\RolesPermissions\Policies\PermissionPolicy;
+use App\Domains\RolesPermissions\Policies\RolePolicy;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -195,6 +199,8 @@ class AuthServiceProvider extends ServiceProvider
         ManagedDocument::class => ManagedDocumentPolicy::class,
         ComplianceRecord::class => ComplianceRecordPolicy::class,
         BusinessMetric::class => BusinessMetricPolicy::class,
+        Permission::class => PermissionPolicy::class,
+        Role::class => RolePolicy::class,
     ];
 
     public function boot(): void

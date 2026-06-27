@@ -19,6 +19,8 @@ class StockTransferController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', StockTransfer::class);
+
         return StockTransferResource::collection(
             $this->service->paginate()
         );
@@ -28,6 +30,8 @@ class StockTransferController extends Controller
         StoreStockTransferRequest $request
     )
     {
+        $this->authorize('create', StockTransfer::class);
+
         return new StockTransferResource(
             $this->service->create(
                 $request->validated()
@@ -39,6 +43,8 @@ class StockTransferController extends Controller
         StockTransfer $stockTransfer
     )
     {
+        $this->authorize('view', $stockTransfer);
+
         return new StockTransferResource(
             $stockTransfer->load([
                 'product',
@@ -55,6 +61,8 @@ class StockTransferController extends Controller
         StockTransfer $stockTransfer
     )
     {
+        $this->authorize('update', $stockTransfer);
+
         $stockTransfer->update(
             $request->validated()
         );
@@ -68,6 +76,8 @@ class StockTransferController extends Controller
         StockTransfer $stockTransfer
     )
     {
+        $this->authorize('approve', $stockTransfer);
+
         return new StockTransferResource(
             $this->service->approve(
                 $stockTransfer,
@@ -80,6 +90,8 @@ class StockTransferController extends Controller
         StockTransfer $stockTransfer
     )
     {
+        $this->authorize('complete', $stockTransfer);
+
         return new StockTransferResource(
             $this->service->complete(
                 $stockTransfer
@@ -91,6 +103,8 @@ class StockTransferController extends Controller
         StockTransfer $stockTransfer
     )
     {
+        $this->authorize('cancel', $stockTransfer);
+
         return new StockTransferResource(
             $this->service->cancel(
                 $stockTransfer

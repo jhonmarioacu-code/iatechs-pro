@@ -23,6 +23,8 @@ class KnowledgeBaseController extends Controller
 
     public function index()
     {
+        $this->authorize('viewAny', KnowledgeArticle::class);
+
         return KnowledgeArticleResource::collection(
             $this->service->paginateArticles()
         );
@@ -32,6 +34,8 @@ class KnowledgeBaseController extends Controller
         StoreKnowledgeArticleRequest $request
     )
     {
+        $this->authorize('create', KnowledgeArticle::class);
+
         $article = $this->service
             ->createArticle(
                 $request->validated()
@@ -46,6 +50,8 @@ class KnowledgeBaseController extends Controller
         KnowledgeArticle $knowledgeArticle
     )
     {
+        $this->authorize('view', $knowledgeArticle);
+
         return new KnowledgeArticleResource(
             $knowledgeArticle
         );
@@ -56,6 +62,8 @@ class KnowledgeBaseController extends Controller
         KnowledgeArticle $knowledgeArticle
     )
     {
+        $this->authorize('update', $knowledgeArticle);
+
         $article = $this->service
             ->updateArticle(
                 $knowledgeArticle,
@@ -71,6 +79,8 @@ class KnowledgeBaseController extends Controller
         KnowledgeArticle $knowledgeArticle
     )
     {
+        $this->authorize('delete', $knowledgeArticle);
+
         $this->service
             ->deleteArticle(
                 $knowledgeArticle
@@ -85,6 +95,8 @@ class KnowledgeBaseController extends Controller
         KnowledgeArticle $knowledgeArticle
     )
     {
+        $this->authorize('publish', $knowledgeArticle);
+
         return new KnowledgeArticleResource(
 
             $this->service
@@ -98,6 +110,8 @@ class KnowledgeBaseController extends Controller
         KnowledgeArticle $knowledgeArticle
     )
     {
+        $this->authorize('archive', $knowledgeArticle);
+
         return new KnowledgeArticleResource(
 
             $this->service
