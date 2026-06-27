@@ -6,6 +6,7 @@ RUN composer install \
     --no-interaction \
     --prefer-dist \
     --optimize-autoloader \
+    --ignore-platform-req=ext-pcntl \
     --no-scripts
 COPY . .
 RUN composer dump-autoload --optimize --classmap-authoritative

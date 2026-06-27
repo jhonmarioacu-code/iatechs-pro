@@ -42,9 +42,8 @@ services:
       - "--web.enable-admin-api"
     ports:
       - "9090:9090"
-    depends_on:
-      app:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - ./docker/observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./docker/observability/prometheus/rules:/etc/prometheus/rules:ro
