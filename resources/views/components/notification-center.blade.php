@@ -1,5 +1,5 @@
-<div class="notification-layer" x-show="notificationsOpen" x-transition.opacity>
-    <div class="notification-overlay" @click="toggleNotifications()"></div>
+<div class="notification-layer" x-show="notificationsOpen" x-transition.opacity x-cloak @keydown.escape.window="$dispatch('portal-close-notifications')">
+    <div class="notification-overlay" @click="$dispatch('portal-close-notifications')"></div>
 
     <aside class="notification-panel" @click.stop>
         <header class="notification-header">
@@ -7,7 +7,7 @@
                 <h3>Notificaciones</h3>
                 <p>Centro en tiempo real por rol y tenant.</p>
             </div>
-            <button type="button" class="icon-button" @click="toggleNotifications()" aria-label="Cerrar notificaciones">
+            <button type="button" class="icon-button" @click="$dispatch('portal-close-notifications')" aria-label="Cerrar notificaciones">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M6 6l12 12M18 6 6 18" />
                 </svg>

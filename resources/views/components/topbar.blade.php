@@ -46,7 +46,7 @@
             <span class="theme-toggle-text" x-text="darkMode ? 'DK' : 'LG'"></span>
         </button>
 
-        <button class="icon-button notification-toggle" type="button" @click="toggleNotifications()" aria-label="Notificaciones">
+        <button class="icon-button notification-toggle" type="button" @click="$dispatch('portal-toggle-notifications')" aria-label="Notificaciones">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M6 10a6 6 0 0 1 12 0v5l2 2H4l2-2v-5Z" />
                 <path d="M10 19a2 2 0 0 0 4 0" />
@@ -54,7 +54,7 @@
             <span class="notification-badge" x-show="unreadNotificationsCount > 0" x-text="unreadNotificationsCount"></span>
         </button>
 
-        <button class="icon-button" type="button" @click="toggleAssistant()" aria-label="IA Assistant">
+        <button class="icon-button" type="button" @click="$dispatch('portal-toggle-assistant')" aria-label="IA Assistant">
             <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 3 9.8 8.8 4 11l5.8 2.2L12 19l2.2-5.8L20 11l-5.8-2.2L12 3Z" />
             </svg>

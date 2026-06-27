@@ -35,6 +35,10 @@
 
 <div
     class="portal-grid"
+    @portal-toggle-notifications.window="toggleNotifications()"
+    @portal-close-notifications.window="notificationsOpen = false"
+    @portal-toggle-assistant.window="toggleAssistantPanel()"
+    @portal-close-assistant.window="assistantPanelOpen = false"
     data-assistant-enabled="{{ $assistantEnabled ? '1' : '0' }}"
     data-portal-theme="{{ $portal }}"
     data-realtime-enabled="{{ $realtimeEnabled ? '1' : '0' }}"
