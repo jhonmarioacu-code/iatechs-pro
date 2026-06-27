@@ -209,14 +209,36 @@ jobs:
             set_env_value() {
               local key="$1"
               local value="$2"
-              local escaped
-              escaped="$(printf '%s' "$value" | sed -e 's/[\/&]/\\&/g')"
+              local normalized tmp_file
+              normalized="$(printf '%s' "$value" | tr -d '\r\n')"
+              tmp_file="$(mktemp "${TMPDIR:-/tmp}/iatechs-env.${key}.XXXXXX")"
 
-              if grep -qE "^${key}=" .env; then
-                sed -i "s/^${key}=.*/${key}=${escaped}/" .env
-              else
-                printf '%s=%s\n' "$key" "$value" >> .env
-              fi
+              awk -v k="$key" -v v="$normalized" '
+                BEGIN { updated = 0 }
+                $0 ~ ("^" k "=") {
+                  if (updated == 0) {
+                    print k "=" v
+                    updated = 1
+                  }
+                  next
+                }
+                { print }
+                END {
+                  if (updated == 0) {
+                    print k "=" v
+                  }
+                }
+              ' .env > "$tmp_file"
+
+              cat "$tmp_file" > .env
+              rm -f "$tmp_file"
+            }
+
+            set_env_value_logged() {
+              local key="$1"
+              local value="$2"
+              echo "[deploy] Setting .env key: ${key}"
+              set_env_value "$key" "$value"
             }
 
             cd "$DEPLOY_PATH"
@@ -275,25 +297,25 @@ jobs:
               umask 022
 
               echo "[deploy] Updating observability keys in .env"
-              set_env_value OBS_EXPORTER_ENABLED true
-              set_env_value OBS_EXPORTER_TOKEN "$OBS_EXPORTER_TOKEN_SECRET"
-              set_env_value OBS_EXPORTER_TOKEN_FILE "./docker/observability/secrets/obs_exporter_token"
-              set_env_value OBS_ALERTS_ENABLED true
-              set_env_value OBS_ALERTS_SLACK_ENABLED true
-              set_env_value OBS_ALERTS_SLACK_WEBHOOK_URL "$OBS_ALERTS_SLACK_WEBHOOK_SECRET"
-              set_env_value OBS_ALERTS_SLACK_WEBHOOK_FILE "./docker/observability/secrets/slack_webhook_url"
+              set_env_value_logged OBS_EXPORTER_ENABLED true
+              set_env_value_logged OBS_EXPORTER_TOKEN "$OBS_EXPORTER_TOKEN_SECRET"
+              set_env_value_logged OBS_EXPORTER_TOKEN_FILE "./docker/observability/secrets/obs_exporter_token"
+              set_env_value_logged OBS_ALERTS_ENABLED true
+              set_env_value_logged OBS_ALERTS_SLACK_ENABLED true
+              set_env_value_logged OBS_ALERTS_SLACK_WEBHOOK_URL "$OBS_ALERTS_SLACK_WEBHOOK_SECRET"
+              set_env_value_logged OBS_ALERTS_SLACK_WEBHOOK_FILE "./docker/observability/secrets/slack_webhook_url"
 
               if [ -n "$OBS_EXPORTER_ALLOWED_IPS_SECRET" ]; then
-                set_env_value OBS_EXPORTER_ALLOWED_IPS "$OBS_EXPORTER_ALLOWED_IPS_SECRET"
+                set_env_value_logged OBS_EXPORTER_ALLOWED_IPS "$OBS_EXPORTER_ALLOWED_IPS_SECRET"
               fi
               if [ -n "$PROMETHEUS_RETENTION_TIME_SECRET" ]; then
-                set_env_value PROMETHEUS_RETENTION_TIME "$PROMETHEUS_RETENTION_TIME_SECRET"
+                set_env_value_logged PROMETHEUS_RETENTION_TIME "$PROMETHEUS_RETENTION_TIME_SECRET"
               fi
               if [ -n "$GRAFANA_ADMIN_USER_SECRET" ]; then
-                set_env_value GRAFANA_ADMIN_USER "$GRAFANA_ADMIN_USER_SECRET"
+                set_env_value_logged GRAFANA_ADMIN_USER "$GRAFANA_ADMIN_USER_SECRET"
               fi
               if [ -n "$GRAFANA_ADMIN_PASSWORD_SECRET" ]; then
-                set_env_value GRAFANA_ADMIN_PASSWORD "$GRAFANA_ADMIN_PASSWORD_SECRET"
+                set_env_value_logged GRAFANA_ADMIN_PASSWORD "$GRAFANA_ADMIN_PASSWORD_SECRET"
               fi
 
               if run_docker_compose --profile observability pull prometheus alertmanager grafana; then
