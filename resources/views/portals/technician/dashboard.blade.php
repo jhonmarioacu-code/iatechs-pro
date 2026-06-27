@@ -4,28 +4,28 @@
     <section class="surface-card" x-data="{ mode: 'assigned' }">
         <header class="surface-header">
             <h2>Panel tecnico de ejecucion</h2>
-            <div class="crud-actions">
-                <button class="btn btn-secondary" type="button" @click="mode = 'assigned'">Asignados</button>
-                <button class="btn btn-secondary" type="button" @click="mode = 'available'">Disponibles</button>
-                <button class="btn btn-secondary" type="button" @click="mode = 'repair'">Reparacion</button>
+            <div class="panel-tabs" role="tablist" aria-label="Resumen tecnico">
+                <button class="panel-tab" :class="{ 'is-active': mode === 'assigned' }" type="button" @click="mode = 'assigned'">Asignados</button>
+                <button class="panel-tab" :class="{ 'is-active': mode === 'available' }" type="button" @click="mode = 'available'">Disponibles</button>
+                <button class="panel-tab" :class="{ 'is-active': mode === 'repair' }" type="button" @click="mode = 'repair'">Reparacion</button>
             </div>
         </header>
 
-        <div x-show="mode === 'assigned'" class="tag-grid">
+        <div x-show="mode === 'assigned'" class="tag-grid" x-cloak>
             <span>Tickets asignados: {{ $assignedTickets->count() }}</span>
             <span>Pendiente diagnostico: {{ $assignedTickets->where('status', 'PENDING_DIAGNOSIS')->count() }}</span>
             <span>En progreso: {{ $assignedTickets->where('status', 'IN_PROGRESS')->count() }}</span>
             <span>Esperando cliente: {{ $assignedTickets->where('status', 'AWAITING_CUSTOMER_APPROVAL')->count() }}</span>
         </div>
 
-        <div x-show="mode === 'available'" class="tag-grid">
+        <div x-show="mode === 'available'" class="tag-grid" x-cloak>
             <span>Abiertos sin tecnico: {{ $availableTickets->count() }}</span>
             <span>Prioridad alta: {{ $availableTickets->where('priority', 'HIGH')->count() }}</span>
             <span>Prioridad media: {{ $availableTickets->where('priority', 'MEDIUM')->count() }}</span>
             <span>Prioridad baja: {{ $availableTickets->where('priority', 'LOW')->count() }}</span>
         </div>
 
-        <div x-show="mode === 'repair'" class="tag-grid">
+        <div x-show="mode === 'repair'" class="tag-grid" x-cloak>
             <span>Equipos en reparacion: {{ $repairingTickets->count() }}</span>
             <span>Con manual: {{ $repairingTickets->filter(fn ($t) => (bool) $t->device?->manual_url)->count() }}</span>
             <span>Con diagrama: {{ $repairingTickets->filter(fn ($t) => (bool) $t->device?->diagram_url)->count() }}</span>

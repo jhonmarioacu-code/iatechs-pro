@@ -19,28 +19,28 @@
     <section class="surface-card" x-data="{ panel: 'branches' }">
         <header class="surface-header">
             <h2>Centro operativo de empresa</h2>
-            <div class="crud-actions">
-                <button class="btn btn-secondary" type="button" @click="panel = 'branches'">Sucursales</button>
-                <button class="btn btn-secondary" type="button" @click="panel = 'tickets'">Tickets</button>
-                <button class="btn btn-secondary" type="button" @click="panel = 'team'">Personal</button>
+            <div class="panel-tabs" role="tablist" aria-label="Resumen empresa">
+                <button class="panel-tab" :class="{ 'is-active': panel === 'branches' }" type="button" @click="panel = 'branches'">Sucursales</button>
+                <button class="panel-tab" :class="{ 'is-active': panel === 'tickets' }" type="button" @click="panel = 'tickets'">Tickets</button>
+                <button class="panel-tab" :class="{ 'is-active': panel === 'team' }" type="button" @click="panel = 'team'">Personal</button>
             </div>
         </header>
 
-        <div x-show="panel === 'branches'" class="tag-grid">
+        <div x-show="panel === 'branches'" class="tag-grid" x-cloak>
             <span>Total sucursales: {{ $branches->count() }}</span>
             <span>Sucursales activas: {{ $branches->where('is_active', true)->count() }}</span>
             <span>Tecnicos: {{ $technicians->count() }}</span>
             <span>Usuarios empresa: {{ $personnel->count() }}</span>
         </div>
 
-        <div x-show="panel === 'tickets'" class="tag-grid">
+        <div x-show="panel === 'tickets'" class="tag-grid" x-cloak>
             <span>Aprobada: {{ $approvedTickets->count() }}</span>
             <span>Pendiente: {{ $pendingTickets->count() }}</span>
             <span>Finalizada: {{ $finalizedTickets->count() }}</span>
             <span>No Concretada: {{ $notCompletedTickets->count() }}</span>
         </div>
 
-        <div x-show="panel === 'team'" class="tag-grid">
+        <div x-show="panel === 'team'" class="tag-grid" x-cloak>
             <span>Staff activo: {{ $personnel->where('is_active', true)->count() }}</span>
             <span>Staff inactivo: {{ $personnel->where('is_active', false)->count() }}</span>
             <span>Con sucursal asignada: {{ $personnel->whereNotNull('branch_id')->count() }}</span>
@@ -109,7 +109,7 @@
 
                     <button type="submit" class="btn btn-primary">Actualizar acceso formativo</button>
                 </form>
-                <hr>
+                <div class="surface-divider"></div>
             @empty
                 <p class="module-copy">No hay tecnicos para habilitar cursos/examenes.</p>
             @endforelse

@@ -11,14 +11,14 @@
 @extends($layout)
 
 @section('portal-content')
-    <section class="surface-card">
+    <section class="surface-card surface-stack">
         <header class="surface-header">
             <h2>{{ $moduleLabel }}</h2>
         </header>
 
         @if ($portal === 'admin' && $module === 'dashboards' && isset($moduleData['stats']))
             <p class="module-copy">Vista maestra consolidada para Super Admin.</p>
-            <div class="tag-grid">
+            <div class="pill-list">
                 @foreach ($moduleData['stats'] as $stat)
                     <span>{{ $stat['label'] }}: {{ $stat['value'] }}</span>
                 @endforeach
@@ -57,13 +57,13 @@
             </div>
         @elseif ($portal === 'admin' && $module === 'crm' && isset($moduleData['stats']))
             <p class="module-copy">Resumen global de CRM y pipeline comercial.</p>
-            <div class="tag-grid">
+            <div class="pill-list">
                 @foreach ($moduleData['stats'] as $stat)
                     <span>{{ $stat['label'] }}: {{ $stat['value'] }}</span>
                 @endforeach
             </div>
 
-            <div class="surface-grid" style="margin-top: 16px;">
+            <div class="surface-grid">
                 <section class="surface-card">
                     <header class="surface-header"><h3>Leads recientes</h3></header>
                     <ul class="surface-list">
@@ -113,14 +113,14 @@
         @elseif (isset($moduleData['stats']) || isset($moduleData['links']))
             <p class="module-copy">Modulo habilitado para operacion. Estado listo para uso en flujo de produccion.</p>
             @if (isset($moduleData['stats']))
-                <div class="tag-grid">
+                <div class="pill-list">
                     @foreach ($moduleData['stats'] as $stat)
                         <span>{{ $stat['label'] }}: {{ $stat['value'] }}</span>
                     @endforeach
                 </div>
             @endif
             @if (isset($moduleData['links']))
-                <div class="crud-actions" style="margin-top: 14px;">
+                <div class="crud-actions">
                     @foreach ($moduleData['links'] as $link)
                         <a class="btn btn-secondary" href="{{ $link['href'] }}">{{ $link['label'] }}</a>
                     @endforeach

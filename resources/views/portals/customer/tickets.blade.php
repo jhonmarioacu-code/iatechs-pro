@@ -40,6 +40,8 @@
             </table>
         </div>
 
-        {{ $tickets->links() }}
+        <div class="pagination-shell">
+            {{ $tickets->links() }}
+        </div>
     </section>
 @endsection

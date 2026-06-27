@@ -34,7 +34,9 @@
                 </tbody>
             </table>
         </div>
-        {{ $products->links() }}
+        <div class="pagination-shell">
+            {{ $products->links() }}
+        </div>
     </section>
 
     <section class="surface-card">

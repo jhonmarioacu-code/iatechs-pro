@@ -16,7 +16,7 @@
         @endif
 
         @if ($errors->any())
-            <div class="crud-feedback">
+            <div class="crud-feedback error">
                 <strong>Corrige los siguientes errores:</strong>
                 <ul>
                     @foreach ($errors->all() as $error)
@@ -46,23 +46,33 @@
             Serial: <strong>{{ $ticket->device?->serial_number ?? 'N/A' }}</strong>
         </p>
 
-        <form method="POST" action="{{ route('portal.technician.tickets.repair-assets.update', $ticket) }}">
+        <form method="POST" action="{{ route('portal.technician.tickets.repair-assets.update', $ticket) }}" class="crud-form">
             @csrf
-            <label for="manual_url">URL Manual tecnico</label>
-            <input id="manual_url" type="url" name="manual_url" value="{{ old('manual_url', $ticket->device?->manual_url) }}">
+            <div class="crud-grid">
+                <label class="crud-field" for="manual_url">
+                    <span class="crud-label">URL manual tecnico</span>
+                    <input id="manual_url" class="crud-input" type="url" name="manual_url" value="{{ old('manual_url', $ticket->device?->manual_url) }}">
+                </label>
 
-            <label for="diagram_url">URL Diagrama</label>
-            <input id="diagram_url" type="url" name="diagram_url" value="{{ old('diagram_url', $ticket->device?->diagram_url) }}">
+                <label class="crud-field" for="diagram_url">
+                    <span class="crud-label">URL diagrama</span>
+                    <input id="diagram_url" class="crud-input" type="url" name="diagram_url" value="{{ old('diagram_url', $ticket->device?->diagram_url) }}">
+                </label>
 
-            <label for="boardview_url">URL Boardview</label>
-            <input id="boardview_url" type="url" name="boardview_url" value="{{ old('boardview_url', $ticket->device?->boardview_url) }}">
+                <label class="crud-field" for="boardview_url">
+                    <span class="crud-label">URL boardview</span>
+                    <input id="boardview_url" class="crud-input" type="url" name="boardview_url" value="{{ old('boardview_url', $ticket->device?->boardview_url) }}">
+                </label>
+            </div>
 
             <label class="crud-checkbox">
                 <input type="checkbox" name="boardview_enabled" value="1" @checked((bool) old('boardview_enabled', $ticket->device?->boardview_enabled))>
                 Habilitar boardview para este equipo reparado
             </label>
 
-            <button class="btn btn-primary" type="submit">Guardar documentacion tecnica</button>
+            <div class="crud-actions">
+                <button class="btn btn-primary" type="submit">Guardar documentacion tecnica</button>
+            </div>
         </form>
 
         <p class="module-copy">
@@ -99,11 +109,15 @@
         </header>
 
         @if (!$diagnostic)
-            <form method="POST" action="{{ route('portal.technician.tickets.diagnostics.store', $ticket) }}">
+            <form method="POST" action="{{ route('portal.technician.tickets.diagnostics.store', $ticket) }}" class="crud-form">
                 @csrf
-                <label for="reported_problem">Detalle tecnico inicial</label>
-                <textarea id="reported_problem" name="reported_problem" rows="4">{{ old('reported_problem', $ticket->reported_problem) }}</textarea>
-                <button class="btn btn-primary" type="submit">Crear diagnostico</button>
+                <label class="crud-field" for="reported_problem">
+                    <span class="crud-label">Detalle tecnico inicial</span>
+                    <textarea id="reported_problem" class="crud-input" name="reported_problem" rows="4">{{ old('reported_problem', $ticket->reported_problem) }}</textarea>
+                </label>
+                <div class="crud-actions">
+                    <button class="btn btn-primary" type="submit">Crear diagnostico</button>
+                </div>
             </form>
         @else
             <p class="module-copy">
@@ -119,21 +133,33 @@
             @endif
 
             @if ($diagnostic->status === 'IN_PROGRESS')
-                <form method="POST" action="{{ route('portal.technician.diagnostics.complete', $diagnostic) }}">
+                <form method="POST" action="{{ route('portal.technician.diagnostics.complete', $diagnostic) }}" class="crud-form">
                     @csrf
-                    <label for="diagnostic_result">Resultado diagnostico</label>
-                    <textarea id="diagnostic_result" name="diagnostic_result" rows="3">{{ old('diagnostic_result') }}</textarea>
+                    <div class="crud-grid">
+                        <label class="crud-field" for="diagnostic_result">
+                            <span class="crud-label">Resultado diagnostico</span>
+                            <textarea id="diagnostic_result" class="crud-input" name="diagnostic_result" rows="3">{{ old('diagnostic_result') }}</textarea>
+                        </label>
 
-                    <label for="recommended_solution">Solucion recomendada</label>
-                    <textarea id="recommended_solution" name="recommended_solution" rows="3">{{ old('recommended_solution') }}</textarea>
+                        <label class="crud-field" for="recommended_solution">
+                            <span class="crud-label">Solucion recomendada</span>
+                            <textarea id="recommended_solution" class="crud-input" name="recommended_solution" rows="3">{{ old('recommended_solution') }}</textarea>
+                        </label>
 
-                    <label for="estimated_cost">Costo estimado</label>
-                    <input id="estimated_cost" type="number" step="0.01" min="0" name="estimated_cost" value="{{ old('estimated_cost', 0) }}">
+                        <label class="crud-field" for="estimated_cost">
+                            <span class="crud-label">Costo estimado</span>
+                            <input id="estimated_cost" class="crud-input" type="number" step="0.01" min="0" name="estimated_cost" value="{{ old('estimated_cost', 0) }}">
+                        </label>
 
-                    <label for="estimated_hours">Horas estimadas</label>
-                    <input id="estimated_hours" type="number" min="0" name="estimated_hours" value="{{ old('estimated_hours', 0) }}">
+                        <label class="crud-field" for="estimated_hours">
+                            <span class="crud-label">Horas estimadas</span>
+                            <input id="estimated_hours" class="crud-input" type="number" min="0" name="estimated_hours" value="{{ old('estimated_hours', 0) }}">
+                        </label>
+                    </div>
 
-                    <button class="btn btn-primary" type="submit">Completar diagnostico</button>
+                    <div class="crud-actions">
+                        <button class="btn btn-primary" type="submit">Completar diagnostico</button>
+                    </div>
                 </form>
             @endif
         @endif
@@ -149,22 +175,34 @@
                 Estado actual:
                 <strong>{{ $pendingQuote?->status ?? 'SIN COTIZACION' }}</strong>
             </p>
-            <form method="POST" action="{{ route('portal.technician.tickets.quotes.submit', $ticket) }}">
+            <form method="POST" action="{{ route('portal.technician.tickets.quotes.submit', $ticket) }}" class="crud-form">
                 @csrf
-                <label for="subtotal">Subtotal cotizacion</label>
-                <input id="subtotal" type="number" step="0.01" min="0" name="subtotal" value="{{ old('subtotal', $pendingQuote?->subtotal ?? $diagnostic->estimated_cost ?? 0) }}" required>
+                <div class="crud-grid">
+                    <label class="crud-field" for="subtotal">
+                        <span class="crud-label">Subtotal cotizacion</span>
+                        <input id="subtotal" class="crud-input" type="number" step="0.01" min="0" name="subtotal" value="{{ old('subtotal', $pendingQuote?->subtotal ?? $diagnostic->estimated_cost ?? 0) }}" required>
+                    </label>
 
-                <label for="tax">Impuesto</label>
-                <input id="tax" type="number" step="0.01" min="0" name="tax" value="{{ old('tax', $pendingQuote?->tax ?? 0) }}">
+                    <label class="crud-field" for="tax">
+                        <span class="crud-label">Impuesto</span>
+                        <input id="tax" class="crud-input" type="number" step="0.01" min="0" name="tax" value="{{ old('tax', $pendingQuote?->tax ?? 0) }}">
+                    </label>
 
-                <label for="discount">Descuento</label>
-                <input id="discount" type="number" step="0.01" min="0" name="discount" value="{{ old('discount', $pendingQuote?->discount ?? 0) }}">
+                    <label class="crud-field" for="discount">
+                        <span class="crud-label">Descuento</span>
+                        <input id="discount" class="crud-input" type="number" step="0.01" min="0" name="discount" value="{{ old('discount', $pendingQuote?->discount ?? 0) }}">
+                    </label>
 
-                <label for="expires_at">Vigencia</label>
-                <input id="expires_at" type="date" name="expires_at" value="{{ old('expires_at', optional($pendingQuote?->expires_at)->toDateString()) }}">
+                    <label class="crud-field" for="expires_at">
+                        <span class="crud-label">Vigencia</span>
+                        <input id="expires_at" class="crud-input" type="date" name="expires_at" value="{{ old('expires_at', optional($pendingQuote?->expires_at)->toDateString()) }}">
+                    </label>
 
-                <label for="notes">Notas para cliente</label>
-                <textarea id="notes" name="notes" rows="3">{{ old('notes', $pendingQuote?->notes) }}</textarea>
+                    <label class="crud-field" for="notes">
+                        <span class="crud-label">Notas para cliente</span>
+                        <textarea id="notes" class="crud-input" name="notes" rows="3">{{ old('notes', $pendingQuote?->notes) }}</textarea>
+                    </label>
+                </div>
 
                 <p class="module-copy"><strong>Canales de notificacion</strong></p>
                 <label class="crud-checkbox">
@@ -180,7 +218,9 @@
                     WhatsApp
                 </label>
 
-                <button class="btn btn-primary" type="submit">Enviar cotizacion a cliente</button>
+                <div class="crud-actions">
+                    <button class="btn btn-primary" type="submit">Enviar cotizacion a cliente</button>
+                </div>
             </form>
         @else
             <p class="module-copy">Completa el diagnostico para habilitar la cotizacion.</p>
@@ -193,28 +233,40 @@
         </header>
 
         @if (!$repair)
-            <form method="POST" action="{{ route('portal.technician.tickets.repairs.store', $ticket) }}">
+            <form method="POST" action="{{ route('portal.technician.tickets.repairs.store', $ticket) }}" class="crud-form">
                 @csrf
-                <label for="quote_id">Cotizacion aprobada</label>
-                <select id="quote_id" name="quote_id" required>
-                    <option value="">Seleccionar cotizacion</option>
-                    @foreach ($approvedQuotes as $quote)
-                        <option value="{{ $quote->id }}" @selected((int) old('quote_id') === $quote->id)>
-                            {{ $quote->quote_number }} ({{ $quote->status }})
-                        </option>
-                    @endforeach
-                </select>
+                <div class="crud-grid">
+                    <label class="crud-field" for="quote_id">
+                        <span class="crud-label">Cotizacion aprobada</span>
+                        <select id="quote_id" class="crud-input" name="quote_id" required>
+                            <option value="">Seleccionar cotizacion</option>
+                            @foreach ($approvedQuotes as $quote)
+                                <option value="{{ $quote->id }}" @selected((int) old('quote_id') === $quote->id)>
+                                    {{ $quote->quote_number }} ({{ $quote->status }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </label>
 
-                <label for="repair_notes">Notas de reparacion</label>
-                <textarea id="repair_notes" name="repair_notes" rows="3">{{ old('repair_notes') }}</textarea>
+                    <label class="crud-field" for="repair_notes">
+                        <span class="crud-label">Notas de reparacion</span>
+                        <textarea id="repair_notes" class="crud-input" name="repair_notes" rows="3">{{ old('repair_notes') }}</textarea>
+                    </label>
 
-                <label for="labor_cost">Costo mano de obra</label>
-                <input id="labor_cost" type="number" step="0.01" min="0" name="labor_cost" value="{{ old('labor_cost', 0) }}">
+                    <label class="crud-field" for="labor_cost">
+                        <span class="crud-label">Costo mano de obra</span>
+                        <input id="labor_cost" class="crud-input" type="number" step="0.01" min="0" name="labor_cost" value="{{ old('labor_cost', 0) }}">
+                    </label>
 
-                <label for="parts_cost">Costo repuestos</label>
-                <input id="parts_cost" type="number" step="0.01" min="0" name="parts_cost" value="{{ old('parts_cost', 0) }}">
+                    <label class="crud-field" for="parts_cost">
+                        <span class="crud-label">Costo repuestos</span>
+                        <input id="parts_cost" class="crud-input" type="number" step="0.01" min="0" name="parts_cost" value="{{ old('parts_cost', 0) }}">
+                    </label>
+                </div>
 
-                <button class="btn btn-primary" type="submit">Crear reparacion</button>
+                <div class="crud-actions">
+                    <button class="btn btn-primary" type="submit">Crear reparacion</button>
+                </div>
             </form>
         @else
             <p class="module-copy">

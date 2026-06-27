@@ -10,28 +10,28 @@
     <section class="surface-card" x-data="{ area: 'tracking' }">
         <header class="surface-header">
             <h2>Experiencia de cliente</h2>
-            <div class="crud-actions">
-                <button class="btn btn-secondary" type="button" @click="area = 'tracking'">Seguimiento</button>
-                <button class="btn btn-secondary" type="button" @click="area = 'billing'">Facturacion</button>
-                <button class="btn btn-secondary" type="button" @click="area = 'market'">Marketplace</button>
+            <div class="panel-tabs" role="tablist" aria-label="Resumen cliente">
+                <button class="panel-tab" :class="{ 'is-active': area === 'tracking' }" type="button" @click="area = 'tracking'">Seguimiento</button>
+                <button class="panel-tab" :class="{ 'is-active': area === 'billing' }" type="button" @click="area = 'billing'">Facturacion</button>
+                <button class="panel-tab" :class="{ 'is-active': area === 'market' }" type="button" @click="area = 'market'">Marketplace</button>
             </div>
         </header>
 
-        <div x-show="area === 'tracking'" class="tag-grid">
+        <div x-show="area === 'tracking'" class="tag-grid" x-cloak>
             <span>Tickets abiertos: {{ $latestTickets->whereNotIn('status', ['CLOSED', 'DELIVERED'])->count() }}</span>
             <span>Tickets cerrados: {{ $latestTickets->whereIn('status', ['CLOSED', 'DELIVERED'])->count() }}</span>
             <span>Equipos en reparacion: {{ $latestTickets->where('status', 'IN_REPAIR')->count() }}</span>
             <span>Sin tecnico: {{ $latestTickets->whereNull('technician_id')->count() }}</span>
         </div>
 
-        <div x-show="area === 'billing'" class="tag-grid">
+        <div x-show="area === 'billing'" class="tag-grid" x-cloak>
             <span>Facturas pendientes: {{ $pendingInvoicesCount }}</span>
             <span>Pagos realizados: {{ $paidInvoicesCount }}</span>
             <span>Pendiente por pagar: {{ number_format((float) $pendingInvoicesAmount, 2) }}</span>
             <span>Pagado historico: {{ number_format((float) $paidInvoicesAmount, 2) }}</span>
         </div>
 
-        <div x-show="area === 'market'" class="tag-grid">
+        <div x-show="area === 'market'" class="tag-grid" x-cloak>
             <span>Productos disponibles: {{ $marketplaceProducts->count() }}</span>
             <span>Servicios disponibles: {{ $marketplaceServices->count() }}</span>
             <span>Productos destacados: {{ $marketplaceProducts->take(4)->count() }}</span>
