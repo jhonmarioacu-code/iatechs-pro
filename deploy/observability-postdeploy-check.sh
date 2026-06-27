@@ -108,10 +108,32 @@ check_prometheus_stack() {
     log "Checking Prometheus health"
     curl_json_ok "http://127.0.0.1:9090/-/healthy" || fail "Prometheus health endpoint failed."
 
-    local targetsPayload
-    targetsPayload="$(curl -fsS "http://127.0.0.1:9090/api/v1/targets")" || fail "Prometheus targets endpoint failed."
-    grep -q '"job":"iatechs_app"' <<<"$targetsPayload" || fail "Prometheus target iatechs_app not found."
-    grep -q '"health":"up"' <<<"$targetsPayload" || fail "Prometheus target iatechs_app is not healthy."
+    local targetsPayload queryPayload attempt maxAttempts sleepSeconds
+    maxAttempts=24
+    sleepSeconds=5
+
+    for attempt in $(seq 1 "$maxAttempts"); do
+        targetsPayload="$(curl -fsS "http://127.0.0.1:9090/api/v1/targets" || true)"
+        if grep -q '"job":"iatechs_app"' <<<"$targetsPayload" && grep -q '"health":"up"' <<<"$targetsPayload"; then
+            log "Prometheus target iatechs_app is healthy (targets API)"
+            break
+        fi
+
+        queryPayload="$(curl -fsS -G --data-urlencode 'query=up{job="iatechs_app"}' "http://127.0.0.1:9090/api/v1/query" || true)"
+        if grep -q '"job":"iatechs_app"' <<<"$queryPayload" && grep -Eq '"value":\[[^]]*,"1"\]' <<<"$queryPayload"; then
+            log "Prometheus target iatechs_app is healthy (query API)"
+            break
+        fi
+
+        if [[ "$attempt" -eq "$maxAttempts" ]]; then
+            local targetsSnippet
+            targetsSnippet="$(printf '%s' "$targetsPayload" | tr '\n' ' ' | cut -c1-500)"
+            fail "Prometheus target iatechs_app is not healthy after ${maxAttempts} attempts. Last targets snippet: ${targetsSnippet}"
+        fi
+
+        log "Prometheus target iatechs_app not healthy yet (attempt ${attempt}/${maxAttempts}), waiting ${sleepSeconds}s"
+        sleep "$sleepSeconds"
+    done
 
     log "Checking Alertmanager health"
     curl_json_ok "http://127.0.0.1:9093/-/healthy" || fail "Alertmanager health endpoint failed."
