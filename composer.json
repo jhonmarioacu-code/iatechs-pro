@@ -83,6 +83,23 @@
             "@audit:architecture",
             "@gate:release"
         ],
+        "qa:backend": [
+            "composer validate --strict",
+            "@analyse",
+            "@test",
+            "composer audit --locked",
+            "@test:arch",
+            "@audit:architecture",
+            "@gate:release"
+        ],
+        "qa:frontend": [
+            "npm run build",
+            "npm audit --omit=dev --audit-level=high"
+        ],
+        "qa:fullstack": [
+            "@qa:backend",
+            "@qa:frontend"
+        ],
         "test:coverage": "pest --coverage --min=80"
     },
     "extra": {
