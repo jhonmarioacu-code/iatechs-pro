@@ -9,6 +9,7 @@ This workspace bootstraps the V2 target architecture:
 - Messaging foundation: RabbitMQ
 - Infra foundation: Docker, Kubernetes, Terraform
 - CRM vertical slice (backend + frontend) on top of IAM core
+- Repairs vertical slice (backend + frontend) integrated with CRM and audit
 
 ## Quick start (local)
 
@@ -18,7 +19,9 @@ This workspace bootstraps the V2 target architecture:
    - `pnpm install`
 3. Prepare API data model:
    - `pnpm --filter @iatechs/api prisma:generate`
+   - `pnpm --filter @iatechs/api prisma:migrate --name init_phase_a1_auth`
    - `pnpm --filter @iatechs/api prisma:migrate --name add_crm_core`
+   - `pnpm --filter @iatechs/api prisma:migrate --name add_repairs_core`
    - `pnpm --filter @iatechs/api prisma:seed`
 4. Start API:
    - `pnpm --filter @iatechs/api dev`
@@ -38,3 +41,6 @@ This workspace bootstraps the V2 target architecture:
 - Phase B.1: CRM leads vertical slice in progress:
   - API: `GET/POST/PATCH /api/v1/crm/leads*`
   - Web: `/auth/login`, `/portal/admin`, `/portal/admin/crm/leads`
+- Phase B.2: Repairs orders vertical slice in progress:
+  - API: `GET/POST/PATCH /api/v1/repairs/orders*`
+  - Web: `/portal/admin/repairs`

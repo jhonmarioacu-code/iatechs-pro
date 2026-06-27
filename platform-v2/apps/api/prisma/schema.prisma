@@ -23,6 +23,7 @@ model Tenant {
   customers   Customer[]
   crmLeads    CrmLead[]
   crmInteractions CrmInteraction[]
+  repairOrders RepairOrder[]
 }
 
 model User {
@@ -118,6 +119,7 @@ model Customer {
   tenant      Tenant    @relation(fields: [tenantId], references: [id])
   leads       CrmLead[]
   interactions CrmInteraction[]
+  repairOrders RepairOrder[]
 
   @@index([tenantId, status, createdAt])
   @@index([tenantId, email])
@@ -143,6 +145,7 @@ model CrmLead {
   tenant                Tenant    @relation(fields: [tenantId], references: [id])
   convertedCustomer     Customer? @relation(fields: [convertedCustomerId], references: [id])
   interactions          CrmInteraction[]
+  repairOrders          RepairOrder[]
 
   @@index([tenantId, status, createdAt])
   @@index([tenantId, email])
@@ -169,4 +172,37 @@ model CrmInteraction {
   @@index([tenantId, createdAt])
   @@index([tenantId, leadId])
   @@index([tenantId, customerId])
+}
+
+model RepairOrder {
+  id                    String    @id @default(uuid())
+  tenantId              String
+  customerId            String?
+  crmLeadId             String?
+  intakeChannel         String?
+  deviceType            String
+  deviceBrand           String?
+  deviceModel           String?
+  serialNumber          String?
+  issueSummary          String
+  diagnosisSummary      String?
+  status                String    @default("received")
+  priority              String    @default("normal")
+  assignedTechnicianId  String?
+  estimatedCompletionAt DateTime?
+  intakeAt              DateTime  @default(now())
+  completedAt           DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  tenant                Tenant    @relation(fields: [tenantId], references: [id])
+  customer              Customer? @relation(fields: [customerId], references: [id])
+  crmLead               CrmLead?  @relation(fields: [crmLeadId], references: [id])
+
+  @@index([tenantId, status, priority, createdAt])
+  @@index([tenantId, assignedTechnicianId])
+  @@index([tenantId, serialNumber])
+  @@index([tenantId, customerId])
+  @@index([tenantId, crmLeadId])
 }

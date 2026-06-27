@@ -5,7 +5,15 @@ const prisma = new PrismaClient();
 
 function parsePermissions(value: string | undefined): string[] {
   if (!value) {
-    return ["dashboard:read", "crm:read", "crm:leads:read", "crm:leads:write", "repairs:read"];
+    return [
+      "dashboard:read",
+      "crm:read",
+      "crm:leads:read",
+      "crm:leads:write",
+      "repairs:read",
+      "repairs:orders:read",
+      "repairs:orders:write"
+    ];
   }
 
   return value
@@ -93,6 +101,43 @@ async function main(): Promise<void> {
     });
   }
 
+  const seededLead = await prisma.crmLead.findFirst({
+    where: {
+      tenantId: tenant.id,
+      email: "lead.enterprise@acme.test",
+      deletedAt: null
+    }
+  });
+
+  if (seededLead) {
+    const existingRepairOrder = await prisma.repairOrder.findFirst({
+      where: {
+        tenantId: tenant.id,
+        serialNumber: "SN-REPAIR-DEMO-001",
+        deletedAt: null
+      }
+    });
+
+    if (!existingRepairOrder) {
+      await prisma.repairOrder.create({
+        data: {
+          tenantId: tenant.id,
+          crmLeadId: seededLead.id,
+          intakeChannel: "seed",
+          deviceType: "laptop",
+          deviceBrand: "Lenovo",
+          deviceModel: "ThinkPad T14",
+          serialNumber: "SN-REPAIR-DEMO-001",
+          issueSummary: "Equipo no enciende despues de fluctuacion electrica.",
+          diagnosisSummary: "Pendiente de diagnostico inicial.",
+          status: "received",
+          priority: "normal",
+          assignedTechnicianId: user.id
+        }
+      });
+    }
+  }
+
   console.log("[seed] Tenant ready:", {
     id: tenant.id,
     slug: tenant.slug,
@@ -111,6 +156,11 @@ async function main(): Promise<void> {
   console.log("[seed] CRM lead seed ready:", {
     tenantId: tenant.id,
     email: "lead.enterprise@acme.test"
+  });
+
+  console.log("[seed] Repair order seed ready:", {
+    tenantId: tenant.id,
+    serialNumber: "SN-REPAIR-DEMO-001"
   });
 }
 

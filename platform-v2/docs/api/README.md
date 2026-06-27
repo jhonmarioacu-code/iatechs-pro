@@ -17,6 +17,12 @@ CRM endpoints (Phase B.1):
 - `POST /api/v1/crm/leads`
 - `PATCH /api/v1/crm/leads/:leadId/status`
 
+Repairs endpoints (Phase B.2):
+
+- `GET /api/v1/repairs/orders`
+- `POST /api/v1/repairs/orders`
+- `PATCH /api/v1/repairs/orders/:orderId/status`
+
 Headers:
 
 - `x-tenant-id`: required for login, optional for refresh, enforced for protected routes.

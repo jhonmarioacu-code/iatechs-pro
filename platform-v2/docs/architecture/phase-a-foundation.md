@@ -35,3 +35,15 @@ Deliverables initialized:
    - `CrmLead`
    - `CrmInteraction`
 4. Frontend enterprise shell with secured portal and CRM Leads page.
+
+## Phase B.2 - Repairs Vertical Slice (in progress)
+
+1. Repairs module in API with clean layers:
+   - `domain/`
+   - `application/`
+   - `infrastructure/`
+   - `presentation/`
+2. Repairs data model in Prisma:
+   - `RepairOrder`
+3. Multi-tenant repair order endpoints protected with JWT + permissions.
+4. Frontend admin module for repair order intake, tracking and status workflow.
