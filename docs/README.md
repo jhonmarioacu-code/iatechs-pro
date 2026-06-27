@@ -27,6 +27,13 @@ Cada empresa (tenant) administra desde una sola plataforma:
 - Frontend fase actual: Blade + Vite + TailwindCSS + Alpine.js
 - Infra: Ubuntu 24.04 + Nginx + PHP-FPM + Supervisor
 
+## Track V2 (Target Architecture)
+
+Se define un track de evolucion V2 con Next.js + NestJS para escalar a arquitectura cloud-native enterprise.
+
+- Blueprint V2: `docs/architecture/19-Target-Architecture-V2-Nextjs-Nestjs.md`
+- ADR de adopcion: `docs/decisions/0002-target-architecture-v2-nextjs-nestjs.md`
+
 ## Bloques canonicos obligatorios
 
 La documentacion oficial se organiza en 4 bloques:
@@ -40,6 +47,7 @@ La documentacion oficial se organiza en 4 bloques:
 
 - Principal: `docs/architecture/18-Canonical-Architecture-Source-Of-Truth.md`
 - Complementario: `docs/architecture/*`
+- Objetivo V2: `docs/architecture/19-Target-Architecture-V2-Nextjs-Nestjs.md`
 
 ### 2) Dominio del negocio
 

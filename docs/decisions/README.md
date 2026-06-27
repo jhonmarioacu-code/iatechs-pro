@@ -28,4 +28,5 @@ Crear ADR cuando se cambie o afecte:
 ## ADRs registradas
 
 - `0001-postgresql-as-official-database.md`
+- `0002-target-architecture-v2-nextjs-nestjs.md`
 
