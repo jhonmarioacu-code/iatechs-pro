@@ -5,7 +5,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /** @type {import("next").NextConfig} */
 const nextConfig = {
-  typedRoutes: true,
+  typedRoutes: false,
   outputFileTracingRoot: path.join(__dirname, "../../")
 };
 

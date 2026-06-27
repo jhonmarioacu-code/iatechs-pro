@@ -3,16 +3,63 @@
 @tailwind utilities;
 
 :root {
-  --bg: #f5f8fc;
-  --fg: #0f1c2f;
+  --bg: #f2f5fa;
+  --bg-elevated: #ffffff;
+  --bg-elevated-2: #f7fafc;
+  --fg: #0b1a2d;
+  --muted: #4a627f;
+  --border: rgba(15, 37, 67, 0.1);
+  --accent: #0d74ff;
+  --accent-2: #00b7a3;
+  --danger: #d63a50;
 }
 
 .dark {
-  --bg: #081125;
-  --fg: #eef4ff;
+  --bg: #08101d;
+  --bg-elevated: #0f1b2b;
+  --bg-elevated-2: #152236;
+  --fg: #ebf3ff;
+  --muted: #9eb7d7;
+  --border: rgba(170, 199, 240, 0.18);
+  --accent: #4da0ff;
+  --accent-2: #1ed0bb;
+  --danger: #ff6c87;
 }
 
 body {
-  background: radial-gradient(circle at 10% 0%, rgba(25, 103, 210, 0.12), transparent 28%), var(--bg);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(13, 116, 255, 0.16), transparent 32%),
+    radial-gradient(circle at 90% 20%, rgba(0, 183, 163, 0.14), transparent 24%),
+    var(--bg);
   color: var(--fg);
+  font-family: var(--font-manrope), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: rgba(13, 116, 255, 0.2);
+}
+
+.glass {
+  background: color-mix(in srgb, var(--bg-elevated) 84%, transparent);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+}
+
+.status-pill {
+  @apply rounded-full px-2 py-1 text-xs font-semibold;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-elevated-2) 86%, transparent);
 }

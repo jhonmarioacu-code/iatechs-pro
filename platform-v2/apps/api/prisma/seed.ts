@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 function parsePermissions(value: string | undefined): string[] {
   if (!value) {
-    return ["dashboard:read", "repairs:read", "crm:read"];
+    return ["dashboard:read", "crm:read", "crm:leads:read", "crm:leads:write", "repairs:read"];
   }
 
   return value
@@ -68,6 +68,31 @@ async function main(): Promise<void> {
     }
   });
 
+  const existingLead = await prisma.crmLead.findFirst({
+    where: {
+      tenantId: tenant.id,
+      email: "lead.enterprise@acme.test",
+      deletedAt: null
+    }
+  });
+
+  if (!existingLead) {
+    await prisma.crmLead.create({
+      data: {
+        tenantId: tenant.id,
+        fullName: "Lead Enterprise Demo",
+        email: "lead.enterprise@acme.test",
+        phone: "+57 300 555 7788",
+        companyName: "Acme Logistics",
+        source: "seed",
+        notes: "Lead semilla para validar pipeline CRM V2.",
+        estimatedMonthlyValue: 3500000,
+        status: "new",
+        ownerUserId: user.id
+      }
+    });
+  }
+
   console.log("[seed] Tenant ready:", {
     id: tenant.id,
     slug: tenant.slug,
@@ -81,6 +106,11 @@ async function main(): Promise<void> {
     role: user.role,
     permissions: user.permissions,
     mfaEnabled: user.mfaEnabled
+  });
+
+  console.log("[seed] CRM lead seed ready:", {
+    tenantId: tenant.id,
+    email: "lead.enterprise@acme.test"
   });
 }
 

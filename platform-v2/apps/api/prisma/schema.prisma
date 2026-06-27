@@ -20,6 +20,9 @@ model Tenant {
   auditLogs   AuditLog[]
   refreshTokens RefreshToken[]
   mfaChallenges MfaChallenge[]
+  customers   Customer[]
+  crmLeads    CrmLead[]
+  crmInteractions CrmInteraction[]
 }
 
 model User {
@@ -98,4 +101,72 @@ model MfaChallenge {
   user           User      @relation(fields: [userId], references: [id])
 
   @@index([tenantId, userId, expiresAt])
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  tenantId    String
+  fullName    String
+  email       String?
+  phone       String?
+  companyName String?
+  status      String    @default("active")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  leads       CrmLead[]
+  interactions CrmInteraction[]
+
+  @@index([tenantId, status, createdAt])
+  @@index([tenantId, email])
+}
+
+model CrmLead {
+  id                    String    @id @default(uuid())
+  tenantId              String
+  fullName              String
+  email                 String?
+  phone                 String?
+  companyName           String?
+  source                String?
+  notes                 String?
+  estimatedMonthlyValue Int?
+  status                String    @default("new")
+  ownerUserId           String?
+  convertedCustomerId   String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  tenant                Tenant    @relation(fields: [tenantId], references: [id])
+  convertedCustomer     Customer? @relation(fields: [convertedCustomerId], references: [id])
+  interactions          CrmInteraction[]
+
+  @@index([tenantId, status, createdAt])
+  @@index([tenantId, email])
+  @@index([tenantId, ownerUserId])
+}
+
+model CrmInteraction {
+  id              String    @id @default(uuid())
+  tenantId        String
+  leadId          String?
+  customerId      String?
+  channel         String
+  summary         String
+  nextActionAt    DateTime?
+  createdByUserId String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  tenant          Tenant    @relation(fields: [tenantId], references: [id])
+  lead            CrmLead?  @relation(fields: [leadId], references: [id])
+  customer        Customer? @relation(fields: [customerId], references: [id])
+
+  @@index([tenantId, createdAt])
+  @@index([tenantId, leadId])
+  @@index([tenantId, customerId])
 }

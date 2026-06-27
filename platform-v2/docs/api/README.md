@@ -11,6 +11,12 @@ Auth endpoints (Phase A.1):
 - `POST /api/v1/auth/logout` (Bearer token required)
 - `GET /api/v1/auth/me` (Bearer token required)
 
+CRM endpoints (Phase B.1):
+
+- `GET /api/v1/crm/leads`
+- `POST /api/v1/crm/leads`
+- `PATCH /api/v1/crm/leads/:leadId/status`
+
 Headers:
 
 - `x-tenant-id`: required for login, optional for refresh, enforced for protected routes.

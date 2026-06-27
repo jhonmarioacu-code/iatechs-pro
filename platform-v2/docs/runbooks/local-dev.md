@@ -9,6 +9,7 @@
 4. Generate Prisma client and apply DB baseline:
    - `pnpm --filter @iatechs/api prisma:generate`
    - `pnpm --filter @iatechs/api prisma:migrate --name init_phase_a1_auth`
+   - `pnpm --filter @iatechs/api prisma:migrate --name add_crm_core`
 5. Seed tenant + admin for auth tests:
    - `pnpm --filter @iatechs/api prisma:seed`
 6. Start apps:
@@ -26,3 +27,14 @@
    - `GET /api/v1/auth/me` with `Authorization: Bearer <access-token>`.
 4. Logout:
    - `POST /api/v1/auth/logout`.
+
+## CRM smoke test (manual)
+
+1. Login in web:
+   - `http://localhost:3000/auth/login`
+2. Open admin portal:
+   - `http://localhost:3000/portal/admin`
+3. Open CRM leads:
+   - `http://localhost:3000/portal/admin/crm/leads`
+4. Create lead + move status and validate in API:
+   - `GET /api/v1/crm/leads`

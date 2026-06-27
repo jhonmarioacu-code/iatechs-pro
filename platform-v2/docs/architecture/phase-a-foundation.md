@@ -21,3 +21,17 @@ Deliverables initialized:
 6. Prisma schema extended for IAM (`RefreshToken`, `MfaChallenge`, user role/permissions/mfa flags).
 7. Seed script for tenant and admin bootstrap (`apps/api/prisma/seed.ts`).
 8. Initial Prisma migration for Phase A.1 IAM baseline.
+
+## Phase B.1 - CRM Vertical Slice (in progress)
+
+1. CRM module in API with clean layers:
+   - `domain/`
+   - `application/`
+   - `infrastructure/`
+   - `presentation/`
+2. Multi-tenant lead endpoints protected with JWT + permissions.
+3. CRM data model in Prisma:
+   - `Customer`
+   - `CrmLead`
+   - `CrmInteraction`
+4. Frontend enterprise shell with secured portal and CRM Leads page.

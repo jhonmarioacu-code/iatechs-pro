@@ -7,3 +7,4 @@ Required before merge:
 3. `pnpm build`
 4. `pnpm test`
 5. Security workflow pass
+6. Auth + CRM smoke test (`/auth/login`, `/portal/admin/crm/leads`, `GET /api/v1/crm/leads`)
