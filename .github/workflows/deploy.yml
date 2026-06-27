@@ -214,6 +214,12 @@ jobs:
               sudo find bootstrap/cache storage public/build -type f -exec chmod 664 {} \; || true
             }
 
+            normalize_repo_worktree_permissions() {
+              echo "[deploy] Normalizing git worktree ownership and user write bits"
+              sudo chown -R "$DEPLOY_USER:$DEPLOY_GROUP" "$DEPLOY_PATH" || true
+              sudo chmod -R u+rwX "$DEPLOY_PATH" || true
+            }
+
             restore_runtime_git_files() {
               git checkout -- \
                 bootstrap/cache/.gitignore \
@@ -224,7 +230,24 @@ jobs:
                 storage/framework/sessions/.gitignore \
                 storage/framework/testing/.gitignore \
                 storage/framework/views/.gitignore \
-                storage/logs/.gitignore 2>/dev/null || true
+                storage/logs/.gitignore \
+                deploy/observability-postdeploy-check.sh 2>/dev/null || true
+            }
+
+            sync_repository_ref() {
+              local ref="$1"
+
+              git fetch --all --prune
+              git checkout "$ref"
+
+              if git pull origin "$ref"; then
+                return 0
+              fi
+
+              echo "[deploy] git pull failed; attempting permission self-heal and retry"
+              normalize_repo_worktree_permissions
+              restore_runtime_git_files
+              git pull origin "$ref"
             }
 
             set_env_value() {
@@ -255,6 +278,7 @@ jobs:
               echo "Deploy failed on line ${failed_line} while running: ${failed_command} (exit code ${exit_code})"
               echo "Starting rollback to $PREV_SHA..."
               normalize_repo_runtime_permissions
+              normalize_repo_worktree_permissions
               restore_runtime_git_files
               git reset --hard "$PREV_SHA" || true
               php artisan optimize:clear || true
@@ -285,14 +309,13 @@ jobs:
 
             echo "[deploy] Normalizing runtime repo permissions before git sync"
             normalize_repo_runtime_permissions
+            normalize_repo_worktree_permissions
             restore_runtime_git_files
 
             sudo cp .env "/tmp/iatechs-pro.env.$TS.bak"
             sudo tar -czf "/tmp/iatechs-pro.storage.$TS.bak.tgz" storage
 
-            git fetch --all --prune
-            git checkout "$DEPLOY_REF"
-            git pull origin "$DEPLOY_REF"
+            sync_repository_ref "$DEPLOY_REF"
             echo "[deploy] Repository synced to ${DEPLOY_REF}"
             echo "[deploy] Input flags -> provision_observability_stack=${PROVISION_OBS_STACK}, validate_prometheus_stack=${VALIDATE_PROM_STACK}, run_observability_checks=${RUN_OBS_CHECKS}"
 
@@ -410,7 +433,6 @@ jobs:
 
             if [ "$RUN_OBS_CHECKS" = "true" ] && [ -f deploy/observability-postdeploy-check.sh ]; then
               echo "[deploy] Running observability postdeploy checks"
-              chmod +x deploy/observability-postdeploy-check.sh
               APP_BASE_URL="http://127.0.0.1" \
               APP_ENV_FILE=".env" \
               OBS_VALIDATE_PROM_STACK="$VALIDATE_PROM_STACK" \
