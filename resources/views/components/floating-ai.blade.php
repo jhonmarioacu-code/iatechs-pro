@@ -39,7 +39,7 @@
         class="ai-fab"
         x-show="assistantEnabled && !assistantPanelOpen"
         x-cloak
-        @click="$dispatch('portal-toggle-assistant')"
+        @click="toggleAssistantPanel()"
         aria-label="Abrir IA Assistant"
     >
         IA Copilot
